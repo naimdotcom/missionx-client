@@ -1,9 +1,16 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
-import { api, tokenManager } from "@/lib/api";
+import { tokenManager } from "@/lib/api";
+import {
+  useLazyGetSessionInfoQuery,
+  useLazyGetAllSessionsQuery,
+  useRefreshTokenMutation,
+  useRevokeSessionMutation,
+  useLogoutMutation,
+  useLogoutAllMutation,
+} from "@/store/api";
 
 export default function SessionPage() {
   const [response, setResponse] = useState<any>(null);
@@ -16,6 +23,13 @@ export default function SessionPage() {
   const [countdown, setCountdown] = useState("--:--");
   const [isWarning, setIsWarning] = useState(false);
   const [timerStatus, setTimerStatus] = useState("");
+
+  const [getSessionInfo] = useLazyGetSessionInfoQuery();
+  const [getAllSessions] = useLazyGetAllSessionsQuery();
+  const [refreshToken] = useRefreshTokenMutation();
+  const [revokeSession] = useRevokeSessionMutation();
+  const [logout] = useLogoutMutation();
+  const [logoutAll] = useLogoutAllMutation();
 
   useEffect(() => {
     updateTokenStatus();
@@ -70,11 +84,8 @@ export default function SessionPage() {
 
   const handleGetSessionInfo = async () => {
     setResponse("Loading...");
-    const { data, ok } = await api.getSessionInfo();
-    setResponse(data);
-    setIsError(!ok);
-
-    if (ok) {
+    try {
+      const data = await getSessionInfo(undefined).unwrap();
       setResponse({
         message: "📋 Current Session Details:",
         session_id: data.session_id,
@@ -86,19 +97,22 @@ export default function SessionPage() {
         device: data.user_agent || "Unknown",
         ip: data.ip_address || "Unknown",
       });
+      setIsError(false);
+    } catch (err: any) {
+      setResponse(err.data || err.message);
+      setIsError(true);
     }
   };
 
   const handleGetAllSessions = async () => {
     setResponse("Loading...");
-    const { data, ok } = await api.getAllSessions();
-
-    if (ok) {
+    try {
+      const data = await getAllSessions(undefined).unwrap();
       setSessions(data.sessions || []);
       setResponse({ message: `Found ${data.total} active session(s)` });
       setIsError(false);
-    } else {
-      setResponse(data);
+    } catch (err: any) {
+      setResponse(err.data || err.message);
       setIsError(true);
     }
   };
@@ -112,34 +126,50 @@ export default function SessionPage() {
       return;
     }
 
-    const { data, ok } = await api.revokeSession(sessionId);
-    if (ok) {
+    try {
+      await revokeSession(sessionId).unwrap();
       handleGetAllSessions();
-    } else {
-      alert(data.detail || "Failed to revoke session");
+    } catch (err: any) {
+      alert(err.data?.detail || "Failed to revoke session");
     }
   };
 
   const handleRefreshToken = async () => {
     setResponse("Refreshing token...");
-    const { data, ok } = await api.refreshToken();
+    try {
+      const refreshTokenValue = tokenManager.getRefreshToken();
+      if (!refreshTokenValue) throw new Error("No refresh token available");
 
-    if (ok) {
+      const data = await refreshToken({
+        refresh_token: refreshTokenValue,
+      }).unwrap();
+
+      // Store new tokens
+      tokenManager.storeTokens(data);
+
       updateTokenStatus();
       setResponse({
         message: "Token refreshed successfully!",
         new_expires_in: `${Math.floor((tokenManager.getTokenExpiresAt() - Date.now()) / 1000)} seconds`,
       });
       setIsError(false);
-    } else {
-      setResponse({ error: "Failed to refresh token" });
+    } catch (err: any) {
+      setResponse({
+        error: "Failed to refresh token: " + (err.data?.detail || err.message),
+      });
       setIsError(true);
     }
   };
 
   const handleLogout = async () => {
     setResponse("Logging out...");
-    await api.logout();
+    try {
+      await logout(undefined).unwrap();
+    } catch (e) {
+      // Ignore logout errors, proceeed to clear
+      console.warn("Logout failed", e);
+    }
+    tokenManager.clearSession();
     updateTokenStatus();
     setResponse({ message: "Logged out successfully. Session invalidated." });
     setIsError(false);
@@ -151,10 +181,16 @@ export default function SessionPage() {
     }
 
     setResponse("Logging out from all devices...");
-    const { data } = await api.logoutAll();
-    updateTokenStatus();
-    setResponse(data);
-    setIsError(false);
+    try {
+      const data = await logoutAll(undefined).unwrap();
+      tokenManager.clearSession();
+      updateTokenStatus();
+      setResponse(data);
+      setIsError(false);
+    } catch (err: any) {
+      setResponse({ error: err.data?.detail || err.message });
+      setIsError(true);
+    }
   };
 
   const toggleAutoRefresh = () => {

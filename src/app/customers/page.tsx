@@ -3,7 +3,11 @@
 import { useState, FormEvent } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
-import { api, tokenManager } from "@/lib/api";
+import {
+  useLazyGetCustomersQuery,
+  useLazyGetMyCustomerQuery,
+  useUpdateCustomerMutation,
+} from "@/store/api";
 
 export default function CustomersPage() {
   const [address, setAddress] = useState("");
@@ -12,83 +16,75 @@ export default function CustomersPage() {
   const [postalCode, setPostalCode] = useState("");
   const [response, setResponse] = useState<any>(null);
   const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  const [triggerGetCustomers, { isLoading: isCustomersLoading }] =
+    useLazyGetCustomersQuery();
+  const [triggerGetMyCustomer, { isLoading: isMyCustomerLoading }] =
+    useLazyGetMyCustomerQuery();
+  const [updateCustomer, { isLoading: isUpdateLoading }] =
+    useUpdateCustomerMutation();
+
+  const isLoading =
+    isCustomersLoading || isMyCustomerLoading || isUpdateLoading;
 
   const handleFetchCustomers = async () => {
-    setLoading(true);
     setResponse("Loading...");
-
-    const token = tokenManager.getAuthToken();
-    if (!token) {
+    if (typeof window !== "undefined" && !localStorage.getItem("authToken")) {
       setResponse({ error: "No token. Please login first." });
       setIsError(true);
-      setLoading(false);
       return;
     }
 
     try {
-      const { data, ok } = await api.fetchCustomers();
-      setResponse(data);
-      setIsError(!ok);
+      const result = await triggerGetCustomers(undefined).unwrap();
+      setResponse(result);
+      setIsError(false);
     } catch (err: any) {
-      setResponse({ error: err.message });
+      setResponse({ error: err.data || err.message });
       setIsError(true);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleFetchMyCustomer = async () => {
-    setLoading(true);
     setResponse("Loading...");
-
-    const token = tokenManager.getAuthToken();
-    if (!token) {
+    if (typeof window !== "undefined" && !localStorage.getItem("authToken")) {
       setResponse({ error: "No token. Please login first." });
       setIsError(true);
-      setLoading(false);
       return;
     }
 
     try {
-      const { data, ok } = await api.fetchMyCustomer();
-      setResponse(data);
-      setIsError(!ok);
+      const result = await triggerGetMyCustomer(undefined).unwrap();
+      setResponse(result);
+      setIsError(false);
     } catch (err: any) {
-      setResponse({ error: err.message });
+      setResponse({ error: err.data || err.message });
       setIsError(true);
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleUpdateCustomer = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setResponse(null);
 
-    const token = tokenManager.getAuthToken();
-    if (!token) {
+    if (typeof window !== "undefined" && !localStorage.getItem("authToken")) {
       setResponse({ error: "No token. Please login first." });
       setIsError(true);
-      setLoading(false);
       return;
     }
 
     try {
-      const { data, ok } = await api.updateCustomer(
+      const result = await updateCustomer({
         address,
         city,
         country,
-        postalCode
-      );
-      setResponse(data);
-      setIsError(!ok);
+        postal_code: postalCode,
+      }).unwrap();
+      setResponse(result);
+      setIsError(false);
     } catch (err: any) {
-      setResponse({ error: err.message });
+      setResponse({ error: err.data || err.message });
       setIsError(true);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -101,14 +97,14 @@ export default function CustomersPage() {
       <div className="flex gap-2.5 mb-5">
         <button
           onClick={handleFetchCustomers}
-          disabled={loading}
+          disabled={isLoading}
           className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           All Customers
         </button>
         <button
           onClick={handleFetchMyCustomer}
-          disabled={loading}
+          disabled={isLoading}
           className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           My Profile
@@ -174,10 +170,10 @@ export default function CustomersPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isLoading}
           className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Updating..." : "Update Profile"}
+          {isLoading ? "Updating..." : "Update Profile"}
         </button>
       </form>
 

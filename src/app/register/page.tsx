@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
-import { api } from "@/lib/api";
+import { useRegisterMutation } from "@/store/api";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
@@ -11,36 +11,33 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [response, setResponse] = useState<any>(null);
   const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [register, { isLoading }] = useRegisterMutation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setResponse(null);
+    setIsError(false);
 
     if (password.length < 8) {
       setResponse({ error: "Password must be at least 8 characters long" });
       setIsError(true);
-      setLoading(false);
       return;
     }
 
     try {
-      const { data, ok } = await api.register(email, password, phone);
-      setResponse(data);
-      setIsError(!ok);
+      const data = await register({ email, password, phone }).unwrap();
 
-      if (ok) {
-        setResponse({
-          ...data,
-          message: `✅ User created! User ID: ${data.id}`,
-        });
-      }
+      // If successful:
+      setResponse({
+        ...data,
+        message: `✅ User created! User ID: ${data.id}`,
+      });
     } catch (err: any) {
-      setResponse({ error: err.message });
+      // RTK Query error object
+      setResponse({
+        error: err.data?.detail || err.message || "Registration failed",
+      });
       setIsError(true);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -97,10 +94,10 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isLoading}
           className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Creating Account..." : "Create Account"}
+          {isLoading ? "Creating Account..." : "Create Account"}
         </button>
       </form>
 

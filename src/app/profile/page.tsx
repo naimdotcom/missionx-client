@@ -3,7 +3,7 @@
 import { useState, FormEvent } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
-import { api, tokenManager } from "@/lib/api";
+import { useCreateProfileMutation } from "@/store/api";
 
 export default function ProfilePage() {
   const [firstName, setFirstName] = useState("");
@@ -11,34 +11,30 @@ export default function ProfilePage() {
   const [timezone, setTimezone] = useState("");
   const [response, setResponse] = useState<any>(null);
   const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [createProfile, { isLoading }] = useCreateProfileMutation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setResponse(null);
 
-    const token = tokenManager.getAuthToken();
-    if (!token) {
+    if (typeof window !== "undefined" && !localStorage.getItem("authToken")) {
       setResponse({ error: "No token. Please login first to create profile." });
       setIsError(true);
-      setLoading(false);
       return;
     }
 
     try {
-      const { data, ok } = await api.createProfile(
-        firstName,
-        lastName,
-        timezone
-      );
+      const data = await createProfile({
+        first_name: firstName,
+        last_name: lastName,
+        timezone,
+        preferences: {},
+      }).unwrap();
       setResponse(data);
-      setIsError(!ok);
+      setIsError(false);
     } catch (err: any) {
-      setResponse({ error: err.message });
+      setResponse({ error: err.data || err.message });
       setIsError(true);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -96,10 +92,10 @@ export default function ProfilePage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isLoading}
           className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Saving..." : "Save Profile"}
+          {isLoading ? "Saving..." : "Save Profile"}
         </button>
       </form>
 

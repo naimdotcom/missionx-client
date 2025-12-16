@@ -3,39 +3,33 @@
 import { useState } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
-import { api, tokenManager } from "@/lib/api";
+import { useLazyGetUsersQuery } from "@/store/api";
 
 export default function UsersPage() {
+  const [trigger, { data: usersData, error, isLoading }] =
+    useLazyGetUsersQuery();
   const [response, setResponse] = useState<any>(null);
   const [isError, setIsError] = useState(false);
   const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const handleFetchUsers = async () => {
-    setLoading(true);
     setResponse("Loading...");
 
-    const token = tokenManager.getAuthToken();
-    if (!token) {
+    // The existing token check can be kept or removed if the baseQuery handles it safely (it returns 401/403)
+    // But for UI feedback:
+    if (typeof window !== "undefined" && !localStorage.getItem("authToken")) {
       setResponse({ error: "No token. Please login first." });
-      setIsError(true);
-      setLoading(false);
       return;
     }
 
     try {
-      const { data, ok } = await api.fetchUsers();
-      setResponse(data);
-      setIsError(!ok);
-
-      if (ok && Array.isArray(data)) {
-        setUsers(data);
+      const result = await trigger(undefined).unwrap();
+      setResponse(result);
+      if (Array.isArray(result)) {
+        setUsers(result);
       }
     } catch (err: any) {
-      setResponse({ error: err.message });
-      setIsError(true);
-    } finally {
-      setLoading(false);
+      setResponse({ error: err.data || err.message });
     }
   };
 
@@ -55,16 +49,16 @@ export default function UsersPage() {
 
   return (
     <PageContainer title="Authentication API">
-      <h2 className="text-[#333] mb-5 pb-2.5 border-b-2 border-[#667eea] text-2xl font-semibold">
+      <h2 className="text-[#333] mb-5 pb-2.5 border-b-2 border-[rgb(102,126,234)] text-2xl font-semibold">
         👥 All Users
       </h2>
 
       <button
         onClick={handleFetchUsers}
-        disabled={loading}
-        className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed mb-5"
+        disabled={isLoading}
+        className="bg-gradient-to-br from-[rgb(102,126,234)] to-[rgb(126,102,234)] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed mb-5"
       >
-        {loading ? "Loading..." : "Fetch All Users"}
+        {isLoading ? "Loading..." : "Fetch All Users"}
       </button>
 
       {users.length > 0 && (
@@ -89,9 +83,9 @@ export default function UsersPage() {
             return (
               <div
                 key={user.id}
-                className="bg-[#f8f9fa] p-5 rounded-lg mb-5 border-l-4 border-[#667eea]"
+                className="bg-[#f8f9fa] p-5 rounded-lg mb-5 border-l-4 border-[rgb(102,126,234)]"
               >
-                <div className="border-b-2 border-[#667eea] pb-2.5 mb-4">
+                <div className="border-b-2 border-[rgb(102,126,234)] pb-2.5 mb-4">
                   <strong className="text-lg text-[#667eea]">👤 USER</strong>
                   <span className="text-[#666] text-sm float-right">
                     UUID: {user.id}

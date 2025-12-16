@@ -3,28 +3,36 @@
 import { useState, FormEvent } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
-import { api } from "@/lib/api";
+import { useLoginMutation } from "@/store/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [response, setResponse] = useState<any>(null);
   const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [token, setToken] = useState("");
+  const [login, { isLoading }] = useLoginMutation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setResponse(null);
     setToken("");
+    setIsError(false);
 
     try {
-      const { data, ok } = await api.login(email, password);
-      setResponse(data);
-      setIsError(!ok);
+      const data = await login({ email, password }).unwrap();
+      // RTK Query throws on error, so if we are here, it's successful.
+      // However, the backend structure might return { data: ..., ok: ... } if wrapping,
+      // but usually RTK Query returns the direct JSON response.
+      // Looking at lib/api.ts, `login` returns { data, ok }.
+      // But my baseQuery definition in store/api.ts just calls the URL.
+      // So the result `data` is the JSON body from the response.
 
-      if (ok && data.access_token) {
+      if (data && data.access_token) {
+        localStorage.setItem("authToken", data.access_token);
+        localStorage.setItem("refreshToken", data.refresh_token || "");
+        // Store other tokens if needed as per original lib/api.ts logic
+        // But for minimal repro:
         setToken(data.access_token);
         setResponse({
           message: "✅ Login successful! Session created.",
@@ -32,12 +40,13 @@ export default function LoginPage() {
           expires_in: `${data.expires_in} seconds`,
           refresh_expires_in: `${Math.floor(data.refresh_expires_in / 86400)} days`,
         });
+      } else {
+        // Fallback if data structure is unexpected
+        setResponse(data);
       }
     } catch (err: any) {
-      setResponse({ error: err.message });
+      setResponse({ error: err.data?.detail || err.message || "Login failed" });
       setIsError(true);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -80,10 +89,10 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={isLoading}
           className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Logging in..." : "Login"}
+          {isLoading ? "Logging in..." : "Login"}
         </button>
       </form>
 
