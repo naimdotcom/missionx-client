@@ -52,15 +52,17 @@ export default function LoginPage() {
 
   return (
     <PageContainer title="Authentication API">
-      <h2 className="text-[#333] mb-5 pb-2.5 border-b-2 border-[#667eea] text-2xl font-semibold">
+      <h2 className="text-foreground mb-5 pb-2.5 border-b-2 border-primary text-2xl font-semibold">
         🔑 Login
       </h2>
 
-      <h3 className="text-xl font-semibold mb-4 text-[#333]">Password Login</h3>
+      <h3 className="text-xl font-semibold mb-4 text-foreground">
+        Password Login
+      </h3>
 
       <form onSubmit={handleSubmit}>
         <div className="mb-5">
-          <label className="block mb-2 font-semibold text-[#555]">
+          <label className="block mb-2 font-semibold text-muted-foreground">
             Email *
           </label>
           <input
@@ -69,12 +71,12 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             placeholder="user@example.com"
-            className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+            className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
           />
         </div>
 
         <div className="mb-5">
-          <label className="block mb-2 font-semibold text-[#555]">
+          <label className="block mb-2 font-semibold text-muted-foreground">
             Password *
           </label>
           <input
@@ -83,21 +85,21 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             placeholder="Enter your password"
-            className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+            className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
           />
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Logging in..." : "Login"}
         </button>
       </form>
 
-      <div className="my-5 p-4 bg-[#f0f9ff] rounded-lg">
-        <strong className="text-[#333]">Or login with:</strong>
+      <div className="my-5 p-4 bg-secondary rounded-lg">
+        <strong className="text-foreground">Or login with:</strong>
         <div className="flex gap-2.5 mt-2.5">
           <button
             onClick={() => alert("Google OAuth integration coming soon")}
@@ -117,11 +119,11 @@ export default function LoginPage() {
       <ResponseBox response={response} isError={isError} />
 
       {token && (
-        <div className="bg-[#f0f9ff] border-2 border-[#0ea5e9] p-4 rounded-lg mt-4 break-all">
-          <strong className="text-[#333]">🎫 Your JWT Token:</strong>
+        <div className="bg-secondary border-2 border-primary p-4 rounded-lg mt-4 break-all">
+          <strong className="text-foreground">🎫 Your JWT Token:</strong>
           <br />
           <br />
-          <span className="text-sm text-[#555]">{token}</span>
+          <span className="text-sm text-muted-foreground">{token}</span>
         </div>
       )}
     </PageContainer>

@@ -38,8 +38,8 @@ export default function UsersPage() {
       <span
         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
           verified
-            ? "bg-[#d1fae5] text-[#059669]"
-            : "bg-[#fee2e2] text-[#dc2626]"
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
         }`}
       >
         {label}: {verified ? "✓ Verified" : "✗ Unverified"}
@@ -49,14 +49,14 @@ export default function UsersPage() {
 
   return (
     <PageContainer title="Authentication API">
-      <h2 className="text-[#333] mb-5 pb-2.5 border-b-2 border-[rgb(102,126,234)] text-2xl font-semibold">
+      <h2 className="text-foreground mb-5 pb-2.5 border-b-2 border-primary text-2xl font-semibold">
         👥 All Users
       </h2>
 
       <button
         onClick={handleFetchUsers}
         disabled={isLoading}
-        className="bg-gradient-to-br from-[rgb(102,126,234)] to-[rgb(126,102,234)] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed mb-5"
+        className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-5"
       >
         {isLoading ? "Loading..." : "Fetch All Users"}
       </button>
@@ -73,7 +73,7 @@ export default function UsersPage() {
               return (
                 <div
                   key={Math.random()}
-                  className="bg-[#fee2e2] p-4 rounded-lg mb-5"
+                  className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 p-4 rounded-lg mb-5"
                 >
                   <em>Invalid user data</em>
                 </div>
@@ -83,16 +83,16 @@ export default function UsersPage() {
             return (
               <div
                 key={user.id}
-                className="bg-[#f8f9fa] p-5 rounded-lg mb-5 border-l-4 border-[rgb(102,126,234)]"
+                className="bg-muted p-5 rounded-lg mb-5 border-l-4 border-primary"
               >
-                <div className="border-b-2 border-[rgb(102,126,234)] pb-2.5 mb-4">
-                  <strong className="text-lg text-[#667eea]">👤 USER</strong>
-                  <span className="text-[#666] text-sm float-right">
+                <div className="border-b-2 border-primary/20 pb-2.5 mb-4">
+                  <strong className="text-lg text-primary">👤 USER</strong>
+                  <span className="text-muted-foreground text-sm float-right">
                     UUID: {user.id}
                   </span>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-4 text-foreground">
                   <p className="mb-1">
                     📧 <strong>Email:</strong> {user.email}
                   </p>
@@ -103,14 +103,16 @@ export default function UsersPage() {
                     {renderStatusBadge(user.email_verified, "Email")}
                     {renderStatusBadge(user.phone_verified, "Phone")}
                   </div>
-                  <small className="text-[#888]">
+                  <small className="text-muted-foreground">
                     Created: {new Date(user.created_at).toLocaleString()}
                   </small>
                 </div>
 
                 {profile ? (
-                  <div className="bg-[#f0f9ff] p-3 rounded-md mb-4">
-                    <strong className="text-[#0ea5e9]">📋 PROFILE</strong>
+                  <div className="bg-sky-50 dark:bg-sky-900/20 p-3 rounded-md mb-4 text-foreground">
+                    <strong className="text-sky-600 dark:text-sky-400">
+                      📋 PROFILE
+                    </strong>
                     <br />
                     <strong>Name:</strong> {profile.first_name || ""}{" "}
                     {profile.last_name || ""}
@@ -126,14 +128,14 @@ export default function UsersPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="bg-[#fef3c7] p-3 rounded-md mb-4">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 p-3 rounded-md mb-4">
                     <em>No profile created</em>
                   </div>
                 )}
 
                 {authProviders.length > 0 ? (
-                  <div className="bg-[#f0fdf4] p-3 rounded-md mb-4">
-                    <strong className="text-[#10b981]">
+                  <div className="bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-md mb-4 text-foreground">
+                    <strong className="text-emerald-600 dark:text-emerald-400">
                       🔐 AUTH PROVIDERS
                     </strong>
                     <br />
@@ -146,14 +148,16 @@ export default function UsersPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="bg-[#fef3c7] p-3 rounded-md mb-4">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 p-3 rounded-md mb-4">
                     <em>No OAuth providers linked</em>
                   </div>
                 )}
 
                 {customer ? (
-                  <div className="bg-[#faf5ff] p-3 rounded-md">
-                    <strong className="text-[#a855f7]">🏢 CUSTOMER</strong>
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md text-foreground">
+                    <strong className="text-purple-600 dark:text-purple-400">
+                      🏢 CUSTOMER
+                    </strong>
                     <br />
                     <strong>Address:</strong> {customer.address || "N/A"}
                     <br />
@@ -167,8 +171,8 @@ export default function UsersPage() {
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                           customer.status === "verified"
-                            ? "bg-[#d1fae5] text-[#059669]"
-                            : "bg-[#fef3c7] text-[#d97706]"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                         }`}
                       >
                         Status: {customer.status}
@@ -176,8 +180,8 @@ export default function UsersPage() {
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
                           customer.verification_status === "verified"
-                            ? "bg-[#d1fae5] text-[#059669]"
-                            : "bg-[#fee2e2] text-[#dc2626]"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                         }`}
                       >
                         Verification: {customer.verification_status}
@@ -185,7 +189,7 @@ export default function UsersPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-[#fef3c7] p-3 rounded-md">
+                  <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 p-3 rounded-md">
                     <em>No customer profile</em>
                   </div>
                 )}

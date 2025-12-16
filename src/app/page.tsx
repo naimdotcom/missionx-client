@@ -11,7 +11,7 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center">
       <div className="text-white text-2xl">Redirecting...</div>
     </div>
   );

@@ -90,7 +90,7 @@ export default function CustomersPage() {
 
   return (
     <PageContainer title="Authentication API">
-      <h2 className="text-[#333] mb-5 pb-2.5 border-b-2 border-[#667eea] text-2xl font-semibold">
+      <h2 className="text-foreground mb-5 pb-2.5 border-b-2 border-primary text-2xl font-semibold">
         🏢 Customers
       </h2>
 
@@ -98,27 +98,27 @@ export default function CustomersPage() {
         <button
           onClick={handleFetchCustomers}
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           All Customers
         </button>
         <button
           onClick={handleFetchMyCustomer}
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           My Profile
         </button>
       </div>
 
-      <h3 className="text-xl font-semibold my-5 text-[#333]">
+      <h3 className="text-xl font-semibold my-5 text-foreground">
         Update My Customer Profile
       </h3>
 
       <form onSubmit={handleUpdateCustomer}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="mb-5">
-            <label className="block mb-2 font-semibold text-[#555]">
+            <label className="block mb-2 font-semibold text-muted-foreground">
               Address
             </label>
             <input
@@ -126,23 +126,25 @@ export default function CustomersPage() {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="123 Main St"
-              className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+              className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
             />
           </div>
 
           <div className="mb-5">
-            <label className="block mb-2 font-semibold text-[#555]">City</label>
+            <label className="block mb-2 font-semibold text-muted-foreground">
+              City
+            </label>
             <input
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="New York"
-              className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+              className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
             />
           </div>
 
           <div className="mb-5">
-            <label className="block mb-2 font-semibold text-[#555]">
+            <label className="block mb-2 font-semibold text-muted-foreground">
               Country
             </label>
             <input
@@ -150,12 +152,12 @@ export default function CustomersPage() {
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               placeholder="USA"
-              className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+              className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
             />
           </div>
 
           <div className="mb-5">
-            <label className="block mb-2 font-semibold text-[#555]">
+            <label className="block mb-2 font-semibold text-muted-foreground">
               Postal Code
             </label>
             <input
@@ -163,7 +165,7 @@ export default function CustomersPage() {
               value={postalCode}
               onChange={(e) => setPostalCode(e.target.value)}
               placeholder="10001"
-              className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+              className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
             />
           </div>
         </div>

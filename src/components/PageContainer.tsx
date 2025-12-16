@@ -44,7 +44,9 @@ export default function PageContainer({ children, title }: PageContainerProps) {
 
         <Navigation />
 
-        <div className="bg-white rounded-xl p-8 shadow-2xl">{children}</div>
+        <div className="bg-card text-card-foreground rounded-xl p-8 shadow-2xl border border-border">
+          {children}
+        </div>
       </div>
     </div>
   );

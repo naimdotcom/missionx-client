@@ -43,14 +43,14 @@ export default function RegisterPage() {
 
   return (
     <PageContainer title="Authentication API">
-      <h2 className="text-[#333] mb-5 pb-2.5 border-b-2 border-[#667eea] text-2xl font-semibold">
+      <h2 className="text-foreground mb-5 pb-2.5 border-b-2 border-primary text-2xl font-semibold">
         📝 Register New User
       </h2>
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <div className="mb-5">
-            <label className="block mb-2 font-semibold text-[#555]">
+            <label className="block mb-2 font-semibold text-muted-foreground">
               Email *
             </label>
             <input
@@ -59,12 +59,12 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="user@example.com"
-              className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+              className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
             />
           </div>
 
           <div className="mb-5">
-            <label className="block mb-2 font-semibold text-[#555]">
+            <label className="block mb-2 font-semibold text-muted-foreground">
               Password *
             </label>
             <input
@@ -74,12 +74,12 @@ export default function RegisterPage() {
               required
               placeholder="Enter secure password"
               minLength={8}
-              className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+              className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
             />
           </div>
 
           <div className="mb-5">
-            <label className="block mb-2 font-semibold text-[#555]">
+            <label className="block mb-2 font-semibold text-muted-foreground">
               Phone
             </label>
             <input
@@ -87,7 +87,7 @@ export default function RegisterPage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+1234567890"
-              className="w-full px-4 py-3 border-2 border-[#e0e0e0] rounded-lg text-base transition-colors focus:outline-none focus:border-[#667eea]"
+              className="w-full px-4 py-3 border-2 border-input rounded-lg text-base transition-colors focus:outline-none focus:border-ring bg-background text-foreground"
             />
           </div>
         </div>
@@ -95,7 +95,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Creating Account..." : "Create Account"}
         </button>
