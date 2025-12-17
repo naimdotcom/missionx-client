@@ -1,36 +1,151 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Authentication API Client
+
+A comprehensive Next.js application for interacting with the Authentication API, featuring user registration, login, session management, profile management, and customer data handling.
+
+## Features
+
+- 🔐 **User Registration** - Create new user accounts with email, password, and phone
+- 🔑 **Login** - Secure authentication with JWT tokens
+- 🔒 **Session Management** - Real-time session monitoring with countdown timer, auto-refresh, and multi-device management
+- 👤 **Profile Management** - Create and update user profiles
+- 👥 **Users List** - View all users with detailed information
+- 🏢 **Customer Management** - Manage customer profiles and data
+
+## Tech Stack
+
+- **Next.js 16** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS 4** - Utility-first styling
+- **localStorage** - Client-side token management
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ or compatible runtime
+- Backend API running on `http://localhost:8000` (or configure custom URL)
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+# or
+pnpm install
+# or
+yarn install
+```
+
+3. Create a `.env.local` file (optional):
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
+```
+
+If not set, the app will default to `http://localhost:8000/api`.
+
+### Development
+
+Run the development server:
 
 ```bash
 npm run dev
 # or
-yarn dev
-# or
 pnpm dev
 # or
-bun dev
+yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/` - Home (redirects to `/register`)
+- `/register` - User registration
+- `/login` - User login
+- `/session` - Session management and monitoring
+- `/profile` - User profile management
+- `/users` - View all users
+- `/customers` - Customer profile management
 
-## Learn More
+## Features in Detail
 
-To learn more about Next.js, take a look at the following resources:
+### Session Management
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The session page includes:
+- **Real-time countdown timer** showing when your token expires
+- **Auto-refresh toggle** to automatically refresh tokens before expiration
+- **Multi-device session management** to view and revoke sessions on other devices
+- **Visual warnings** when token is about to expire
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Token Storage
 
-## Deploy on Vercel
+Tokens are stored in localStorage:
+- `authToken` - JWT access token
+- `refreshToken` - Refresh token for getting new access tokens
+- `sessionId` - Current session identifier
+- `tokenExpiresAt` - Timestamp when access token expires
+- `refreshExpiresAt` - Timestamp when refresh token expires
+- `autoRefresh` - Boolean for auto-refresh preference
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### API Integration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All API calls are centralized in `/src/lib/api.ts` with:
+- Token management utilities
+- Automatic token refresh on 401 responses
+- Type-safe API methods
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── register/page.tsx      # Registration page
+│   ├── login/page.tsx         # Login page
+│   ├── session/page.tsx       # Session management
+│   ├── profile/page.tsx       # Profile management
+│   ├── users/page.tsx         # Users list
+│   ├── customers/page.tsx     # Customer management
+│   ├── layout.tsx             # Root layout
+│   ├── page.tsx               # Home page (redirects)
+│   └── globals.css            # Global styles
+├── components/
+│   ├── Navigation.tsx         # Navigation tabs
+│   ├── PageContainer.tsx      # Page wrapper with gradient
+│   └── ResponseBox.tsx        # API response display
+└── lib/
+    └── api.ts                 # API service layer
+```
+
+## Styling
+
+The app uses a purple gradient theme matching the original HTML design:
+- Primary color: `#667eea`
+- Secondary color: `#764ba2`
+- Gradient backgrounds
+- Smooth transitions and hover effects
+- Responsive design
+
+## Backend API
+
+This client expects a backend API with the following endpoints:
+
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/refresh` - Refresh access token
+- `GET /api/auth/session` - Get current session info
+- `GET /api/auth/sessions` - Get all active sessions
+- `DELETE /api/auth/sessions/:id` - Revoke a session
+- `POST /api/auth/logout` - Logout current session
+- `POST /api/auth/logout/all` - Logout all sessions
+- `POST /api/users/profile` - Create/update user profile
+- `GET /api/users/` - Get all users
+- `GET /api/customers/` - Get all customers
+- `GET /api/customers/me/full` - Get current user's customer profile
+- `PUT /api/customers/me` - Update customer profile
+
+## License
+
+MIT

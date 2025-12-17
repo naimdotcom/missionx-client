@@ -1,0 +1,146 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - production
+      # Uncomment below when you're ready to add staging
+      # - staging
+
+jobs:
+  # Uncomment this entire job when you want to deploy staging
+  # deploy-staging:
+  #   if: github.ref == 'refs/heads/staging'
+  #   runs-on: ubuntu-latest
+  #   environment: staging
+  #   
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+  #     
+  #     - name: Build Docker image
+  #       run: |
+  #         docker build -t nextjs-app:staging-${{ github.sha }} .
+  #         docker save nextjs-app:staging-${{ github.sha }} | gzip > app-staging.tar.gz
+  #     
+  #     - name: Copy files to VPS
+  #       uses: appleboy/scp-action@master
+  #       with:
+  #         host: ${{ secrets.VPS_HOST }}
+  #         username: ${{ secrets.VPS_USERNAME }}
+  #         password: ${{ secrets.VPS_PASSWORD }}
+  #         port: ${{ secrets.VPS_PORT }}
+  #         source: "app-staging.tar.gz"
+  #         target: "/home/${{ secrets.VPS_USERNAME }}/apps/staging"
+  #     
+  #     - name: Deploy to staging VPS
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.VPS_HOST }}
+  #         username: ${{ secrets.VPS_USERNAME }}
+  #         password: ${{ secrets.VPS_PASSWORD }}
+  #         port: ${{ secrets.VPS_PORT }}
+  #         script: |
+  #           cd /home/${{ secrets.VPS_USERNAME }}/apps/staging
+  #           docker load < app-staging.tar.gz
+  #           docker stop nextjs-staging || true
+  #           docker rm nextjs-staging || true
+  #           docker run -d \
+  #             --name nextjs-staging \
+  #             --restart unless-stopped \
+  #             -p 3001:3000 \
+  #             -e NODE_ENV=production \
+  #             nextjs-app:staging-${{ github.sha }}
+  #           docker image prune -f
+  #           rm app-staging.tar.gz
+  #           echo "Staging deployed successfully! 🚀"
+
+  deploy-production:
+    if: github.ref == 'refs/heads/production'
+    runs-on: ubuntu-latest
+    environment: 
+      name: production
+      url: https://your-domain.com  # Update with your actual domain
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build Docker image
+        run: |
+          docker build -t nextjs-app:prod-${{ github.sha }} .
+          docker save nextjs-app:prod-${{ github.sha }} | gzip > app-prod.tar.gz
+      
+      - name: Copy Docker image to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "app-prod.tar.gz"
+          target: "/home/${{ secrets.VPS_USERNAME }}/apps/production"
+      
+      - name: Deploy to production VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            cd /home/${{ secrets.VPS_USERNAME }}/apps/production
+            
+            # Load new Docker image
+            docker load < app-prod.tar.gz
+            
+            # Stop and remove old container
+            docker stop nextjs-prod || true
+            docker rm nextjs-prod || true
+            
+            # Run new container
+            docker run -d \
+              --name nextjs-prod \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              -e NODE_ENV=production \
+              nextjs-app:prod-${{ github.sha }}
+            
+            # Clean up
+            docker image prune -af --filter "until=24h"
+            rm app-prod.tar.gz
+            
+            echo "Production deployed successfully! 🚀"
+            
+            # Wait for container to start
+            sleep 5
+            
+            # Check if container is running
+            if [ $(docker ps -q -f name=nextjs-prod) ]; then
+              echo "Container is running ✅"
+              docker ps -f name=nextjs-prod
+            else
+              echo "Container failed to start ❌"
+              docker logs nextjs-prod
+              exit 1
+            fi
+      
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "📦 Image: nextjs-app:prod-${{ github.sha }}"
+          echo "🌐 URL: https://your-domain.com"
+          echo "🕒 Time: $(date)"
+      
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Please check the logs above for details."
