@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
 import { useLoginMutation } from "@/store/api";
+import { loginWithGoogle } from "@/lib/firebase_login";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -47,6 +48,16 @@ export default function LoginPage() {
     } catch (err: any) {
       setResponse({ error: err.data?.detail || err.message || "Login failed" });
       setIsError(true);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const token = await loginWithGoogle();
+      console.log("Google login successful:", token);
+      // Send token to backend if needed
+    } catch (error) {
+      console.error("Google login failed:", error);
     }
   };
 
@@ -102,7 +113,7 @@ export default function LoginPage() {
         <strong className="text-foreground">Or login with:</strong>
         <div className="flex gap-2.5 mt-2.5">
           <button
-            onClick={() => alert("Google OAuth integration coming soon")}
+            onClick={() => handleGoogleLogin()}
             className="bg-[#4285f4] text-white px-5 py-2.5 rounded-lg cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
           >
             🔵 Google
