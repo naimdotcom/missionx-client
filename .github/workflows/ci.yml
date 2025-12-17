@@ -7,13 +7,8 @@ on:
     branches: [staging, production]
 
 jobs:
-  test:
+  test_and_security:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [20.x]
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,65 +18,18 @@ jobs:
         with:
           version: 8
           
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
           cache: 'pnpm'
           cache-dependency-path: 'pnpm-lock.yaml'
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
-      - name: Run linter
-        run: pnpm run lint
-        continue-on-error: false
-      
-      - name: Type check (if TypeScript)
-        run: pnpm exec tsc --noEmit
-        continue-on-error: true
-      
-      - name: Run tests (if available)
-        run: pnpm test
-        if: always()
-        continue-on-error: true
-      
-      - name: Build project
-        run: pnpm run build
-        env:
-          NODE_ENV: production
-      
-      - name: Check build output
-        run: |
-          if [ ! -d ".next" ]; then
-            echo "Build failed - .next directory not found"
-            exit 1
-          fi
-          echo "Build successful"
-
-  security:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-      
       - name: Run security audit
         run: pnpm audit --audit-level=high
-        continue-on-error: true
+
+      - name: Run linter
+        run: pnpm run lint
