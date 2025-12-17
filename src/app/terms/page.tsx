@@ -1,193 +1,243 @@
-// Data structure for the Table of Contents
-const SECTIONS = [
-  { id: "acceptance", title: "1. Acceptance of Terms" },
-  { id: "service", title: "2. The Service" },
-  { id: "accounts", title: "3. User Accounts" },
-  { id: "third-party", title: "4. Third-Party Channels" },
-  { id: "compliance", title: "5. Data & Compliance" },
-  { id: "intellectual-property", title: "6. Intellectual Property" },
-  { id: "payment", title: "7. Fees & Termination" },
-  { id: "liability", title: "8. Limitation of Liability" },
-  { id: "indemnification", title: "9. Indemnification" },
-  { id: "governing-law", title: "10. Governing Law" },
-  { id: "changes", title: "11. Changes" },
-  { id: "contact", title: "12. Contact" },
-];
+import type { Metadata } from "next";
 
-export default function TermsOfService() {
-  const companyName = "MissionX";
-  const platformName = "MissionX";
-  const effectiveDate = "2025-12-17";
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Terms of Service for the AI Messaging Platform BrainChat",
+};
 
+export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="max-w-6xl mx-auto px-4 py-12 md:py-20 flex flex-col md:flex-row gap-12">
-        {/* Sidebar Navigation - Hidden on mobile, sticky on desktop */}
-        <aside className="hidden md:block w-64 shrink-0">
-          <nav className="sticky top-24 space-y-1">
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">
-              Table of Contents
-            </p>
-            {SECTIONS.map((section) => (
-              <a
-                key={section.id}
-                href={`#${section.id}`}
-                className="block py-2 text-sm text-slate-600 hover:text-blue-600 transition-colors border-l-2 border-transparent hover:border-blue-600 pl-4"
-              >
-                {section.title}
-              </a>
-            ))}
-          </nav>
-        </aside>
+    <main className="min-h-screen bg-background text-foreground">
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <header className="mb-12">
+          <h1 className="text-3xl font-bold tracking-tight">
+            Terms of Service
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Effective Date: <span className="font-medium">2025-12-17</span>
+          </p>
+        </header>
 
-        {/* Main Content Area */}
-        <article className="flex-1 bg-white border border-slate-200 shadow-sm rounded-2xl p-8 md:p-12 prose prose-slate max-w-none">
-          <header className="mb-10 border-b border-slate-100 pb-8">
-            <h1 className="text-4xl font-extrabold text-slate-900 mb-4">
-              Terms of Service
-            </h1>
-            <p className="text-slate-500 font-medium">
-              Last Updated: {effectiveDate}
-            </p>
-          </header>
-
-          <section id="acceptance" className="mb-12 scroll-mt-24">
-            <h2 className="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
-            <p>
-              These Terms of Service (the "Terms") govern your access to and use
+        <div className="space-y-10 text-sm leading-7">
+          {/* 1. Acceptance of Terms */}
+          <section>
+            <h2 className="text-xl font-semibold">1. Acceptance of Terms</h2>
+            <p className="mt-3">
+              These Terms of Service (the “Terms”) govern your access to and use
               of the services, website, and applications provided by{" "}
-              {companyName} ("we," "us," or "our") that allow you to deploy and
-              manage AI-powered messaging agents across various third-party
-              social media and messaging channels (the "Service").
+              <strong>BrainChat</strong> (“we,” “us,” or “our”) that allow you
+              to deploy and manage AI-powered messaging agents across various
+              third-party social media and messaging channels (the “Service”).
             </p>
-            <p className="mt-4">
+            <p className="mt-3">
               By creating an account, accessing, or using the Service, you agree
               to be bound by these Terms and our Privacy Policy. If you do not
-              agree to these Terms, you may not access or use the Service.
+              agree, you may not access or use the Service.
             </p>
           </section>
 
-          <section id="service" className="mb-12 scroll-mt-24">
-            <h2 className="text-2xl font-bold mb-4">2. The Service</h2>
-            <h3 className="text-lg font-semibold mt-4">2.1 Description</h3>
-            <p>The Service is a platform that enables users to:</p>
-            <ul className="list-disc pl-6 space-y-2 mt-2">
-              <li>Configure, train, and deploy AI messaging agents.</li>
+          {/* 2. The Service */}
+          <section>
+            <h2 className="text-xl font-semibold">2. The Service</h2>
+
+            <h3 className="mt-4 font-medium">2.1 Description</h3>
+            <ul className="mt-2 list-disc space-y-1 pl-6">
+              <li>Configure, train, and deploy AI messaging agents</li>
               <li>
-                Connect these agents to third-party social media and messaging
-                platforms (e.g., Facebook Messenger, Instagram, WhatsApp, X,
-                etc.) ("Third-Party Channels").
+                Connect agents to third-party social and messaging platforms
+                (e.g., Facebook Messenger, Instagram, WhatsApp, X)
               </li>
               <li>
-                Automate communication, response, and data collection via these
-                agents across the connected channels.
+                Automate communication, responses, and data collection across
+                connected channels
               </li>
             </ul>
-            <h3 className="text-lg font-semibold mt-6">2.2 License</h3>
-            <p>
+
+            <h3 className="mt-4 font-medium">2.2 License</h3>
+            <p className="mt-2">
               Subject to these Terms, we grant you a limited, non-exclusive,
               non-transferable, and revocable license to use the Service for
               your internal business purposes.
             </p>
           </section>
 
-          <section id="accounts" className="mb-12 scroll-mt-24">
-            <h2 className="text-2xl font-bold mb-4">
+          {/* 3. User Accounts */}
+          <section>
+            <h2 className="text-xl font-semibold">
               3. User Accounts and Responsibility
             </h2>
-            <p>
-              <strong>3.1 Account Creation:</strong> You must provide accurate
-              and complete information when registering for an account. You are
-              solely responsible for maintaining the confidentiality of your
-              credentials.
+
+            <h3 className="mt-4 font-medium">3.1 Account Creation</h3>
+            <p className="mt-2">
+              You must provide accurate and complete information when
+              registering for an account. You are responsible for maintaining
+              the confidentiality of your login credentials.
             </p>
-            <p className="mt-4">
-              <strong>3.2 Account Security:</strong> You must notify us
-              immediately upon becoming aware of any breach of security or
-              unauthorized use of your account.
+
+            <h3 className="mt-4 font-medium">3.2 Account Security</h3>
+            <p className="mt-2">
+              You are responsible for all activities under your account and must
+              notify us immediately of any unauthorized access or security
+              breach.
             </p>
-            <p className="mt-4">
-              <strong>3.3 Age Restriction:</strong> The Service is intended for
-              users who are at least 18 years of age.
+
+            <h3 className="mt-4 font-medium">3.3 Age Restriction</h3>
+            <p className="mt-2">
+              You must be at least 18 years old and legally capable of forming a
+              binding contract.
             </p>
           </section>
 
-          <section id="third-party" className="mb-12 scroll-mt-24">
-            <h2 className="text-2xl font-bold mb-4">
+          {/* 4. Third-Party Integrations */}
+          <section>
+            <h2 className="text-xl font-semibold">
               4. Integration with Third-Party Channels
             </h2>
-            <p>
-              The Service requires integration with Third-Party Channels. You
-              acknowledge that your use is subject to the terms and privacy
-              policies of those third-party providers. You are solely
-              responsible for compliance with all applicable Third-Party Channel
-              terms.
+
+            <h3 className="mt-4 font-medium">4.1 Third-Party Terms</h3>
+            <p className="mt-2">
+              Your use of Third-Party Channels is subject to their respective
+              terms and privacy policies. You are solely responsible for
+              compliance with those terms.
             </p>
-            <p className="mt-4">
-              You grant us permission to access the necessary APIs solely for
-              the purpose of providing and operating the Service.
+
+            <h3 className="mt-4 font-medium">4.2 API Access</h3>
+            <p className="mt-2">
+              You grant us permission to access necessary APIs and data from
+              your connected Third-Party Channels solely to operate the Service.
+              We are not responsible for third-party availability or security.
             </p>
           </section>
 
-          <section id="compliance" className="mb-12 scroll-mt-24">
-            <h2 className="text-2xl font-bold mb-4">
+          {/* 5. Data and Compliance */}
+          <section>
+            <h2 className="text-xl font-semibold">
               5. Data, Content, and Compliance
             </h2>
-            <div className="bg-amber-50 border-l-4 border-amber-400 p-4 my-6">
-              <p className="text-amber-800 font-semibold">
-                Important: Responsibility for Agent Output
-              </p>
-              <p className="text-amber-700 text-sm mt-1">
-                You acknowledge that the AI agent's output is generated and may
-                require human oversight. You bear full legal responsibility for
-                all messages and content generated by your deployed AI agents.
-              </p>
-            </div>
-            <p>
-              You agree not to use the Service to violate laws, transmit spam,
-              conduct phishing, or infringe upon third-party rights.
+
+            <h3 className="mt-4 font-medium">5.1 User Content</h3>
+            <p className="mt-2">
+              You are solely responsible for all data, text, images, and content
+              you upload or transmit through the Service (“User Content”).
+            </p>
+
+            <h3 className="mt-4 font-medium">
+              5.2 Responsibility for Agent Output
+            </h3>
+            <p className="mt-2">
+              AI-generated content may require human oversight. You bear full
+              legal responsibility for all content generated by your AI agents,
+              including compliance with applicable laws.
+            </p>
+
+            <h3 className="mt-4 font-medium">5.3 Legal Compliance</h3>
+            <ul className="mt-2 list-disc space-y-1 pl-6">
+              <li>Violating any applicable law or regulation</li>
+              <li>Sending spam or unauthorized promotions</li>
+              <li>Engaging in fraud, phishing, or impersonation</li>
+              <li>Infringing third-party intellectual property rights</li>
+            </ul>
+          </section>
+
+          {/* 6. Intellectual Property */}
+          <section>
+            <h2 className="text-xl font-semibold">6. Intellectual Property</h2>
+
+            <h3 className="mt-4 font-medium">6.1 Our Intellectual Property</h3>
+            <p className="mt-2">
+              All rights to the Service, excluding User Content, remain the
+              exclusive property of <strong>BrainChat</strong>.
+            </p>
+
+            <h3 className="mt-4 font-medium">6.2 Your Content</h3>
+            <p className="mt-2">
+              You retain ownership of your User Content and grant us a
+              non-exclusive, royalty-free license to use it solely to provide
+              the Service.
             </p>
           </section>
 
-          <section id="intellectual-property" className="mb-12 scroll-mt-24">
-            <h2 className="text-2xl font-bold mb-4">
-              6. Intellectual Property
+          {/* 7. Fees and Termination */}
+          <section>
+            <h2 className="text-xl font-semibold">
+              7. Fees, Payment, and Termination
             </h2>
-            <p>
-              All right, title, and interest in and to the Service (excluding
-              User Content) remain the exclusive property of {companyName}. You
-              retain all ownership rights in your User Content and Customer
-              Data.
+
+            <p className="mt-2">
+              Failure to pay applicable fees may result in suspension or
+              termination. You may terminate your account at any time. We may
+              suspend or terminate access for violations of these Terms.
             </p>
           </section>
 
-          <section id="liability" className="mb-12 scroll-mt-24 uppercase">
-            <h2 className="text-2xl font-bold mb-4 normal-case">
-              8. Disclaimer & Limitation of Liability
+          {/* 8. Disclaimers */}
+          <section>
+            <h2 className="text-xl font-semibold">
+              8. Disclaimers and Limitation of Liability
             </h2>
-            <p className="text-sm border p-4 bg-slate-50 border-slate-200">
-              THE SERVICE IS PROVIDED "AS IS." TO THE FULLEST EXTENT PERMITTED
-              BY LAW, IN NO EVENT SHALL {companyName} BE LIABLE FOR ANY
-              INDIRECT, INCIDENTAL, OR SPECIAL DAMAGES RESULTING FROM YOUR USE
-              OF THE SERVICE OR THE OUTPUT OF AI AGENTS.
+
+            <p className="mt-2 uppercase text-xs tracking-wide text-muted-foreground">
+              The Service is provided “as is” and “as available” without
+              warranties of any kind.
+            </p>
+
+            <p className="mt-3">
+              To the fullest extent permitted by law, <strong>BrainChat</strong>{" "}
+              shall not be liable for any indirect, incidental, or consequential
+              damages.
             </p>
           </section>
 
-          <section
-            id="contact"
-            className="mb-12 scroll-mt-24 border-t border-slate-100 pt-8"
-          >
-            <h2 className="text-2xl font-bold mb-4">12. Contact Information</h2>
-            <div className="bg-slate-50 p-6 rounded-lg">
-              <p className="font-bold text-slate-900">{companyName}</p>
-              <p className="text-slate-600">[Your Company Address]</p>
-              <p className="text-blue-600 mt-2 font-medium">
-                [Your Support Email Address]
-              </p>
-            </div>
+          {/* 9. Indemnification */}
+          <section>
+            <h2 className="text-xl font-semibold">9. Indemnification</h2>
+            <p className="mt-2">
+              You agree to indemnify and hold harmless{" "}
+              <strong>BrainChat</strong> from claims arising from your use of
+              the Service or violation of these Terms.
+            </p>
           </section>
-        </article>
-      </div>
-    </div>
+
+          {/* 10. Governing Law */}
+          <section>
+            <h2 className="text-xl font-semibold">
+              10. Governing Law and Dispute Resolution
+            </h2>
+            <p className="mt-2">
+              These Terms are governed by the laws of{" "}
+              <strong>California, United States</strong>. Disputes shall be
+              resolved in <strong>San Francisco, California</strong> or via
+              binding arbitration, as applicable.
+            </p>
+          </section>
+
+          {/* 11. Changes */}
+          <section>
+            <h2 className="text-xl font-semibold">11. Changes to Terms</h2>
+            <p className="mt-2">
+              We may modify these Terms at any time. Continued use of the
+              Service after changes take effect constitutes acceptance.
+            </p>
+          </section>
+
+          {/* 12. Contact */}
+          <section>
+            <h2 className="text-xl font-semibold">12. Contact Information</h2>
+            <p className="mt-2">
+              <strong>BrainChat</strong>
+              <br />
+              San Francisco, CA
+              <br />
+              <a
+                href="mailto:support@brainchat.ai"
+                className="text-primary underline"
+              >
+                support@brainchat.ai
+              </a>
+            </p>
+          </section>
+        </div>
+      </section>
+    </main>
   );
 }
