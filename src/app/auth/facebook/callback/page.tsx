@@ -1,18 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageContainer from "@/components/PageContainer";
 
-export default function FacebookCallbackPage() {
+// 1. Move your logic into a separate internal component
+function FacebookCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [status, setStatus] = useState<"loading" | "success" | "error">(
+    "loading"
+  );
   const [message, setMessage] = useState("Processing Facebook login...");
 
   useEffect(() => {
     const processCallback = () => {
-      // Check for errors
       const error = searchParams.get("error");
       const errorDescription = searchParams.get("error_description");
 
@@ -23,7 +25,6 @@ export default function FacebookCallbackPage() {
         return;
       }
 
-      // Get tokens from URL
       const accessToken = searchParams.get("access_token");
       const refreshToken = searchParams.get("refresh_token");
       const sessionId = searchParams.get("session_id");
@@ -37,12 +38,10 @@ export default function FacebookCallbackPage() {
         return;
       }
 
-      // Store tokens in localStorage
       localStorage.setItem("authToken", accessToken);
       if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
       if (sessionId) localStorage.setItem("sessionId", sessionId);
-      
-      // Calculate and store expiration times
+
       const now = Date.now();
       if (expiresIn) {
         const tokenExpiresAt = now + parseInt(expiresIn) * 1000;
@@ -55,8 +54,6 @@ export default function FacebookCallbackPage() {
 
       setStatus("success");
       setMessage("Login successful! Redirecting...");
-      
-      // Redirect to home or dashboard
       setTimeout(() => router.push("/"), 1500);
     };
 
@@ -64,40 +61,56 @@ export default function FacebookCallbackPage() {
   }, [searchParams, router]);
 
   return (
+    <div className="flex flex-col items-center justify-center min-h-[400px]">
+      {status === "loading" && (
+        <>
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-lg text-muted-foreground">{message}</p>
+        </>
+      )}
+
+      {status === "success" && (
+        <>
+          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
+            <span className="text-4xl">✅</span>
+          </div>
+          <p className="text-lg text-green-600 dark:text-green-400 font-semibold">
+            {message}
+          </p>
+        </>
+      )}
+
+      {status === "error" && (
+        <>
+          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
+            <span className="text-4xl">❌</span>
+          </div>
+          <p className="text-lg text-red-600 dark:text-red-400 font-semibold">
+            {message}
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Redirecting to login page...
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
+// 2. The main page component exports the Suspense boundary
+export default function FacebookCallbackPage() {
+  return (
     <PageContainer title="Facebook Login">
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        {status === "loading" && (
-          <>
+      <Suspense
+        fallback={
+          <div className="flex flex-col items-center justify-center min-h-[400px]">
             <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-lg text-muted-foreground">{message}</p>
-          </>
-        )}
-
-        {status === "success" && (
-          <>
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
-              <span className="text-4xl">✅</span>
-            </div>
-            <p className="text-lg text-green-600 dark:text-green-400 font-semibold">
-              {message}
-            </p>
-          </>
-        )}
-
-        {status === "error" && (
-          <>
-            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
-              <span className="text-4xl">❌</span>
-            </div>
-            <p className="text-lg text-red-600 dark:text-red-400 font-semibold">
-              {message}
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Redirecting to login page...
-            </p>
-          </>
-        )}
-      </div>
+            <p className="text-lg text-muted-foreground">Loading...</p>
+          </div>
+        }
+      >
+        <FacebookCallbackContent />
+      </Suspense>
     </PageContainer>
   );
 }

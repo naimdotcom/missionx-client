@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<unknown>(null);
   const [isError, setIsError] = useState(false);
   const [register, { isLoading }] = useRegisterMutation();
 
@@ -32,10 +32,12 @@ export default function RegisterPage() {
         ...data,
         message: `✅ User created! User ID: ${data.id}`,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       // RTK Query error object
+      const errorObj = err as { data?: { detail?: string }; message?: string };
       setResponse({
-        error: err.data?.detail || err.message || "Registration failed",
+        error:
+          errorObj.data?.detail || errorObj.message || "Registration failed",
       });
       setIsError(true);
     }
@@ -95,7 +97,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Creating Account..." : "Create Account"}
         </button>

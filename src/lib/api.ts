@@ -1,3 +1,5 @@
+import { TokenData } from "./types";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 // Token management
@@ -27,7 +29,7 @@ export const tokenManager = {
       ? localStorage.getItem("autoRefresh") !== "false"
       : true,
 
-  storeTokens: (data: any) => {
+  storeTokens: (data: TokenData) => {
     if (typeof window === "undefined") return;
 
     const authToken = data.access_token;

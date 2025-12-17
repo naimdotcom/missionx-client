@@ -19,6 +19,7 @@ export const api = createApi({
   }),
   extractRehydrationInfo(action, { reducerPath }) {
     if (action.type === HYDRATE) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (action as PayloadAction<any>).payload[reducerPath];
     }
     return undefined;

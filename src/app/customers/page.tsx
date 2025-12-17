@@ -14,7 +14,7 @@ export default function CustomersPage() {
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<unknown>(null);
   const [isError, setIsError] = useState(false);
 
   const [triggerGetCustomers, { isLoading: isCustomersLoading }] =
@@ -39,8 +39,11 @@ export default function CustomersPage() {
       const result = await triggerGetCustomers(undefined).unwrap();
       setResponse(result);
       setIsError(false);
-    } catch (err: any) {
-      setResponse({ error: err.data || err.message });
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { detail?: string }; message?: string };
+      setResponse({
+        error: errorObj.data || errorObj.message || "Error fetching customers",
+      });
       setIsError(true);
     }
   };
@@ -57,8 +60,11 @@ export default function CustomersPage() {
       const result = await triggerGetMyCustomer(undefined).unwrap();
       setResponse(result);
       setIsError(false);
-    } catch (err: any) {
-      setResponse({ error: err.data || err.message });
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { detail?: string }; message?: string };
+      setResponse({
+        error: errorObj.data || errorObj.message || "Error fetching my profile",
+      });
       setIsError(true);
     }
   };
@@ -82,8 +88,11 @@ export default function CustomersPage() {
       }).unwrap();
       setResponse(result);
       setIsError(false);
-    } catch (err: any) {
-      setResponse({ error: err.data || err.message });
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { detail?: string }; message?: string };
+      setResponse({
+        error: errorObj.data || errorObj.message || "Error updating profile",
+      });
       setIsError(true);
     }
   };
@@ -98,14 +107,14 @@ export default function CustomersPage() {
         <button
           onClick={handleFetchCustomers}
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           All Customers
         </button>
         <button
           onClick={handleFetchMyCustomer}
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           My Profile
         </button>
@@ -173,7 +182,7 @@ export default function CustomersPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_5px_20px_rgba(102,126,234,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Updating..." : "Update Profile"}
         </button>

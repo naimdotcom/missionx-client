@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
 import { tokenManager } from "@/lib/api";
@@ -11,11 +11,12 @@ import {
   useLogoutMutation,
   useLogoutAllMutation,
 } from "@/store/api";
+import { Session } from "@/lib/types";
 
 export default function SessionPage() {
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<unknown>(null);
   const [isError, setIsError] = useState(false);
-  const [sessions, setSessions] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
   const [tokenStatus, setTokenStatus] = useState("No token stored");
   const [sessionId, setSessionId] = useState("-");
   const [refreshStatus, setRefreshStatus] = useState("Not available");
@@ -31,13 +32,7 @@ export default function SessionPage() {
   const [logout] = useLogoutMutation();
   const [logoutAll] = useLogoutAllMutation();
 
-  useEffect(() => {
-    updateTokenStatus();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const updateTokenStatus = () => {
+  const updateTokenStatus = useCallback(() => {
     const token = tokenManager.getAuthToken();
     const refresh = tokenManager.getRefreshToken();
     const sid = tokenManager.getSessionId();
@@ -54,9 +49,9 @@ export default function SessionPage() {
       setSessionId("-");
       setRefreshStatus("❌ Not available");
     }
-  };
+  }, []);
 
-  const updateCountdown = () => {
+  const updateCountdown = useCallback(() => {
     const now = Date.now();
     const expiresAt = tokenManager.getTokenExpiresAt();
     const remaining = Math.max(0, expiresAt - now);
@@ -68,6 +63,9 @@ export default function SessionPage() {
       `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`
     );
 
+    // Read autoRefresh directly from tokenManager to avoid dependency on React state
+    const currentAutoRefresh = tokenManager.getAutoRefresh();
+
     if (seconds < 120 && seconds > 0) {
       setIsWarning(true);
       setTimerStatus("⚠️ Token expiring soon!");
@@ -77,10 +75,18 @@ export default function SessionPage() {
     } else {
       setIsWarning(false);
       setTimerStatus(
-        autoRefresh ? "🔄 Auto-refresh enabled" : "⏸️ Auto-refresh disabled"
+        currentAutoRefresh
+          ? "🔄 Auto-refresh enabled"
+          : "⏸️ Auto-refresh disabled"
       );
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    updateTokenStatus();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [updateTokenStatus, updateCountdown]);
 
   const handleGetSessionInfo = async () => {
     setResponse("Loading...");
@@ -98,8 +104,11 @@ export default function SessionPage() {
         ip: data.ip_address || "Unknown",
       });
       setIsError(false);
-    } catch (err: any) {
-      setResponse(err.data || err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { data?: unknown; message?: string };
+      setResponse(
+        errorObj.data || errorObj.message || "Error fetching session details"
+      );
       setIsError(true);
     }
   };
@@ -111,8 +120,11 @@ export default function SessionPage() {
       setSessions(data.sessions || []);
       setResponse({ message: `Found ${data.total} active session(s)` });
       setIsError(false);
-    } catch (err: any) {
-      setResponse(err.data || err.message);
+    } catch (err: unknown) {
+      const errorObj = err as { data?: unknown; message?: string };
+      setResponse(
+        errorObj.data || errorObj.message || "Error fetching sessions"
+      );
       setIsError(true);
     }
   };
@@ -129,8 +141,9 @@ export default function SessionPage() {
     try {
       await revokeSession(sessionId).unwrap();
       handleGetAllSessions();
-    } catch (err: any) {
-      alert(err.data?.detail || "Failed to revoke session");
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { detail?: string }; message?: string };
+      alert(errorObj.data?.detail || "Failed to revoke session");
     }
   };
 
@@ -153,9 +166,12 @@ export default function SessionPage() {
         new_expires_in: `${Math.floor((tokenManager.getTokenExpiresAt() - Date.now()) / 1000)} seconds`,
       });
       setIsError(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { detail?: string }; message?: string };
       setResponse({
-        error: "Failed to refresh token: " + (err.data?.detail || err.message),
+        error:
+          "Failed to refresh token: " +
+          (errorObj.data?.detail || errorObj.message || "Unknown error"),
       });
       setIsError(true);
     }
@@ -187,8 +203,11 @@ export default function SessionPage() {
       updateTokenStatus();
       setResponse(data);
       setIsError(false);
-    } catch (err: any) {
-      setResponse({ error: err.data?.detail || err.message });
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { detail?: string }; message?: string };
+      setResponse({
+        error: errorObj.data?.detail || errorObj.message || "Logout failed",
+      });
       setIsError(true);
     }
   };
@@ -263,13 +282,13 @@ export default function SessionPage() {
       <div className="flex gap-2.5 flex-wrap mb-5">
         <button
           onClick={handleGetSessionInfo}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+          className="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
         >
           📋 Session Details
         </button>
         <button
           onClick={handleGetAllSessions}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+          className="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
         >
           📱 All Devices
         </button>

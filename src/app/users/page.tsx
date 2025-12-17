@@ -4,13 +4,13 @@ import { useState } from "react";
 import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
 import { useLazyGetUsersQuery } from "@/store/api";
+import { FullUserData, AuthProvider } from "@/lib/types";
 
 export default function UsersPage() {
-  const [trigger, { data: usersData, error, isLoading }] =
-    useLazyGetUsersQuery();
-  const [response, setResponse] = useState<any>(null);
+  const [trigger, { isLoading }] = useLazyGetUsersQuery();
+  const [response, setResponse] = useState<unknown>(null);
   const [isError, setIsError] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<FullUserData[]>([]);
 
   const handleFetchUsers = async () => {
     setResponse("Loading...");
@@ -26,10 +26,14 @@ export default function UsersPage() {
       const result = await trigger(undefined).unwrap();
       setResponse(result);
       if (Array.isArray(result)) {
-        setUsers(result);
+        setUsers(result as FullUserData[]);
       }
-    } catch (err: any) {
-      setResponse({ error: err.data || err.message });
+    } catch (err: unknown) {
+      const errorObj = err as { data?: unknown; message?: string };
+      setResponse({
+        error: errorObj.data || errorObj.message || "Unknown error",
+      });
+      setIsError(true);
     }
   };
 
@@ -56,15 +60,15 @@ export default function UsersPage() {
       <button
         onClick={handleFetchUsers}
         disabled={isLoading}
-        className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-5"
+        className="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-5"
       >
         {isLoading ? "Loading..." : "Fetch All Users"}
       </button>
 
       {users.length > 0 && (
         <div className="mb-5">
-          {users.map((item) => {
-            const user = item.user || item;
+          {users.map((item, index) => {
+            const user = item.user;
             const profile = item.profile || null;
             const authProviders = item.auth_providers || [];
             const customer = item.customer || null;
@@ -72,7 +76,7 @@ export default function UsersPage() {
             if (!user || !user.id) {
               return (
                 <div
-                  key={Math.random()}
+                  key={`invalid-${index}`}
                   className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 p-4 rounded-lg mb-5"
                 >
                   <em>Invalid user data</em>
@@ -139,7 +143,7 @@ export default function UsersPage() {
                       🔐 AUTH PROVIDERS
                     </strong>
                     <br />
-                    {authProviders.map((ap: any, idx: number) => (
+                    {authProviders.map((ap: AuthProvider, idx: number) => (
                       <div key={idx}>
                         • <strong>{ap.provider_name}</strong> (ID:{" "}
                         {ap.provider_id})

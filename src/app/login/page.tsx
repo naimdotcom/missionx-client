@@ -9,7 +9,7 @@ import { loginWithGoogle } from "@/lib/firebase_login";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<unknown>(null);
   const [isError, setIsError] = useState(false);
   const [token, setToken] = useState("");
   const [login, { isLoading }] = useLoginMutation();
@@ -45,8 +45,11 @@ export default function LoginPage() {
         // Fallback if data structure is unexpected
         setResponse(data);
       }
-    } catch (err: any) {
-      setResponse({ error: err.data?.detail || err.message || "Login failed" });
+    } catch (err: unknown) {
+      const errorObj = err as { data?: { detail?: string }; message?: string };
+      setResponse({
+        error: errorObj.data?.detail || errorObj.message || "Login failed",
+      });
       setIsError(true);
     }
   };
@@ -103,7 +106,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-linear-to-br from-[#667eea] to-[#764ba2] text-white px-7 py-3.5 rounded-lg text-base cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Logging in..." : "Login"}
         </button>
@@ -121,7 +124,8 @@ export default function LoginPage() {
           <button
             onClick={() => {
               // Redirect to backend Facebook OAuth endpoint
-              const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+              const backendUrl =
+                process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
               window.location.href = `${backendUrl}/auth/facebook`;
             }}
             className="bg-[#1877f2] text-white px-5 py-2.5 rounded-lg cursor-pointer transition-all duration-200 hover:-translate-y-0.5"

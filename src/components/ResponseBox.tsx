@@ -1,7 +1,7 @@
 "use client";
 
 interface ResponseBoxProps {
-  response: any;
+  response: unknown;
   isError?: boolean;
 }
 
@@ -9,7 +9,7 @@ export default function ResponseBox({
   response,
   isError = false,
 }: ResponseBoxProps) {
-  const formatResponse = (data: any) => {
+  const formatResponse = (data: unknown) => {
     return JSON.stringify(data, null, 2);
   };
 
