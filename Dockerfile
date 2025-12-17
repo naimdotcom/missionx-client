@@ -1,59 +1,53 @@
 # Multi-stage build for minimal image size
 FROM node:20-alpine AS base
 
-# Install dependencies only when needed
+# 1. Base Setup
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@latest --activate
+WORKDIR /app
+
+# 2. Install ALL dependencies
+# We need devDeps (like TypeScript) to build the project and transpile next.config.ts
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Copy package files
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod && \
-    pnpm store prune
+# Remove --prod so that TypeScript and other build tools are installed
+RUN pnpm install --frozen-lockfile
 
-# Rebuild the source code only when needed
+# 3. Rebuild the source code
 FROM base AS builder
 WORKDIR /app
-
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
+# Copy all node_modules (including build tools) from deps
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set build-time environment variables if needed
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build Next.js
+# Build Next.js - This will now find TypeScript for next.config.ts
 RUN pnpm run build
 
-# Production image, copy all the files and run next
+# 4. Production runner
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy necessary files from builder
+# Copy standalone build
+# Standalone mode automatically includes only the necessary production node_modules
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
-# Set correct permissions
-RUN chown -R nextjs:nodejs /app
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]
