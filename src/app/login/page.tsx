@@ -5,7 +5,6 @@ import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
 import { useLoginMutation } from "@/store/api";
 import { loginWithGoogle } from "@/lib/firebase_login";
-import { colgroup } from "motion/react-client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
