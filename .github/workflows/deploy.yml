@@ -83,6 +83,7 @@ jobs:
             --build-arg NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
             --build-arg NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }} \
             --build-arg NEXT_PUBLIC_FIREBASE_API_HOSTING=${{ secrets.FIREBASE_API_HOSTING }} \
+            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
             .
           docker save nextjs-app:prod-${{ github.sha }} | gzip > app-prod.tar.gz
       
@@ -135,7 +136,7 @@ jobs:
               echo "Container is running ✅"
               docker ps -f name=nextjs-prod
             else
-              echo "Container failed to start ❌"
+              echo "Container failed to start "
               docker logs nextjs-prod
               exit 1
             fi
