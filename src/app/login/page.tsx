@@ -5,6 +5,7 @@ import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
 import { useLoginMutation } from "@/store/api";
 import { loginWithGoogle } from "@/lib/firebase_login";
+import { FRONTEND_URL } from "@/utils/config";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -59,14 +60,11 @@ export default function LoginPage() {
       const token = await loginWithGoogle();
       console.log("Google login successful:", token);
 
-      const response = await fetch(
-        "http://localhost:8000/api/auth/login/google",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ firebase_token: token }),
-        }
-      );
+      const response = await fetch(`${FRONTEND_URL}/api/auth/login/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firebase_token: token }),
+      });
       const data = await response.json();
       // Store tokens
       localStorage.setItem("authToken", data.access_token);
@@ -143,8 +141,8 @@ export default function LoginPage() {
             onClick={() => {
               // Redirect to backend Facebook OAuth endpoint
               const backendUrl =
-                process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-              window.location.href = `${backendUrl}/auth/facebook`;
+                process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+              window.location.href = `${backendUrl}/api/auth/facebook`;
             }}
             className="bg-[#1877f2] text-white px-5 py-2.5 rounded-lg cursor-pointer transition-all duration-200 hover:-translate-y-0.5"
           >

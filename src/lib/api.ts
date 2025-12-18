@@ -1,6 +1,6 @@
 import { TokenData } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Token management
 export const tokenManager = {
@@ -69,7 +69,7 @@ export const tokenManager = {
 export const api = {
   // Auth endpoints
   register: async (email: string, password: string, phone?: string) => {
-    const response = await fetch(`${API_BASE}/auth/register`, {
+    const response = await fetch(`${API_BASE}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, phone: phone || null }),
@@ -78,7 +78,7 @@ export const api = {
   },
 
   login: async (email: string, password: string) => {
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -94,7 +94,7 @@ export const api = {
     const refreshToken = tokenManager.getRefreshToken();
     if (!refreshToken) return { data: null, ok: false };
 
-    const response = await fetch(`${API_BASE}/auth/refresh`, {
+    const response = await fetch(`${API_BASE}/api/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refresh_token: refreshToken }),
@@ -110,7 +110,7 @@ export const api = {
 
   getSessionInfo: async () => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/auth/session`, {
+    const response = await fetch(`${API_BASE}/api/auth/session`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return { data: await response.json(), ok: response.ok };
@@ -118,7 +118,7 @@ export const api = {
 
   getAllSessions: async () => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/auth/sessions`, {
+    const response = await fetch(`${API_BASE}/api/auth/sessions`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return { data: await response.json(), ok: response.ok };
@@ -126,7 +126,7 @@ export const api = {
 
   revokeSession: async (sessionId: string) => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/auth/sessions/${sessionId}`, {
+    const response = await fetch(`${API_BASE}/api/auth/sessions/${sessionId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -136,7 +136,7 @@ export const api = {
   logout: async () => {
     const token = tokenManager.getAuthToken();
     if (token) {
-      await fetch(`${API_BASE}/auth/logout`, {
+      await fetch(`${API_BASE}/api/auth/logout`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -146,7 +146,7 @@ export const api = {
 
   logoutAll: async () => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/auth/logout/all`, {
+    const response = await fetch(`${API_BASE}/api/auth/logout/all`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -161,7 +161,7 @@ export const api = {
     timezone?: string
   ) => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/users/profile`, {
+    const response = await fetch(`${API_BASE}/api/users/profile`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -180,7 +180,7 @@ export const api = {
   // Users endpoints
   fetchUsers: async () => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/users/`, {
+    const response = await fetch(`${API_BASE}/api/users/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return { data: await response.json(), ok: response.ok };
@@ -189,7 +189,7 @@ export const api = {
   // Customers endpoints
   fetchCustomers: async () => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/customers/`, {
+    const response = await fetch(`${API_BASE}/api/customers/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return { data: await response.json(), ok: response.ok };
@@ -197,7 +197,7 @@ export const api = {
 
   fetchMyCustomer: async () => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/customers/me/full`, {
+    const response = await fetch(`${API_BASE}/api/customers/me/full`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return { data: await response.json(), ok: response.ok };
@@ -210,7 +210,7 @@ export const api = {
     postalCode?: string
   ) => {
     const token = tokenManager.getAuthToken();
-    const response = await fetch(`${API_BASE}/customers/me`, {
+    const response = await fetch(`${API_BASE}/api/customers/me`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
