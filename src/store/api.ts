@@ -3,7 +3,7 @@ import { HYDRATE } from "next-redux-wrapper";
 import { PayloadAction } from "@reduxjs/toolkit";
 
 const API_BASE =
-  `${process.env.NEXT_PUBLIC_API_URL}/api` || "http://localhost:8000/api";
+  `${process.env.NEXT_PUBLIC_BASE_API_URL}/api` || "http://localhost:8000/api";
 
 export const api = createApi({
   reducerPath: "api",

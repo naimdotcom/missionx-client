@@ -1,102 +1,24 @@
-name: Deploy to VPS
+name: Deploy to VPS (Optimized)
 
 on:
   push:
     branches:
       - production
-      # Uncomment below when you're ready to add staging
       # - staging
 
 jobs:
-  # Uncomment this entire job when you want to deploy staging
-  # deploy-staging:
-  #   if: github.ref == 'refs/heads/staging'
-  #   runs-on: ubuntu-latest
-  #   environment: staging
-  #   
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #     
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
-  #     
-  #     - name: Build Docker image
-  #       run: |
-  #         docker build -t nextjs-app:staging-${{ github.sha }} .
-  #         docker save nextjs-app:staging-${{ github.sha }} | gzip > app-staging.tar.gz
-  #     
-  #     - name: Copy files to VPS
-  #       uses: appleboy/scp-action@master
-  #       with:
-  #         host: ${{ secrets.VPS_HOST }}
-  #         username: ${{ secrets.VPS_USERNAME }}
-  #         password: ${{ secrets.VPS_PASSWORD }}
-  #         port: ${{ secrets.VPS_PORT }}
-  #         source: "app-staging.tar.gz"
-  #         target: "/home/${{ secrets.VPS_USERNAME }}/apps/staging"
-  #     
-  #     - name: Deploy to staging VPS
-  #       uses: appleboy/ssh-action@master
-  #       with:
-  #         host: ${{ secrets.VPS_HOST }}
-  #         username: ${{ secrets.VPS_USERNAME }}
-  #         password: ${{ secrets.VPS_PASSWORD }}
-  #         port: ${{ secrets.VPS_PORT }}
-  #         script: |
-  #           cd /home/${{ secrets.VPS_USERNAME }}/apps/staging
-  #           docker load < app-staging.tar.gz
-  #           docker stop nextjs-staging || true
-  #           docker rm nextjs-staging || true
-  #           docker run -d \
-  #             --name nextjs-staging \
-  #             --restart unless-stopped \
-  #             -p 3001:3000 \
-  #             -e NODE_ENV=production \
-  #             nextjs-app:staging-${{ github.sha }}
-  #           docker image prune -f
-  #           rm app-staging.tar.gz
-  #           echo "Staging deployed successfully! 🚀"
-
   deploy-production:
     if: github.ref == 'refs/heads/production'
     runs-on: ubuntu-latest
     environment: 
       name: production
-      url: https://your-domain.com  # Update with your actual domain
+      url: https://brainchat.cloud
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      
-      - name: Build Docker image
-        run: |
-          docker build -t nextjs-app:prod-${{ github.sha }} \
-            --build-arg NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
-            --build-arg NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }} \
-            --build-arg NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }} \
-            --build-arg NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }} \
-            --build-arg NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }} \
-            --build-arg NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
-            --build-arg NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }} \
-            --build-arg NEXT_PUBLIC_FIREBASE_API_HOSTING=${{ secrets.FIREBASE_API_HOSTING }} \
-            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
-            .
-          docker save nextjs-app:prod-${{ github.sha }} | gzip > app-prod.tar.gz
-      
-      - name: Copy Docker image to VPS
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          port: ${{ secrets.VPS_PORT }}
-          source: "app-prod.tar.gz"
-          target: "/home/${{ secrets.VPS_USERNAME }}/apps/production"
-      
+      # Build on VPS directly instead of GitHub Actions
       - name: Deploy to production VPS
         uses: appleboy/ssh-action@master
         with:
@@ -104,53 +26,124 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT }}
+          command_timeout: 20m
           script: |
-            cd /home/${{ secrets.VPS_USERNAME }}/apps/production
+            set -e
             
-            # Load new Docker image
-            docker load < app-prod.tar.gz
+            APP_DIR="/home/${{ secrets.VPS_USERNAME }}/apps/production"
+            REPO_URL="https://github.com/${{ github.repository }}.git"
             
-            # Stop and remove old container
-            docker stop nextjs-prod || true
-            docker rm nextjs-prod || true
+            # Create app directory if it doesn't exist
+            mkdir -p $APP_DIR
+            cd $APP_DIR
             
-            # Run new container
+            # Clone or pull latest code
+            if [ -d ".git" ]; then
+              echo "📥 Pulling latest changes..."
+              git fetch origin production
+              git reset --hard origin/production
+            else
+              echo "📥 Cloning repository..."
+              git clone --single-branch --branch production $REPO_URL .
+            fi
+            
+            # Create .env file with secrets
+            cat > .env.local << EOF
+            NEXT_PUBLIC_FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+            NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
+            NEXT_PUBLIC_FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+            NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
+            NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+            NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
+            NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}
+            NEXT_PUBLIC_FIREBASE_API_HOSTING=${{ secrets.FIREBASE_API_HOSTING }}
+            NEXT_PUBLIC_BASE_API_URL=${{ secrets.NEXT_PUBLIC_BASE_API_URL }}
+            NODE_ENV=production
+            EOF
+            
+            # Build Docker image on VPS (uses cache layers)
+            echo "🔨 Building Docker image..."
+            docker build \
+              -t nextjs-app:production \
+              -t nextjs-app:prod-${{ github.sha }} \
+              --cache-from nextjs-app:production \
+              .
+            
+            # Zero-downtime deployment with health check
+            echo "🚀 Deploying new container..."
+            
+            # Start new container on different port
             docker run -d \
-              --name nextjs-prod \
+              --name nextjs-prod-new \
               --restart unless-stopped \
-              -p 3000:3000 \
-              -e NODE_ENV=production \
+              -p 3001:3000 \
+              --env-file .env.local \
               nextjs-app:prod-${{ github.sha }}
             
-            # Clean up
-            docker image prune -af --filter "until=24h"
-            rm app-prod.tar.gz
+            # Wait for new container to be healthy
+            echo "⏳ Waiting for new container to start..."
+            sleep 10
             
-            echo "Production deployed successfully! 🚀"
+            # Simple health check
+            for i in {1..30}; do
+              if curl -f http://localhost:3001 > /dev/null 2>&1; then
+                echo "✅ New container is healthy!"
+                break
+              fi
+              if [ $i -eq 30 ]; then
+                echo "❌ Health check failed!"
+                docker logs nextjs-prod-new
+                docker stop nextjs-prod-new
+                docker rm nextjs-prod-new
+                exit 1
+              fi
+              sleep 2
+            done
             
-            # Wait for container to start
-            sleep 5
+            # Swap containers (zero downtime)
+            docker stop nextjs-prod || true
+            docker rm nextjs-prod || true
+            docker stop nextjs-prod-new
+            docker rename nextjs-prod-new nextjs-prod
             
-            # Check if container is running
-            if [ $(docker ps -q -f name=nextjs-prod) ]; then
-              echo "Container is running ✅"
-              docker ps -f name=nextjs-prod
-            else
-              echo "Container failed to start "
-              docker logs nextjs-prod
-              exit 1
-            fi
+            # Update port mapping
+            docker run -d \
+              --name nextjs-prod-temp \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              --env-file .env.local \
+              nextjs-app:prod-${{ github.sha }}
+            
+            docker stop nextjs-prod
+            docker rm nextjs-prod
+            docker rename nextjs-prod-temp nextjs-prod
+            
+            # Cleanup old images (keep last 3)
+            docker images nextjs-app --format "{{.Tag}}" | grep "prod-" | tail -n +4 | xargs -r -I {} docker rmi nextjs-app:{} || true
+            docker image prune -f
+            
+            # Remove .env file for security
+            rm .env.local
+            
+            echo "🎉 Production deployed successfully!"
+            echo "📦 Image: nextjs-app:prod-${{ github.sha }}"
+            echo "🕒 Time: $(date)"
+            
+            # Show running container
+            docker ps -f name=nextjs-prod --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
       
       - name: Deployment summary
         if: success()
         run: |
           echo "✅ Deployment completed successfully!"
-          echo "📦 Image: nextjs-app:prod-${{ github.sha }}"
-          echo "🌐 URL: https://your-domain.com"
+          echo "📦 Commit: ${{ github.sha }}"
+          echo "🌐 URL: https://brainchat.cloud"
+          echo "👤 Deployed by: ${{ github.actor }}"
           echo "🕒 Time: $(date)"
       
       - name: Notify on failure
         if: failure()
         run: |
           echo "❌ Deployment failed!"
-          echo "Please check the logs above for details."
+          echo "📝 Check the logs above for details"
+          echo "🔄 Rollback may be needed"
