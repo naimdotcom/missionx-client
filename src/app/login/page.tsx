@@ -5,6 +5,7 @@ import PageContainer from "@/components/PageContainer";
 import ResponseBox from "@/components/ResponseBox";
 import { useLoginMutation } from "@/store/api";
 import { loginWithGoogle } from "@/lib/firebase_login";
+import { colgroup } from "motion/react-client";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -58,7 +59,25 @@ export default function LoginPage() {
     try {
       const token = await loginWithGoogle();
       console.log("Google login successful:", token);
+
+      const response = await fetch(
+        "http://localhost:8000/api/auth/login/google",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ firebase_token: token }),
+        }
+      );
+      const data = await response.json();
+      // Store tokens
+      localStorage.setItem("authToken", data.access_token);
+      localStorage.setItem("refreshToken", data.refresh_token);
+      // Calculate expiration times
+      const accessTokenExpiry = Date.now() + data.expires_in * 1000;
+      const refreshTokenExpiry = Date.now() + data.refresh_expires_in * 1000;
+
       // Send token to backend if needed
+      console.log("Google login response:", data);
     } catch (error) {
       console.error("Google login failed:", error);
     }
