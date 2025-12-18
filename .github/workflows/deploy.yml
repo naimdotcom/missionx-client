@@ -1,10 +1,9 @@
-name: Deploy to VPS (Optimized)
+name: Deploy to VPS (SSH Key)
 
 on:
   push:
     branches:
       - production
-      # - staging
 
 jobs:
   deploy-production:
@@ -12,13 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: production
-      url: https://brainchat.cloud
+      url: https://your-domain.com
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      # Build on VPS directly instead of GitHub Actions
       - name: Deploy to production VPS
         uses: appleboy/ssh-action@master
         with:
@@ -31,20 +29,40 @@ jobs:
             set -e
             
             APP_DIR="/home/${{ secrets.VPS_USERNAME }}/apps/production"
-            REPO_URL="https://github.com/${{ github.repository }}.git"
             
             # Create app directory if it doesn't exist
             mkdir -p $APP_DIR
             cd $APP_DIR
             
-            # Clone or pull latest code
+            # Setup SSH key for git if not exists
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            
+            # Add deploy key (you'll add this as a secret)
+            if [ ! -f ~/.ssh/github_deploy ]; then
+              echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/github_deploy
+              chmod 600 ~/.ssh/github_deploy
+              
+              # Add to SSH config
+              cat > ~/.ssh/config << 'EOF'
+            Host github.com
+              HostName github.com
+              IdentityFile ~/.ssh/github_deploy
+              StrictHostKeyChecking no
+            EOF
+              chmod 600 ~/.ssh/config
+            fi
+            
+            # Clone or pull latest code with SSH
             if [ -d ".git" ]; then
               echo "📥 Pulling latest changes..."
               git fetch origin production
               git reset --hard origin/production
+              git clean -fd
             else
               echo "📥 Cloning repository..."
-              git clone --single-branch --branch production $REPO_URL .
+              git clone --single-branch --branch production --depth 1 \
+                git@github.com:${{ github.repository }}.git .
             fi
             
             # Create .env file with secrets
@@ -57,7 +75,7 @@ jobs:
             NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
             NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }}
             NEXT_PUBLIC_FIREBASE_API_HOSTING=${{ secrets.FIREBASE_API_HOSTING }}
-            NEXT_PUBLIC_BASE_API_URL=${{ secrets.NEXT_PUBLIC_BASE_API_URL }}
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             NODE_ENV=production
             EOF
             
@@ -69,7 +87,7 @@ jobs:
               --cache-from nextjs-app:production \
               .
             
-            # Zero-downtime deployment with health check
+            # Zero-downtime deployment
             echo "🚀 Deploying new container..."
             
             # Start new container on different port
@@ -84,7 +102,7 @@ jobs:
             echo "⏳ Waiting for new container to start..."
             sleep 10
             
-            # Simple health check
+            # Health check
             for i in {1..30}; do
               if curl -f http://localhost:3001 > /dev/null 2>&1; then
                 echo "✅ New container is healthy!"
@@ -137,7 +155,7 @@ jobs:
         run: |
           echo "✅ Deployment completed successfully!"
           echo "📦 Commit: ${{ github.sha }}"
-          echo "🌐 URL: https://brainchat.cloud"
+          echo "🌐 URL: https://your-domain.com"
           echo "👤 Deployed by: ${{ github.actor }}"
           echo "🕒 Time: $(date)"
       
