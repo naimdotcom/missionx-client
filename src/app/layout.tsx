@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import StoreProvider from "@/components/StoreProvider";
 import "./globals.css";
+import { Brain } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,9 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Authentication API - MissionX",
+  title: "Brainchat ",
   description:
-    "Comprehensive authentication API interface with session management, user profiles, and customer data",
+    "Brainchat - AI-powered messaging agents for social media and messaging platforms",
+  icons: {
+    icon: "/icons/logo.svg",
+  },
 };
 
 export default function RootLayout({

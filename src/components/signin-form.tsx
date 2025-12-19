@@ -3,8 +3,11 @@ import { Facebook } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
+import { loginWithGoogle } from "@/lib/firebase_login";
+import { FRONTEND_URL } from "@/utils/config";
+import { redirect } from "next/navigation";
 
-export function SignupForm({
+export function SigninForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -17,11 +20,22 @@ export function SignupForm({
 
   // Google login handler
   const handleGoogleLogin = async () => {
-    // You may want to import and use loginWithGoogle from your firebase_login
-    // For now, just redirect to a Google OAuth endpoint or call your logic
-    const backendUrl =
-      process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000";
-    window.location.href = `${backendUrl}/api/auth/google`;
+    try {
+      const token = await loginWithGoogle();
+
+      const response = await fetch(`${FRONTEND_URL}/api/auth/login/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firebase_token: token }),
+      });
+      const data = await response.json();
+      // Store tokens
+      localStorage.setItem("authToken", data.access_token);
+      localStorage.setItem("refreshToken", data.refresh_token);
+      console.log("Google login response:", data);
+    } catch (error) {
+      console.error("Google login failed:", error);
+    }
   };
 
   return (
@@ -33,7 +47,7 @@ export function SignupForm({
               Welcome to <span className="font-bold">Brainchat</span>.
             </h1>
             <FieldDescription>
-              Already have an account? <a href="/signin">Sign in</a>
+              Don&apos;t have an account? <a href="/signup">Sign up</a>
             </FieldDescription>
           </div>
           <Field className="w-full grid gap-2 sm:grid-cols-2">
@@ -44,7 +58,7 @@ export function SignupForm({
               onClick={handleFacebookLogin}
             >
               <Facebook className="" />
-              <span className="">Continue with Facebook</span>
+              <span className="">sign in with Facebook</span>
             </Button>
             <Button
               className="px-4"
@@ -58,16 +72,16 @@ export function SignupForm({
                   fill="currentColor"
                 />
               </svg>
-              Continue with Google
+              sign in with Google
             </Button>
           </Field>
         </FieldGroup>
       </form>
-      <FieldDescription className="px-6 text-center">
+      {/* <FieldDescription className="px-6 text-center">
         By clicking continue, you agree to our{" "}
         <a href="/terms">Terms of Service</a> and{" "}
         <a href="/privacy">Privacy Policy</a>.
-      </FieldDescription>
+      </FieldDescription> */}
     </div>
   );
 }
