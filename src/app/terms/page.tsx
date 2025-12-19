@@ -13,7 +13,7 @@ export default function TermsPage() {
           <h1 className="text-3xl font-bold tracking-tight">
             Terms of Service
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-foreground">
             Effective Date: <span className="font-medium">2025-12-17</span>
           </p>
         </header>
@@ -176,7 +176,7 @@ export default function TermsPage() {
               8. Disclaimers and Limitation of Liability
             </h2>
 
-            <p className="mt-2 uppercase text-xs tracking-wide text-muted-foreground">
+            <p className="mt-2 uppercase text-xs tracking-wide text-foreground font-medium">
               The Service is provided “as is” and “as available” without
               warranties of any kind.
             </p>
