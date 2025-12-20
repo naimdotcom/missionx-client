@@ -83,7 +83,7 @@ jobs:
             --build-arg NEXT_PUBLIC_FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }} \
             --build-arg NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }} \
             --build-arg NEXT_PUBLIC_FIREBASE_API_HOSTING=${{ secrets.FIREBASE_API_HOSTING }} \
-            --build-arg NEXT_PUBLIC_BASE_API_URL=${{ secrets.NEXT_PUBLIC_BASE_API_URL }} \
+            --build-arg NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }} \
             .
           docker save nextjs-app:prod-${{ github.sha }} | gzip > app-prod.tar.gz
       

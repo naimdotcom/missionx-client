@@ -11,7 +11,7 @@ export function SignupForm({
   // Facebook login handler
   const handleFacebookLogin = () => {
     const backendUrl =
-      process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000";
+      process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
     window.location.href = `${backendUrl}/api/auth/facebook`;
   };
 
@@ -20,7 +20,7 @@ export function SignupForm({
     // You may want to import and use loginWithGoogle from your firebase_login
     // For now, just redirect to a Google OAuth endpoint or call your logic
     const backendUrl =
-      process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000";
+      process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
     window.location.href = `${backendUrl}/api/auth/google`;
   };
 

@@ -14,7 +14,7 @@ export function SigninForm({
   // Facebook login handler
   const handleFacebookLogin = () => {
     const backendUrl =
-      process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000";
+      process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
     window.location.href = `${backendUrl}/api/auth/facebook`;
   };
 
