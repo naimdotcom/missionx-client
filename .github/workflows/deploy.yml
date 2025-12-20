@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 
       name: production
-      url: https://your-domain.com  # Update with your actual domain
+      url: https://brainchat.cloud  # Update with your actual domain
     
     steps:
       - name: Checkout code
