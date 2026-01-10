@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import StoreProvider from "@/components/StoreProvider";
 import "./globals.css";
-import { Brain } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 
 const geistSans = Geist({
@@ -32,12 +31,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <div className="container mx-auto">
-          <Navbar />
-        </div>
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          <div className="container mx-auto">
+            <Navbar />
+          </div>
+          {children}
+        </StoreProvider>
       </body>
     </html>
   );

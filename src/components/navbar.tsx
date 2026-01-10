@@ -27,6 +27,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import { usePathname } from "next/navigation";
+
 interface MenuItem {
   title: string;
   url: string;
@@ -102,6 +104,12 @@ const Navbar = ({
       url: "#",
       items: [
         {
+          title: "Documentation",
+          description: "Technical guide for webhooks and flow specification",
+          icon: <Book className="size-5 shrink-0" />,
+          url: "/docs",
+        },
+        {
           title: "Help Center",
           description: "Get all the answers you need right here",
           icon: <Zap className="size-5 shrink-0" />,
@@ -142,6 +150,12 @@ const Navbar = ({
   },
   className,
 }: NavbarProps) => {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/docs")) {
+    return null;
+  }
+
   return (
     <section className={cn("py-4", className)}>
       <div className="container">

@@ -32,6 +32,8 @@ export function SigninForm({
       // Store tokens
       localStorage.setItem("authToken", data.access_token);
       localStorage.setItem("refreshToken", data.refresh_token);
+
+      console.log("google token:", token);
       console.log("Google login response:", data);
     } catch (error) {
       console.error("Google login failed:", error);
