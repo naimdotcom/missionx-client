@@ -1,247 +1,280 @@
-import type { Metadata } from "next";
-import { Terminal, CheckCircle2, AlertCircle } from "lucide-react";
+import { Metadata } from "next";
+import {
+  Terminal,
+  MousePointer2,
+  Info,
+  AlertCircle,
+  CheckCircle2,
+  Layers,
+  Workflow,
+  MessageSquare,
+  Image as ImageIcon,
+  Video,
+  BookOpen,
+  Lightbulb,
+  HelpCircle,
+  ShoppingBag,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
-  title: "JSON Message Specification | Mission Engine Documentation",
+  title: "JSON Payload Spec | Developer Guide",
   description:
-    "The definitive contract for all message nodes in the Mission Engine. Every response from your integration must be an array of these node objects.",
+    "Comprehensive guide for configuring Flow Nodes and JSON payloads in Brainchat messaging flows.",
 };
 
-export default function PayloadPage() {
+const JSONBlock = ({ children }: { children: string }) => (
+  <div className="relative group border-2 border-black bg-white my-8 overflow-hidden">
+    <div className="absolute top-0 right-0 bg-black text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 selection:bg-white selection:text-black">
+      JSON
+    </div>
+    <div className="p-6 overflow-x-auto whitespace-pre font-mono text-xs md:text-sm text-black leading-relaxed selection:bg-black selection:text-white">
+      {children.trim()}
+    </div>
+  </div>
+);
+
+const Section = ({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: any;
+  children: React.ReactNode;
+}) => (
+  <section
+    className="mb-24 scroll-mt-24"
+    id={title.toLowerCase().replace(/\s+/g, "-")}
+  >
+    <div className="flex items-center gap-4 mb-8">
+      <div className="p-2.5 bg-black text-white">
+        <Icon className="h-5 w-5 stroke-[2.5px]" />
+      </div>
+      <h2 className="text-3xl font-black italic uppercase tracking-tighter text-black">
+        {title}
+      </h2>
+    </div>
+    <div className="space-y-6 text-black/80">{children}</div>
+  </section>
+);
+
+const Tip = ({
+  children,
+  type = "info",
+}: {
+  children: React.ReactNode;
+  type?: "info" | "warning" | "success" | "tip";
+}) => {
+  const icons = {
+    info: <Info className="h-5 w-5" />,
+    warning: <AlertCircle className="h-5 w-5" />,
+    success: <CheckCircle2 className="h-5 w-5" />,
+    tip: <Lightbulb className="h-5 w-5" />,
+  };
+
   return (
-    <div className="space-y-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <section className="space-y-6">
-        <h1 className="text-6xl font-black tracking-tighter uppercase leading-[0.85]">
-          JSON Message
-          <br />
-          Specification.
+    <div className="flex gap-5 p-6 border-2 border-black bg-white my-8">
+      <div className="shrink-0 pt-0.5 text-black">{icons[type]}</div>
+      <div className="text-sm font-bold leading-relaxed text-black italic">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export default function PayloadLibraryPage() {
+  return (
+    <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000">
+      <header className="mb-20">
+        <div className="mb-6 inline-block bg-black px-3 py-1">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">
+            Spec v1.0
+          </span>
+        </div>
+        <h1 className="text-6xl font-black italic tracking-tighter text-black mb-6 uppercase">
+          JSON Payload Library
         </h1>
-        <p className="text-xl text-black/60 font-medium tracking-tight max-w-3xl leading-relaxed">
-          The Mission Engine communicates through a strict, immutable JSON
-          contract. Every response from your App Service must be an array of
-          message nodes.
+        <p className="text-xl font-medium text-black/60 leading-relaxed max-w-3xl">
+          Complete technical reference for Brainchat messaging nodes.
+          High-contrast examples for rapid development.
         </p>
-      </section>
+      </header>
 
-      <Separator className="bg-black/10" />
+      <Separator className="mb-20 bg-black h-1" />
 
-      {/* Basic Text Node */}
-      <section id="types" className="space-y-10">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="h-8 w-8 rounded bg-black text-white flex items-center justify-center font-black text-xs">
-              01
+      <Section title="Introduction" icon={BookOpen}>
+        <p className="text-lg font-medium leading-relaxed">
+          The{" "}
+          <span className="bg-black text-white px-2 py-0.5 font-mono text-sm">
+            payload
+          </span>{" "}
+          field is the core configuration for every node. It defines the
+          structure and interaction capabilities of the message sent to the
+          user.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-12">
+          {[
+            {
+              icon: Terminal,
+              title: "Validate",
+              desc: "Always lint your JSON before deployment.",
+            },
+            {
+              icon: MousePointer2,
+              title: "Test",
+              desc: "Verify node logic in sandbox mode.",
+            },
+            {
+              icon: Layers,
+              title: "Optimize",
+              desc: "Use high-speed media delivery endpoints.",
+            },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="border-2 border-black p-6 hover:bg-black hover:text-white transition-all group cursor-default"
+            >
+              <item.icon className="h-6 w-6 mb-4 stroke-[2.5px]" />
+              <h3 className="text-sm font-black uppercase tracking-widest mb-2">
+                {item.title}
+              </h3>
+              <p className="text-xs font-bold leading-relaxed opacity-60 group-hover:opacity-100">
+                {item.desc}
+              </p>
             </div>
-            <h2 className="text-3xl font-black uppercase tracking-tighter">
-              Simple Text Node
-            </h2>
-          </div>
-          <p className="text-black/60 font-medium leading-relaxed max-w-2xl">
-            The fundamental unit of conversation. Used for standard messages,
-            auto-replies, and system notifications.
-          </p>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Simple Text" icon={MessageSquare}>
+        <p className="text-lg font-medium leading-relaxed">
+          Minimalist text-only message delivery. Used for notifications and
+          status updates.
+        </p>
+        <JSONBlock>
+          {`{
+  "text": "Your order has been confirmed and is being prepared."
+}`}
+        </JSONBlock>
+      </Section>
+
+      <Section title="Buttons" icon={MousePointer2}>
+        <p className="text-lg font-medium leading-relaxed">
+          Interactive choice nodes. Each button triggers a specific flow action
+          or external URL.
+        </p>
+
+        <div className="border-2 border-black overflow-hidden my-8">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-black text-white font-black uppercase tracking-widest text-[10px]">
+              <tr>
+                <th className="px-6 py-4">Type</th>
+                <th className="px-6 py-4">Action</th>
+                <th className="px-6 py-4">Required</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y-2 divide-black">
+              <tr className="font-bold">
+                <td className="px-6 py-5 font-mono text-xs uppercase tracking-tighter">
+                  postback
+                </td>
+                <td className="px-6 py-5">Jump to Node Slug</td>
+                <td className="px-6 py-5 font-mono text-[10px]">payload</td>
+              </tr>
+              <tr className="font-bold">
+                <td className="px-6 py-5 font-mono text-xs uppercase tracking-tighter">
+                  web_url
+                </td>
+                <td className="px-6 py-5">Open Browser</td>
+                <td className="px-6 py-5 font-mono text-[10px]">url</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div className="space-y-6">
-          <div className="bg-zinc-50 border border-black/5 rounded-3xl p-8 md:p-12">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-6 flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-black" /> Payload
-              Example
-            </h4>
-            <pre className="font-mono text-sm text-black leading-relaxed overflow-x-auto whitespace-pre">
-              <code>
-                {JSON.stringify(
-                  [{ text: "Hello from the Engine! 🌍" }],
-                  null,
-                  2
-                )}
-              </code>
-            </pre>
-          </div>
+        <Tip type="tip">
+          The{" "}
+          <span className="underline decoration-2 underline-offset-4">
+            payload
+          </span>{" "}
+          value must match an existing <span className="italic">node_slug</span>{" "}
+          in your flow configuration.
+        </Tip>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="p-6 border border-black/10 rounded-2xl space-y-2">
-              <h5 className="font-black text-xs uppercase tracking-widest">
-                Property
-              </h5>
-              <code className="text-sm font-black">text</code>
+        <JSONBlock>
+          {`{
+  "text": "How can we help you today?",
+  "buttons": [
+    {
+      "type": "postback",
+      "title": "View Catalog",
+      "payload": "catalog_start"
+    },
+    {
+      "type": "web_url",
+      "url": "https://brainchat.ai/help",
+      "title": "Help Center"
+    }
+  ]
+}`}
+        </JSONBlock>
+      </Section>
+
+      <Section title="Carousel" icon={ShoppingBag}>
+        <p className="text-lg font-medium leading-relaxed">
+          Horizontal multi-card delivery. Ideal for product displays and menu
+          options.
+        </p>
+        <JSONBlock>
+          {`{
+  "attachment": {
+    "type": "template",
+    "payload": {
+      "template_type": "generic",
+      "elements": [
+        {
+          "title": "Premium Headset",
+          "subtitle": "Noise-cancelling, 40h battery.",
+          "image_url": "https://example.com/item1.jpg",
+          "buttons": [{ "type": "postback", "title": "Add to Cart", "payload": "cart_1" }]
+        },
+        {
+          "title": "Wireless Mouse",
+          "subtitle": "Ergonomic, 16k DPI.",
+          "image_url": "https://example.com/item2.jpg",
+          "buttons": [{ "type": "postback", "title": "Learn More", "payload": "mouse_info" }]
+        }
+      ]
+    }
+  }
+}`}
+        </JSONBlock>
+      </Section>
+
+      <Section title="Checklist" icon={CheckCircle2}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
+          {[
+            "Strict JSON Syntax Validation",
+            "HTTPS Public Image Assets",
+            "Matched Postback Slugs",
+            "Concise Mobile-First Text",
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 p-5 border-2 border-black font-black uppercase tracking-widest text-xs italic"
+            >
+              <CheckCircle2 className="h-5 w-5" />
+              {item}
             </div>
-            <div className="p-6 border border-black/10 rounded-2xl space-y-2">
-              <h5 className="font-black text-xs uppercase tracking-widest">
-                Type
-              </h5>
-              <span className="text-sm font-medium">string</span>
-            </div>
-            <div className="p-6 border border-black/10 rounded-2xl space-y-2">
-              <h5 className="font-black text-xs uppercase tracking-widest">
-                Validation
-              </h5>
-              <span className="text-sm font-medium">Max 2000 characters</span>
-            </div>
-          </div>
+          ))}
         </div>
-      </section>
+      </Section>
 
-      {/* Button Node */}
-      <section className="space-y-10">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="h-8 w-8 rounded bg-black text-white flex items-center justify-center font-black text-xs">
-              02
-            </div>
-            <h2 className="text-3xl font-black uppercase tracking-tighter">
-              Buttons & Templates
-            </h2>
-          </div>
-          <p className="text-black/60 font-medium leading-relaxed max-w-2xl">
-            Drive user interaction with structured buttons. Supports up to 3
-            buttons per node.
-          </p>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-zinc-50 border border-black/5 rounded-3xl p-8 md:p-12">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mb-6 flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-black" /> Payload
-              Example
-            </h4>
-            <pre className="font-mono text-sm text-black leading-relaxed overflow-x-auto whitespace-pre">
-              <code>
-                {JSON.stringify(
-                  [
-                    {
-                      text: "Please select an option:",
-                      buttons: [
-                        {
-                          type: "postback",
-                          title: "View Catalog",
-                          payload: "VIEW_CATALOG",
-                        },
-                        {
-                          type: "web_url",
-                          title: "Visit Website",
-                          url: "https://example.com",
-                        },
-                      ],
-                    },
-                  ],
-                  null,
-                  2
-                )}
-              </code>
-            </pre>
-          </div>
-        </div>
-      </section>
-
-      {/* Carousel Node */}
-      <section className="space-y-10">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="h-8 w-8 rounded bg-black text-white flex items-center justify-center font-black text-xs">
-              03
-            </div>
-            <h2 className="text-3xl font-black uppercase tracking-tighter">
-              Generic Carousel
-            </h2>
-          </div>
-          <p className="text-black/60 font-medium leading-relaxed max-w-2xl">
-            Horizontal scrolling cards for product catalogs or list selections.
-            Max 10 cards.
-          </p>
-        </div>
-
-        <div className="bg-black text-white rounded-[40px] p-8 md:p-16 shadow-2xl space-y-10">
-          <div className="space-y-2">
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">
-              Full View Specification
-            </h4>
-            <h3 className="text-2xl font-black tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis">
-              Maximum Payload Space
-            </h3>
-          </div>
-          <div className="bg-white/5 rounded-2xl p-6 md:p-10 border border-white/10 overflow-x-auto">
-            <pre className="font-mono text-sm leading-relaxed text-emerald-400">
-              <code>
-                {JSON.stringify(
-                  [
-                    {
-                      attachment: {
-                        type: "template",
-                        payload: {
-                          template_type: "generic",
-                          elements: [
-                            {
-                              title: "Pro Subscription",
-                              subtitle: "Access all features - $49/mo",
-                              image_url:
-                                "https://cdn.mission.com/assets/cards/pro.png",
-                              buttons: [
-                                {
-                                  type: "postback",
-                                  title: "Select Plan",
-                                  payload: "CHOOSE_PRO",
-                                },
-                              ],
-                            },
-                            {
-                              title: "Enterprise Plan",
-                              subtitle: "Custom solutions for teams",
-                              image_url:
-                                "https://cdn.mission.com/assets/cards/enterprise.png",
-                              buttons: [
-                                {
-                                  type: "postback",
-                                  title: "Talk to Sales",
-                                  payload: "CONTACT_SALES",
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                      },
-                    },
-                  ],
-                  null,
-                  2
-                )}
-              </code>
-            </pre>
-          </div>
-        </div>
-      </section>
-
-      <Separator className="bg-black/10" />
-
-      {/* Validation Logic */}
-      <section className="p-12 border-4 border-black rounded-[50px] space-y-8 bg-zinc-50 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8">
-          <AlertCircle className="h-12 w-12 text-black/10" />
-        </div>
-        <div className="space-y-4 relative z-10">
-          <h2 className="text-4xl font-black uppercase tracking-tighter">
-            Validation Engine
-          </h2>
-          <p className="text-lg text-black/60 font-medium max-w-2xl leading-relaxed">
-            Every payload is validated against our core schema before transport.
-            If a node is missing required fields or has incorrect types, the
-            engine will reject the entire array and log a{" "}
-            <code>STRUCTURAL_ERROR</code>.
-          </p>
-        </div>
-        <div className="flex flex-col md:flex-row gap-4 pt-4 relative z-10">
-          <div className="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap">
-            <CheckCircle2 className="h-4 w-4" /> Type Strictness
-          </div>
-          <div className="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap">
-            <CheckCircle2 className="h-4 w-4" /> Node Integrity
-          </div>
-          <div className="flex items-center gap-3 px-6 py-3 bg-black text-white rounded-full text-xs font-black uppercase tracking-widest whitespace-nowrap">
-            <CheckCircle2 className="h-4 w-4" /> Semantic Lock
-          </div>
-        </div>
-      </section>
+      <footer className="mt-40 pt-16 border-t-4 border-black text-center font-black uppercase tracking-[0.5em] text-black">
+        <p className="text-xs">End of Specification</p>
+      </footer>
     </div>
   );
 }

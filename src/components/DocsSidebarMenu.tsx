@@ -66,10 +66,10 @@ export function DocsSidebarMenu() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex-1 overflow-y-auto px-6 py-8 space-y-10">
+    <nav className="flex-1 overflow-y-auto px-8 py-10 space-y-12">
       {documentationMenu.map((section) => (
         <div key={section.title} className="space-y-4">
-          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-black/40 px-2">
+          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-black px-2 border-l-2 border-black">
             {section.title}
           </h4>
           <ul className="space-y-1">
@@ -81,18 +81,18 @@ export function DocsSidebarMenu() {
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-all group",
+                      "flex items-center gap-4 px-4 py-3 text-xs font-black uppercase tracking-widest transition-all duration-200 border-2",
                       isActive
-                        ? "bg-black text-white"
-                        : "hover:bg-black/5 text-black/70 hover:text-black"
+                        ? "bg-black text-white border-black"
+                        : "hover:bg-black hover:text-white border-transparent text-black"
                     )}
                   >
                     <Icon
                       className={cn(
-                        "h-4 w-4 stroke-[2.5px]",
+                        "h-4 w-4 stroke-[3px]",
                         isActive
                           ? "text-white"
-                          : "text-black/40 group-hover:text-black"
+                          : "text-black group-hover:text-white"
                       )}
                     />
                     {item.title}
