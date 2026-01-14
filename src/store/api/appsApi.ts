@@ -23,6 +23,14 @@ export const appsApi = baseApi.injectEndpoints({
         service: "apps",
       }),
     }),
+    uploadMedia: build.mutation({
+      query: (formData) => ({
+        url: "/api/v1/media/upload",
+        method: "POST",
+        body: formData,
+        service: "apps",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -33,4 +41,5 @@ export const {
   useCreateAppMutation,
   useGetAppDetailQuery,
   useLazyGetAppDetailQuery,
+  useUploadMediaMutation,
 } = appsApi;

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store/store";
 import { useGetSessionInfoQuery } from "@/store/api/authApi";
-import { setUser } from "@/store/authSlice";
+import { logout, setUser } from "@/store/authSlice";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -25,6 +25,14 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       dispatch(setUser(user));
     }
   }, [user, dispatch]);
+
+  // Handle Session Error (e.g. Backend down or token invalid)
+  useEffect(() => {
+    if (isError) {
+      console.log("[AuthGuard] Session check failed, logging out.");
+      dispatch(logout());
+    }
+  }, [isError, dispatch]);
 
   useEffect(() => {
     // 2. Client-Side Protection Logic
@@ -55,6 +63,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
       if (pathname === "/login" || pathname === "/signup" || pathname === "/") {
         // Let AppInitializer handle where to go (Dashboard or Select Workspace)
         // We just essentially "pass" here, or strictly go to dashboard and let AppInitializer kick back if needed.
+
         router.push("/dashboard");
       }
     }

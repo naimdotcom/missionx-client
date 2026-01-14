@@ -5,7 +5,8 @@ export interface AppType {
   id: string;
   name: string;
   plan?: string;
-  role?: string;
+  user_role?: string;
+  short_id?: string;
 }
 
 interface AppState {

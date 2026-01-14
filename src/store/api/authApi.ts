@@ -101,6 +101,22 @@ export const authApi = baseApi.injectEndpoints({
         service: "auth",
       }),
     }),
+    getMyProfile: build.query({
+      query: () => ({
+        url: "/api/v1/auth/me",
+        service: "auth",
+      }),
+      providesTags: ["Profile"],
+    }),
+    updateProfile: build.mutation({
+      query: (data) => ({
+        url: "/api/v1/auth/me",
+        method: "PUT",
+        body: data,
+        service: "auth",
+      }),
+      invalidatesTags: ["Profile"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -125,4 +141,6 @@ export const {
   useGetMyCustomerQuery,
   useLazyGetMyCustomerQuery,
   useUpdateCustomerMutation,
+  useGetMyProfileQuery,
+  useUpdateProfileMutation,
 } = authApi;

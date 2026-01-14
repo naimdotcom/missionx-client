@@ -36,10 +36,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <StoreProvider>
-          <AuthGuard>
-            <div className="container mx-auto">{/* <Navbar /> */}</div>
-            {children}
-          </AuthGuard>
+          <AuthGuard>{children}</AuthGuard>
         </StoreProvider>
       </body>
     </html>
