@@ -27,7 +27,21 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { logout } from "@/store/authSlice";
+import { useGetMyCustomerQuery } from "@/store/api/authApi";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LayoutDashboard, LogOut, Settings, User } from "lucide-react";
 
 interface MenuItem {
   title: string;
@@ -49,10 +63,6 @@ interface NavbarProps {
   menu?: MenuItem[];
   auth?: {
     login: {
-      title: string;
-      url: string;
-    };
-    signup: {
       title: string;
       url: string;
     };
@@ -145,12 +155,22 @@ const Navbar = ({
     },
   ],
   auth = {
-    login: { title: "Sign in", url: "/signin" },
-    signup: { title: "Sign up", url: "/signup" },
+    login: { title: "Get Started", url: "/login" },
   },
   className,
 }: NavbarProps) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { data: customer } = useGetMyCustomerQuery(undefined, {
+    skip: !isAuthenticated,
+  });
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("/");
+  };
 
   if (pathname.startsWith("/docs")) {
     return null;
@@ -182,12 +202,71 @@ const Navbar = ({
             </div>
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.title}</a>
-            </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
-            </Button>
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage
+                        src={customer?.profile_pic_url}
+                        alt={customer?.first_name || "User"}
+                      />
+                      <AvatarFallback>
+                        {customer?.first_name?.[0] || (
+                          <User className="h-4 w-4" />
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {customer?.first_name} {customer?.last_name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {customer?.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <a href="/dashboard" className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a href="/profile" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <a href="/settings" className="cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild variant="outline" size="sm">
+                <a href={auth.login.url}>{auth.login.title}</a>
+              </Button>
+            )}
           </div>
         </nav>
 
@@ -230,12 +309,28 @@ const Navbar = ({
                   </Accordion>
 
                   <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.title}</a>
-                    </Button>
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
-                    </Button>
+                    {isAuthenticated ? (
+                      <>
+                        <Button asChild variant="outline">
+                          <a href="/dashboard">Dashboard</a>
+                        </Button>
+                        <Button asChild variant="outline">
+                          <a href="/profile">Profile</a>
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => {
+                            handleLogout();
+                          }}
+                        >
+                          Logout
+                        </Button>
+                      </>
+                    ) : (
+                      <Button asChild variant="outline">
+                        <a href={auth.login.url}>{auth.login.title}</a>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </SheetContent>

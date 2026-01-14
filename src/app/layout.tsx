@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   },
 };
 
+import AuthGuard from "@/components/auth-guard";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,10 +36,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <StoreProvider>
-          <div className="container mx-auto">
-            <Navbar />
-          </div>
-          {children}
+          <AuthGuard>
+            <div className="container mx-auto">{/* <Navbar /> */}</div>
+            {children}
+          </AuthGuard>
         </StoreProvider>
       </body>
     </html>

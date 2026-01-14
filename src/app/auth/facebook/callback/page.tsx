@@ -3,18 +3,22 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageContainer from "@/components/PageContainer";
+import { useDispatch } from "react-redux";
+import { setAuthenticated } from "@/store/authSlice";
+import { useLazyGetAppsQuery } from "@/store/api";
 
-// 1. Move your logic into a separate internal component
 function FacebookCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const dispatch = useDispatch();
+  const [getApps] = useLazyGetAppsQuery();
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading"
   );
   const [message, setMessage] = useState("Processing Facebook login...");
 
   useEffect(() => {
-    const processCallback = () => {
+    const processCallback = async () => {
       const error = searchParams.get("error");
       const errorDescription = searchParams.get("error_description");
 
@@ -38,27 +42,27 @@ function FacebookCallbackContent() {
         return;
       }
 
-      localStorage.setItem("authToken", accessToken);
-      if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
-      if (sessionId) localStorage.setItem("sessionId", sessionId);
+      // Note: Backend already sets cookies for accessToken and refreshToken
+      // So we don't need to manually store them in localStorage anymore.
 
-      const now = Date.now();
-      if (expiresIn) {
-        const tokenExpiresAt = now + parseInt(expiresIn) * 1000;
-        localStorage.setItem("tokenExpiresAt", tokenExpiresAt.toString());
-      }
-      if (refreshExpiresIn) {
-        const refreshExpiresAt = now + parseInt(refreshExpiresIn) * 1000;
-        localStorage.setItem("refreshExpiresAt", refreshExpiresAt.toString());
-      }
-
+      dispatch(setAuthenticated(true));
       setStatus("success");
-      setMessage("Login successful! Redirecting...");
-      setTimeout(() => router.push("/"), 1500);
+      setMessage("Login successful! Checking workspaces...");
+
+      try {
+        // Check for apps
+        await getApps({}).unwrap();
+        // Redirect to workspace selection (which could be the root if it handles it)
+        // Or directly to a dedicated page
+        router.push("/select-workspace");
+      } catch (err) {
+        console.error("Failed to fetch apps:", err);
+        router.push("/");
+      }
     };
 
     processCallback();
-  }, [searchParams, router]);
+  }, [searchParams, router, dispatch, getApps]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-100">
@@ -97,7 +101,6 @@ function FacebookCallbackContent() {
   );
 }
 
-// 2. The main page component exports the Suspense boundary
 export default function FacebookCallbackPage() {
   return (
     <PageContainer title="Facebook Login">
