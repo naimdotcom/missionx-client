@@ -17,7 +17,7 @@ export default function PageContainer({ children, title }: PageContainerProps) {
 
         <div className="text-center mb-5">
           <a
-            href="http://localhost:8000/docs"
+            href={`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:8000"}/docs`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-white mx-4 font-medium hover:underline"
@@ -25,7 +25,7 @@ export default function PageContainer({ children, title }: PageContainerProps) {
             📚 Swagger Docs
           </a>
           <a
-            href="http://localhost:8000/redoc"
+            href={`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:8000"}/redoc`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-white mx-4 font-medium hover:underline"
@@ -33,7 +33,7 @@ export default function PageContainer({ children, title }: PageContainerProps) {
             📖 ReDoc
           </a>
           <a
-            href="http://localhost:8000/health"
+            href={`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:8000"}/health`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-white mx-4 font-medium hover:underline"

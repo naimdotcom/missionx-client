@@ -45,6 +45,7 @@ export const authApi = baseApi.injectEndpoints({
         url: "/api/auth/sessions",
         service: "auth",
       }),
+      providesTags: ["Sessions"],
     }),
     revokeSession: build.mutation({
       query: (sessionId) => ({
@@ -52,6 +53,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "DELETE",
         service: "auth",
       }),
+      invalidatesTags: ["Sessions"],
     }),
     logout: build.mutation({
       query: () => ({
@@ -66,6 +68,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         service: "auth",
       }),
+      invalidatesTags: ["Sessions"],
     }),
     createProfile: build.mutation({
       query: (data) => ({

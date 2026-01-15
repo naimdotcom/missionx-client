@@ -8,6 +8,7 @@ export const appsApi = baseApi.injectEndpoints({
         method: "GET",
         service: "apps",
       }),
+      providesTags: ["Apps"],
     }),
     createApp: build.mutation({
       query: (data) => ({
@@ -16,6 +17,7 @@ export const appsApi = baseApi.injectEndpoints({
         body: data,
         service: "apps",
       }),
+      invalidatesTags: ["Apps"],
     }),
     getAppDetail: build.query({
       query: (appId) => ({
