@@ -84,6 +84,10 @@ jobs:
             --build-arg NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${{ secrets.FIREBASE_MEASUREMENT_ID }} \
             --build-arg NEXT_PUBLIC_FIREBASE_API_HOSTING=${{ secrets.FIREBASE_API_HOSTING }} \
             --build-arg NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }} \
+            --build-arg NEXT_PUBLIC_AUTH_SERVICE_URL=${{ secrets.NEXT_PUBLIC_AUTH_SERVICE_URL }} \
+            --build-arg NEXT_PUBLIC_APPS_SERVICE_URL=${{ secrets.NEXT_PUBLIC_APPS_SERVICE_URL }} \
+            --build-arg NEXT_PUBLIC_CUSTOMER_SERVICE_URL=${{ secrets.NEXT_PUBLIC_CUSTOMER_SERVICE_URL }} \
+            --build-arg NEXT_PUBLIC_WEBHOOK_SERVICE_URL=${{ secrets.NEXT_PUBLIC_WEBHOOK_SERVICE_URL }} \
             .
           docker save nextjs-app:prod-${{ github.sha }} | gzip > app-prod.tar.gz
       
