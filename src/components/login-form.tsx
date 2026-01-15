@@ -21,10 +21,10 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [showWorkspaceSelector] = useState(false);
+  // const [showWorkspaceSelector] = useState(false);
   const [loginWithGoogleMutation, { isLoading: isLoggingIn }] =
     useLoginWithGoogleMutation();
-  const [, { isLoading: isFetchingApps }] = useLazyGetAppsQuery();
+  // const [, { isLoading: isFetchingApps }] = useLazyGetAppsQuery();
   const dispatch = useDispatch();
 
   // Facebook login handler
@@ -42,7 +42,7 @@ export function LoginForm({
       const result = await loginWithGoogleMutation({
         firebase_token: firebaseToken,
       }).unwrap();
-
+      console.log("Google login result:", result);
       // Tokens are now handled in cookies by the browser/backend
       if (result.access_token) {
         dispatch(setAuthenticated(true));
@@ -51,16 +51,16 @@ export function LoginForm({
         );
 
         // Use router for a cleaner transition
-        window.location.href = "/select-workspace";
+        // window.location.href = "/select-workspace";
       }
     } catch (error) {
       console.error("Google login failed:", error);
     }
   };
 
-  if (showWorkspaceSelector) {
-    return <WorkspaceSelector />;
-  }
+  // if (showWorkspaceSelector) {
+  //   return <WorkspaceSelector />;
+  // }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -78,7 +78,7 @@ export function LoginForm({
                 variant="outline"
                 className="w-full"
                 onClick={handleFacebookLogin}
-                disabled={isLoggingIn || isFetchingApps}
+                disabled={isLoggingIn}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -97,9 +97,9 @@ export function LoginForm({
                 variant="outline"
                 className="w-full"
                 onClick={handleGoogleLogin}
-                disabled={isLoggingIn || isFetchingApps}
+                disabled={isLoggingIn}
               >
-                {isLoggingIn || isFetchingApps ? (
+                {isLoggingIn ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-zinc-500 border-t-transparent rounded-full animate-spin"></span>
                     Authenticating...

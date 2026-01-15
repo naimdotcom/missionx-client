@@ -6,6 +6,7 @@ export async function loginWithGoogle() {
   const result = await signInWithPopup(auth, provider);
 
   const idToken = await result.user.getIdToken();
+  console.log("Firebase ID Token:", idToken);
 
   // Send this token to FastAPI
   return idToken;

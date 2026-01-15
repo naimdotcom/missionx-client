@@ -24,6 +24,7 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
         service: "auth",
+        credentials: "include",
       }),
     }),
     refreshToken: build.mutation({
