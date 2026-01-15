@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, X, Loader2 } from "lucide-react";
 import { useUploadMediaMutation } from "@/store/api/appsApi";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface MediaUploaderProps {
   onUploadComplete: (path: string, url: string) => void;
@@ -15,7 +16,6 @@ export function MediaUploader({
   initialValue,
   bucket = "public",
 }: MediaUploaderProps) {
-  const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(initialValue || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadMedia, { isLoading }] = useUploadMediaMutation();
@@ -29,8 +29,6 @@ export function MediaUploader({
       alert("File size must be less than 10MB");
       return;
     }
-
-    setFile(selectedFile);
 
     // Create preview
     const objectUrl = URL.createObjectURL(selectedFile);
@@ -50,13 +48,12 @@ export function MediaUploader({
     } catch (error) {
       console.error("Upload failed", error);
       alert("Upload failed");
-      setFile(null);
+
       setPreview(null);
     }
   };
 
   const clearImage = () => {
-    setFile(null);
     setPreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -100,10 +97,12 @@ export function MediaUploader({
         </div>
       ) : (
         <div className="relative w-full h-[150px] rounded-lg overflow-hidden border bg-muted/50 group">
-          <img
+          <Image
             src={preview}
             alt="Preview"
-            className="w-full h-full object-contain"
+            fill
+            className="object-contain"
+            unoptimized
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <Button

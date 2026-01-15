@@ -16,7 +16,6 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -65,18 +64,19 @@ export default function ProfilePage() {
     message: "",
   });
 
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        first_name: profile.first_name || "",
-        last_name: profile.last_name || "",
-        bio: profile.bio || "",
-        gender: profile.gender || "",
-        timezone: profile.timezone || "",
-        avatar_url: profile.avatar_url || "",
-      });
-    }
-  }, [profile]);
+  const [lastProfileId, setLastProfileId] = useState<string | null>(null);
+
+  if (profile && profile.id !== lastProfileId) {
+    setLastProfileId(profile.id);
+    setFormData({
+      first_name: profile.first_name || "",
+      last_name: profile.last_name || "",
+      bio: profile.bio || "",
+      gender: profile.gender || "",
+      timezone: profile.timezone || "",
+      avatar_url: profile.avatar_url || "",
+    });
+  }
 
   const handleChange = (
     e: React.ChangeEvent<

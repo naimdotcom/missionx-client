@@ -30,10 +30,6 @@ function FacebookCallbackContent() {
       }
 
       const accessToken = searchParams.get("access_token");
-      const refreshToken = searchParams.get("refresh_token");
-      const sessionId = searchParams.get("session_id");
-      const expiresIn = searchParams.get("expires_in");
-      const refreshExpiresIn = searchParams.get("refresh_expires_in");
 
       if (!accessToken) {
         setStatus("error");

@@ -13,13 +13,14 @@ import { useDispatch } from "react-redux";
 import { setSelectedApp } from "@/store/appSlice";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppType } from "@/store/appSlice";
 
 export default function WorkspaceSelector() {
   const { data: appsData, isLoading } = useGetAppsQuery({});
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const handleSelect = (app: any) => {
+  const handleSelect = (app: AppType) => {
     dispatch(setSelectedApp(app));
     localStorage.setItem("selectedApp", JSON.stringify(app));
     router.push("/dashboard");
@@ -70,7 +71,7 @@ export default function WorkspaceSelector() {
 
           <div className="w-full space-y-2">
             {apps.length > 0 ? (
-              apps.map((app: any) => (
+              apps.map((app: AppType) => (
                 <Button
                   key={app.id}
                   variant="ghost"
@@ -88,7 +89,7 @@ export default function WorkspaceSelector() {
             ) : (
               <div className="text-center py-4">
                 <p className="text-sm text-zinc-500 mb-4">
-                  You don't have any apps yet.
+                  You don&apos;t have any apps yet.
                 </p>
                 <Button
                   onClick={handleCreateNew}

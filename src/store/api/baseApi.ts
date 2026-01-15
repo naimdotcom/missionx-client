@@ -23,8 +23,8 @@ const baseQuery = (baseUrl: string) =>
     baseUrl,
     prepareHeaders: (headers, { getState }) => {
       // Cookies are automatically handled by the browser
-      const state = getState() as any;
-      const appId = state.auth?.currentAppId;
+      const state = getState() as { app?: { selectedApp?: { id: string } } };
+      const appId = state.app?.selectedApp?.id;
       if (appId) {
         headers.set("X-App-Id", appId);
       }

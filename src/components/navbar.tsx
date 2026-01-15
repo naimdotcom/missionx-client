@@ -41,6 +41,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import { LayoutDashboard, LogOut, Settings, User } from "lucide-react";
 
 interface MenuItem {
@@ -184,10 +185,12 @@ const Navbar = ({
           <div className="flex items-center gap-6">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
-              <img
+              <Image
                 src={logo.src}
-                className="max-h-8 dark:invert"
+                className="max-h-8 dark:invert w-auto h-auto"
                 alt={logo.alt}
+                width={32}
+                height={32}
               />
               <span className="text-lg font-semibold tracking-tighter">
                 {logo.title}
@@ -275,10 +278,12 @@ const Navbar = ({
           <div className="flex items-center justify-between">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
-              <img
+              <Image
                 src={logo.src}
-                className="max-h-8 dark:invert"
+                className="max-h-8 dark:invert w-auto h-auto"
                 alt={logo.alt}
+                width={32}
+                height={32}
               />
             </a>
             <Sheet>
@@ -291,10 +296,12 @@ const Navbar = ({
                 <SheetHeader>
                   <SheetTitle>
                     <a href={logo.url} className="flex items-center gap-2">
-                      <img
+                      <Image
                         src={logo.src}
-                        className="max-h-8 dark:invert"
+                        className="max-h-8 dark:invert w-auto h-auto"
                         alt={logo.alt}
+                        width={32}
+                        height={32}
                       />
                     </a>
                   </SheetTitle>

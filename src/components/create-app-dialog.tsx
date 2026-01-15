@@ -16,7 +16,6 @@ import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { MediaUploader } from "./media-uploader";
 import { useCreateAppMutation } from "@/store/api/appsApi";
-import { cn } from "@/lib/utils";
 
 export function CreateAppDialog({
   children,

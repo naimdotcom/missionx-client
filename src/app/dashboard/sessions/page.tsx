@@ -13,7 +13,6 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Monitor,
@@ -116,7 +115,7 @@ export default function SessionsPage() {
         <CardHeader>
           <CardTitle className="text-lg">Your Sessions</CardTitle>
           <CardDescription>
-            You're currently signed in to {sessionsData?.total || 0} device
+            You&apos;re currently signed in to {sessionsData?.total || 0} device
             {sessionsData?.total !== 1 ? "s" : ""}
           </CardDescription>
         </CardHeader>

@@ -6,7 +6,6 @@ import {
   AlertCircle,
   CheckCircle2,
   Layers,
-  Workflow,
   MessageSquare,
   Image as ImageIcon,
   Video,
@@ -42,7 +41,7 @@ const Section = ({
   children,
 }: {
   title: string;
-  icon: any;
+  icon: React.ElementType;
   children: React.ReactNode;
 }) => (
   <section

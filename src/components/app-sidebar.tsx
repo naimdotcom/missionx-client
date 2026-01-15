@@ -1,12 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  BotMessageSquare,
-  ChevronsUpDown,
-  GalleryVerticalEnd,
-  Plus,
-} from "lucide-react";
+import { BotMessageSquare, ChevronsUpDown, Plus } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { setSelectedApp } from "@/store/appSlice";

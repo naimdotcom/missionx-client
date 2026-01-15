@@ -21,10 +21,10 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [showWorkspaceSelector, setShowWorkspaceSelector] = useState(false);
+  const [showWorkspaceSelector] = useState(false);
   const [loginWithGoogleMutation, { isLoading: isLoggingIn }] =
     useLoginWithGoogleMutation();
-  const [getApps, { isLoading: isFetchingApps }] = useLazyGetAppsQuery();
+  const [, { isLoading: isFetchingApps }] = useLazyGetAppsQuery();
   const dispatch = useDispatch();
 
   // Facebook login handler
