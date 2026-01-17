@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -14,11 +15,13 @@ import { setSelectedApp } from "@/store/appSlice";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppType } from "@/store/appSlice";
+import { CreateAppDialog } from "@/components/create-app-dialog";
 
 export default function WorkspaceSelector() {
-  const { data: appsData, isLoading } = useGetAppsQuery({});
+  const { data: appsData, isLoading, refetch } = useGetAppsQuery({});
   const dispatch = useDispatch();
   const router = useRouter();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const handleSelect = (app: AppType) => {
     dispatch(setSelectedApp(app));
@@ -27,7 +30,15 @@ export default function WorkspaceSelector() {
   };
 
   const handleCreateNew = () => {
-    router.push("/apps/new");
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsCreateDialogOpen(open);
+    if (!open) {
+      // Refetch apps when dialog closes
+      refetch();
+    }
   };
 
   if (isLoading) {
@@ -91,23 +102,29 @@ export default function WorkspaceSelector() {
                 <p className="text-sm text-zinc-500 mb-4">
                   You don&apos;t have any apps yet.
                 </p>
-                <Button
-                  onClick={handleCreateNew}
-                  className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200"
+                <CreateAppDialog
+                  open={isCreateDialogOpen}
+                  onOpenChange={handleDialogOpenChange}
                 >
-                  Create Your First App
-                </Button>
+                  <Button className="w-full bg-zinc-100 text-zinc-900 hover:bg-zinc-200">
+                    Create Your First App
+                  </Button>
+                </CreateAppDialog>
               </div>
             )}
 
             {apps.length > 0 && (
-              <Button
-                variant="link"
-                onClick={handleCreateNew}
-                className="w-full text-xs text-zinc-500 hover:text-zinc-100 mt-4"
+              <CreateAppDialog
+                open={isCreateDialogOpen}
+                onOpenChange={handleDialogOpenChange}
               >
-                + Create new workspace
-              </Button>
+                <Button
+                  variant="link"
+                  className="w-full text-xs text-zinc-500 hover:text-zinc-100 mt-4"
+                >
+                  + Create new workspace
+                </Button>
+              </CreateAppDialog>
             )}
           </div>
         </CardContent>
