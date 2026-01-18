@@ -20,7 +20,7 @@
   --accent-foreground: #000000;
   --destructive: #000000;
   --destructive-foreground: #ffffff;
-  --border: #000000;
+  --border: #e4e4e7;
   --input: #000000;
   --ring: #000000;
   --radius: 0rem;
@@ -43,7 +43,7 @@
   --accent-foreground: #ffffff;
   --destructive: #ffffff;
   --destructive-foreground: #000000;
-  --border: #ffffff;
+  --border: #27272a;
   --input: #ffffff;
   --ring: #ffffff;
 }

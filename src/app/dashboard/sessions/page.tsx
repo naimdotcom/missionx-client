@@ -43,7 +43,7 @@ export default function SessionsPage() {
     {},
     {
       pollingInterval: 30000,
-    }
+    },
   );
   const [revokeSession, { isLoading: isRevoking }] = useRevokeSessionMutation();
   const [logoutAll, { isLoading: isLoggingOutAll }] = useLogoutAllMutation();
@@ -136,7 +136,7 @@ export default function SessionsPage() {
                   className={cn(
                     "flex items-center justify-between py-4 px-1",
                     session.is_current &&
-                      "bg-neutral-50 dark:bg-neutral-900/50 px-3 rounded-lg"
+                      "bg-neutral-50 dark:bg-neutral-900/50 px-3 rounded-lg",
                   )}
                 >
                   <div className="flex items-center gap-4 flex-1">
@@ -145,7 +145,7 @@ export default function SessionsPage() {
                         "p-2.5 rounded-lg",
                         session.is_current
                           ? "bg-neutral-900 dark:bg-neutral-50 text-white dark:text-black"
-                          : "bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50"
+                          : "bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-50",
                       )}
                     >
                       {getDeviceIcon(session.user_agent)}
@@ -199,7 +199,7 @@ export default function SessionsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardHeader>
             <CardTitle className="text-base">Two-Factor Auth</CardTitle>
@@ -237,7 +237,7 @@ export default function SessionsPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 }

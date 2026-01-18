@@ -1,4 +1,4 @@
-import { baseApi } from "./baseApi";
+import { baseApi, extractAndStoreToken } from "./baseApi";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -17,6 +17,14 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
         service: "auth",
       }),
+      onQueryStarted: async (args, { queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          extractAndStoreToken(data);
+        } catch (error) {
+          // Error handled by query
+        }
+      },
     }),
     loginWithGoogle: build.mutation({
       query: (data) => ({
@@ -26,6 +34,14 @@ export const authApi = baseApi.injectEndpoints({
         service: "auth",
         credentials: "include",
       }),
+      onQueryStarted: async (args, { queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          extractAndStoreToken(data);
+        } catch (error) {
+          // Error handled by query
+        }
+      },
     }),
     refreshToken: build.mutation({
       query: (data) => ({
@@ -107,14 +123,21 @@ export const authApi = baseApi.injectEndpoints({
     }),
     getMyProfile: build.query({
       query: () => ({
-        url: "/api/v1/auth/me",
+        url: "/api/v1/users/profile/me",
+        service: "auth",
+      }),
+      providesTags: ["Profile"],
+    }),
+    getProfileOnly: build.query({
+      query: () => ({
+        url: "/api/v1/users/profile",
         service: "auth",
       }),
       providesTags: ["Profile"],
     }),
     updateProfile: build.mutation({
       query: (data) => ({
-        url: "/api/v1/auth/me",
+        url: "/api/v1/users/profile",
         method: "PUT",
         body: data,
         service: "auth",
@@ -146,5 +169,7 @@ export const {
   useLazyGetMyCustomerQuery,
   useUpdateCustomerMutation,
   useGetMyProfileQuery,
+  useGetProfileOnlyQuery,
+  useLazyGetProfileOnlyQuery,
   useUpdateProfileMutation,
 } = authApi;

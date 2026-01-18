@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { getCookie, setCookie, deleteCookie } from "@/lib/cookies";
+import { tokenStore } from "./api/tokenStore";
 
 interface User {
   id: string;
@@ -41,6 +42,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.user = null;
       deleteCookie("mx_auth_hint");
+      tokenStore.clearAccessToken();
       // Note: Backend handles deleting auth/refresh token cookies upon calling /logout
     },
   },

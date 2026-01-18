@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import StoreProvider from "@/components/StoreProvider";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,7 +37,17 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <StoreProvider>
-          <AuthGuard>{children}</AuthGuard>
+          <AuthGuard>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}{" "}
+            </ThemeProvider>
+          </AuthGuard>
+          <Toaster position="top-right" />
         </StoreProvider>
       </body>
     </html>

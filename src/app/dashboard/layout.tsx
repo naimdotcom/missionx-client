@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { cn } from "@/lib/utils";
+import { useGetMyProfileQuery } from "@/store/api/authApi";
+import { DashboardBreadcrumb } from "@/components/dashboard-breadcrumb";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +18,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarFooter,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -34,10 +38,13 @@ import {
   BotMessageSquare,
   ChevronsUpDown,
   Plus,
+  Workflow,
+  Users,
 } from "lucide-react";
 import { RootState } from "@/store/store";
 import { setSelectedApp } from "@/store/appSlice";
 import { CreateAppDialog } from "@/components/create-app-dialog";
+import { NavUser } from "@/components/nav-user";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -48,6 +55,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const dispatch = useDispatch();
   const { apps, selectedApp } = useSelector((state: RootState) => state.app);
   const [isCreateAppOpen, setIsCreateAppOpen] = useState(false);
+
+  // Get profile data
+  const { data: profileData } = useGetMyProfileQuery(undefined);
 
   const isActive = (href: string) => pathname === href;
 
@@ -63,10 +73,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       icon: Home,
     },
     {
-      href: "/dashboard/profile",
-      label: "Profile",
-      icon: User,
+      href: "/dashboard/team",
+      label: "Team",
+      icon: Users,
     },
+    {
+      href: "/dashboard/flow",
+      label: "Flow",
+      icon: Workflow,
+    },
+
     {
       href: "/dashboard/sessions",
       label: "Sessions",
@@ -77,7 +93,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SidebarProvider>
       <Sidebar className="border-r border-neutral-200 dark:border-neutral-800">
-        <SidebarHeader className="border-b border-neutral-200 dark:border-neutral-800 px-4 py-4">
+        <SidebarHeader className="border-b border-neutral-200 dark:border-neutral-800 px-2 py-4">
           <SidebarMenu>
             <SidebarMenuItem>
               <DropdownMenu>
@@ -164,7 +180,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                         "flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
                         active
                           ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50"
-                          : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-neutral-50 dark:hover:bg-neutral-900"
+                          : "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-neutral-50 dark:hover:bg-neutral-900",
                       )}
                     >
                       <Icon className="h-5 w-5 shrink-0" />
@@ -176,12 +192,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             })}
           </SidebarMenu>
         </SidebarContent>
+
+        {/* Profile Section Footer */}
+        <SidebarFooter className="">
+          <NavUser
+            user={{
+              name: profileData?.profile?.first_name || "...",
+              email: profileData?.user?.email || "...",
+              avatar: profileData?.profile?.avatar_url || "",
+            }}
+          />
+        </SidebarFooter>
       </Sidebar>
 
       <SidebarInset>
-        <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-2 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950/50 backdrop-blur-sm px-4">
+        <header className="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-background px-4">
           <SidebarTrigger className="-ml-2" />
           <Separator orientation="vertical" className="mx-2 h-4" />
+          <DashboardBreadcrumb />
           <div className="flex-1" />
         </header>
         <main className="flex-1 overflow-auto">

@@ -6,6 +6,7 @@ import {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 import { logout } from "../authSlice";
+import { tokenStore } from "./tokenStore";
 
 const SERVICE_URLS: Record<string, string> = {
   auth: process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:8000",
@@ -22,7 +23,13 @@ const baseQuery = (baseUrl: string) =>
   fetchBaseQuery({
     baseUrl,
     prepareHeaders: (headers, { getState }) => {
-      // Cookies are automatically handled by the browser
+      // For localhost development with multiple ports, include token in Authorization header
+      // This ensures requests to different services (auth:8000, apps:8500, etc) include the token
+      const token = tokenStore.getAccessToken();
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+
       const state = getState() as { app?: { selectedApp?: { id: string } } };
       const appId = state.app?.selectedApp?.id;
       if (appId) {
@@ -71,10 +78,16 @@ const customBaseQuery: BaseQueryFn<
               method: "POST",
             },
             api,
-            extraOptions
+            extraOptions,
           );
+
           if (refreshResult.data) {
             console.log("[API] Refreshed successfully.");
+            // Store the new token for subsequent requests
+            const data = refreshResult.data as any;
+            if (data.access_token) {
+              tokenStore.setAccessToken(data.access_token);
+            }
             return true;
           } else {
             console.log("[API] Refresh failed.");
@@ -95,6 +108,7 @@ const customBaseQuery: BaseQueryFn<
         result = await rawBaseQuery(queryArgs, api, extraOptions);
       } else {
         console.log("[API] Refresh failed, logging out.");
+        tokenStore.clearAccessToken();
         api.dispatch(logout());
       }
     } else {
@@ -111,9 +125,25 @@ const customBaseQuery: BaseQueryFn<
   return result;
 };
 
+/**
+ * Middleware to intercept and handle token extraction from auth responses
+ */
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: customBaseQuery,
   tagTypes: ["Profile", "Apps", "Sessions"],
   endpoints: () => ({}),
 });
+
+// Intercept successful auth responses to store the token
+
+/**
+ * Helper to extract and store token from auth responses
+ * Should be called after login/google-login/refresh mutations
+ */
+export const extractAndStoreToken = (response: any) => {
+  if (response?.access_token) {
+    tokenStore.setAccessToken(response.access_token);
+  }
+  return response;
+};
