@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,15 @@ export function CreateAppDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate inputs
+    if (!name.trim()) {
+      toast.error("App name is required", {
+        description: "Please enter a name for your app",
+      });
+      return;
+    }
+
     try {
       const payload = {
         name,
@@ -40,11 +50,38 @@ export function CreateAppDialog({
         config: iconPath ? { image: iconPath } : {},
       };
 
-      await createApp(payload).unwrap();
+      const result = await createApp(payload).unwrap();
+
+      toast.success("App created successfully!", {
+        description: `Your app "${name}" has been launched.`,
+      });
+
       onOpenChange?.(false);
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to create app:", error);
+
+      // Extract error message from different response formats
+      let errorMessage = "Failed to create app";
+      let errorDescription = "";
+
+      if (error?.data?.detail) {
+        // Handle API error responses
+        if (typeof error.data.detail === "string") {
+          errorMessage = "Failed to create app";
+          errorDescription = error.data.detail;
+        }
+      } else if (error?.message) {
+        errorMessage = "Error";
+        errorDescription = error.message;
+      } else if (error?.status) {
+        errorMessage = `Error (${error.status})`;
+        errorDescription = error.data?.detail || "An unexpected error occurred";
+      }
+
+      toast.error(errorMessage, {
+        description: errorDescription,
+      });
     }
   };
 

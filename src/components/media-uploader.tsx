@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Upload, X, Loader2 } from "lucide-react";
 import { useUploadMediaMutation } from "@/store/api/appsApi";
@@ -26,7 +27,9 @@ export function MediaUploader({
 
     // Validate size (10MB)
     if (selectedFile.size > 10 * 1024 * 1024) {
-      alert("File size must be less than 10MB");
+      toast.error("File size exceeds limit", {
+        description: "File size must be less than 10MB",
+      });
       return;
     }
 
@@ -42,12 +45,27 @@ export function MediaUploader({
 
     try {
       const result = await uploadMedia(formData).unwrap();
+      toast.success("Image uploaded successfully", {
+        description: "Your app icon has been set.",
+      });
       onUploadComplete(result.file_path, result.url);
-      // Optional: Clean up object URL if we were doing more complex memory management,
-      // but usually fine for simple previews.
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload failed", error);
-      alert("Upload failed");
+
+      // Extract error message from response
+      let errorMessage = "Upload failed";
+      let errorDescription = "An error occurred while uploading your image";
+
+      if (error?.data?.detail) {
+        errorMessage = "Upload failed";
+        errorDescription = error.data.detail;
+      } else if (error?.message) {
+        errorDescription = error.message;
+      }
+
+      toast.error(errorMessage, {
+        description: errorDescription,
+      });
 
       setPreview(null);
     }
@@ -76,7 +94,7 @@ export function MediaUploader({
           onClick={() => fileInputRef.current?.click()}
           className={cn(
             "group relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors cursor-pointer",
-            "border-muted-foreground/25 hover:border-primary/50 py-6"
+            "border-muted-foreground/25 hover:border-primary/50 py-6",
           )}
         >
           {isLoading ? (

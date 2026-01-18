@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,8 +54,21 @@ export function LoginForm({
         // Use router for a cleaner transition
         // window.location.href = "/select-workspace";
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Google login failed:", error);
+
+      let errorMessage = "Login failed";
+      let errorDescription = "An error occurred during login";
+
+      if (error?.data?.detail) {
+        errorDescription = error.data.detail;
+      } else if (error?.message) {
+        errorDescription = error.message;
+      }
+
+      toast.error(errorMessage, {
+        description: errorDescription,
+      });
     }
   };
 

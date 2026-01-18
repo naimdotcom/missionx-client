@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import {
   useGetAllSessionsQuery,
   useRevokeSessionMutation,
@@ -51,18 +52,42 @@ export default function SessionsPage() {
   const handleRevoke = async (sessionId: string) => {
     try {
       await revokeSession(sessionId).unwrap();
+      toast.success("Session revoked", {
+        description: "The session has been successfully revoked.",
+      });
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to revoke session:", error);
+
+      let errorDescription = "An error occurred while revoking the session";
+      if (error?.data?.detail) {
+        errorDescription = error.data.detail;
+      }
+
+      toast.error("Failed to revoke session", {
+        description: errorDescription,
+      });
     }
   };
 
   const handleLogoutAll = async () => {
     try {
       await logoutAll({}).unwrap();
+      toast.success("Logged out", {
+        description: "All sessions have been logged out.",
+      });
       window.location.href = "/login";
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to logout all sessions:", error);
+
+      let errorDescription = "An error occurred while logging out";
+      if (error?.data?.detail) {
+        errorDescription = error.data.detail;
+      }
+
+      toast.error("Failed to logout all sessions", {
+        description: errorDescription,
+      });
     }
   };
 
