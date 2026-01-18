@@ -47,7 +47,7 @@ export function LoginForm({
       if (result.access_token) {
         dispatch(setAuthenticated(true));
         console.log(
-          "Google login successful, redirecting to workspace selection..."
+          "Google login successful, redirecting to workspace selection...",
         );
 
         // Use router for a cleaner transition
@@ -120,15 +120,6 @@ export function LoginForm({
                   </>
                 )}
               </Button>
-            </div>
-            <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a
-                href="/signup"
-                className="underline underline-offset-4 hover:text-primary"
-              >
-                Sign up
-              </a>
             </div>
           </div>
         </CardContent>
