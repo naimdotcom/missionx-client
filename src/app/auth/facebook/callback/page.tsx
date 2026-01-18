@@ -2,7 +2,6 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import PageContainer from "@/components/PageContainer";
 import { useDispatch } from "react-redux";
 import { setAuthenticated } from "@/store/authSlice";
 import { useLazyGetAppsQuery } from "@/store/api";
@@ -13,7 +12,7 @@ function FacebookCallbackContent() {
   const dispatch = useDispatch();
   const [getApps] = useLazyGetAppsQuery();
   const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
+    "loading",
   );
   const [message, setMessage] = useState("Processing Facebook login...");
 
@@ -99,17 +98,15 @@ function FacebookCallbackContent() {
 
 export default function FacebookCallbackPage() {
   return (
-    <PageContainer title="Facebook Login">
-      <Suspense
-        fallback={
-          <div className="flex flex-col items-center justify-center min-h-[400px]">
-            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-lg text-muted-foreground">Loading...</p>
-          </div>
-        }
-      >
-        <FacebookCallbackContent />
-      </Suspense>
-    </PageContainer>
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-lg text-muted-foreground">Loading...</p>
+        </div>
+      }
+    >
+      <FacebookCallbackContent />
+    </Suspense>
   );
 }
