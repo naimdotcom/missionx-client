@@ -399,6 +399,7 @@ export default function ProfilePage() {
                   <PopoverContent className="w-auto p-0" align="start">
                     <CalendarComponent
                       mode="single"
+                      captionLayout="dropdown"
                       selected={
                         formData.date_of_birth
                           ? new Date(formData.date_of_birth)

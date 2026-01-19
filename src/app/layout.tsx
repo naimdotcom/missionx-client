@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import StoreProvider from "@/components/StoreProvider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthInitializer } from "@/components/auth-initializer";
+import AuthGuard from "@/components/auth-guard";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,8 +26,6 @@ export const metadata: Metadata = {
   },
 };
 
-import AuthGuard from "@/components/auth-guard";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,16 +37,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         <StoreProvider>
-          <AuthGuard>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="light"
-              enableSystem
-              disableTransitionOnChange
-            >
-              {children}{" "}
-            </ThemeProvider>
-          </AuthGuard>
+          <AuthInitializer>
+            <AuthGuard>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="light"
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+              </ThemeProvider>
+            </AuthGuard>
+          </AuthInitializer>
           <Toaster position="top-right" />
         </StoreProvider>
       </body>

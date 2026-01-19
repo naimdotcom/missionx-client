@@ -50,6 +50,14 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
         service: "auth",
       }),
+      onQueryStarted: async (args, { queryFulfilled }) => {
+        try {
+          const { data } = await queryFulfilled;
+          extractAndStoreToken(data);
+        } catch (error) {
+          // Error handled by query
+        }
+      },
     }),
     getSessionInfo: build.query({
       query: () => ({

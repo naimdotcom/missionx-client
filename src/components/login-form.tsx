@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,17 +17,28 @@ import { loginWithGoogle } from "@/lib/firebase_login";
 import { useLoginWithGoogleMutation, useLazyGetAppsQuery } from "@/store/api";
 import { useDispatch } from "react-redux";
 import { setAuthenticated } from "@/store/authSlice";
+import {
+  redirectToReturnLocation,
+  getReturnLocation,
+} from "@/lib/locationPersistence";
 import WorkspaceSelector from "./workspace-selector";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  // const [showWorkspaceSelector] = useState(false);
+  const router = useRouter();
   const [loginWithGoogleMutation, { isLoading: isLoggingIn }] =
     useLoginWithGoogleMutation();
-  // const [, { isLoading: isFetchingApps }] = useLazyGetAppsQuery();
   const dispatch = useDispatch();
+
+  // Check if there's a return location saved
+  useEffect(() => {
+    const returnLocation = getReturnLocation();
+    if (returnLocation) {
+      console.log("[LoginForm] Found saved return location:", returnLocation);
+    }
+  }, []);
 
   // Facebook login handler
   const handleFacebookLogin = () => {
@@ -44,15 +56,13 @@ export function LoginForm({
         firebase_token: firebaseToken,
       }).unwrap();
       console.log("Google login result:", result);
-      // Tokens are now handled in cookies by the browser/backend
+
       if (result.access_token) {
         dispatch(setAuthenticated(true));
-        console.log(
-          "Google login successful, redirecting to workspace selection...",
-        );
+        console.log("Google login successful");
 
-        // Use router for a cleaner transition
-        // window.location.href = "/select-workspace";
+        // Redirect to saved location or dashboard
+        redirectToReturnLocation(router, "/dashboard");
       }
     } catch (error: any) {
       console.error("Google login failed:", error);
@@ -71,10 +81,6 @@ export function LoginForm({
       });
     }
   };
-
-  // if (showWorkspaceSelector) {
-  //   return <WorkspaceSelector />;
-  // }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

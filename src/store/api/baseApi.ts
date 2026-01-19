@@ -1,3 +1,5 @@
+"use client";
+
 import {
   createApi,
   fetchBaseQuery,
@@ -7,6 +9,7 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { logout } from "../authSlice";
 import { tokenStore } from "./tokenStore";
+import { saveReturnLocation } from "@/lib/locationPersistence";
 
 const SERVICE_URLS: Record<string, string> = {
   auth: process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:8000",
@@ -62,39 +65,69 @@ const customBaseQuery: BaseQueryFn<
   // 1. Try the initial query
   let result = await rawBaseQuery(queryArgs, api, extraOptions);
 
-  // 2. Check for 401
+  // 2. Check for 401 (access token expired)
   if (result.error && result.error.status === 401) {
-    if (!isRefreshing) {
+    // If a refresh is already in progress, wait for it
+    if (isRefreshing && refreshPromise) {
+      console.log("[API] Refresh already in progress, waiting...");
+      const success = await refreshPromise;
+
+      if (success) {
+        // Retry the original request with the new token
+        console.log("[API] Retrying original request after refresh");
+        result = await rawBaseQuery(queryArgs, api, extraOptions);
+      } else {
+        // Refresh failed, the logout has already been triggered
+        console.log("[API] Refresh failed, request aborted");
+      }
+    } else {
+      // Start a new refresh process
       isRefreshing = true;
       console.log("[API] Access token expired, attempting refresh...");
 
       // Create a shared promise for the refresh process
       refreshPromise = (async () => {
         try {
-          // We call the refresh endpoint from the auth service WITHOUT using the customBaseQuery to avoid recursion loops
+          // Call the refresh endpoint WITHOUT using customBaseQuery to avoid recursion
           const refreshResult = await baseQuery(SERVICE_URLS.auth)(
             {
               url: "/api/auth/refresh",
               method: "POST",
+              // Credentials are already set in baseQuery, but being explicit here
+              credentials: "include",
             },
             api,
             extraOptions,
           );
 
           if (refreshResult.data) {
-            console.log("[API] Refreshed successfully.");
-            // Store the new token for subsequent requests
+            console.log("[API] Token refresh successful");
+            // Store the new access token
             const data = refreshResult.data as any;
             if (data.access_token) {
               tokenStore.setAccessToken(data.access_token);
+              console.log("[API] New access token stored");
             }
             return true;
+          } else if (refreshResult.error) {
+            // Check if the refresh token itself is expired (401 from refresh endpoint)
+            if (refreshResult.error.status === 401) {
+              console.log(
+                "[API] Refresh token expired - performing hard logout",
+              );
+            } else {
+              console.log(
+                "[API] Refresh failed with error:",
+                refreshResult.error,
+              );
+            }
+            return false;
           } else {
-            console.log("[API] Refresh failed.");
+            console.log("[API] Refresh failed - no data or error returned");
             return false;
           }
         } catch (e) {
-          console.error("Refresh error", e);
+          console.error("[API] Refresh error:", e);
           return false;
         }
       })();
@@ -104,20 +137,21 @@ const customBaseQuery: BaseQueryFn<
       refreshPromise = null;
 
       if (success) {
-        // Retry the initial query
+        // Retry the original query with the new token
+        console.log("[API] Retrying original request with new token");
         result = await rawBaseQuery(queryArgs, api, extraOptions);
       } else {
-        console.log("[API] Refresh failed, logging out.");
+        // Hard logout: refresh token is expired or invalid
+        console.log("[API] Refresh failed, logging out user");
+
+        // Save current location so user can return after re-authentication
+        if (typeof window !== "undefined") {
+          saveReturnLocation(window.location.pathname);
+        }
+
+        // Clear tokens and logout
         tokenStore.clearAccessToken();
         api.dispatch(logout());
-      }
-    } else {
-      // If refresh is already in progress, wait for it
-      if (refreshPromise) {
-        const success = await refreshPromise;
-        if (success) {
-          result = await rawBaseQuery(queryArgs, api, extraOptions);
-        }
       }
     }
   }
