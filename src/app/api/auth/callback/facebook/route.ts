@@ -35,8 +35,9 @@ export async function GET(request: NextRequest) {
     const igAccounts = await fetchInstagramAccounts(longLivedToken.access_token, pages);
 
     // Store channel connections in database
-    // This is a simplified version - in production, you'd need proper organization/user context
-    const organizationId = 'default-org-id'; // TODO: Get from authenticated user session
+    // TODO: Get organizationId from authenticated user session
+    // In production, implement proper authentication (e.g., NextAuth.js)
+    const organizationId = 'default-org-id';
 
     for (const page of pages) {
       await db.insert(channelConnections).values({

@@ -59,6 +59,8 @@ export async function POST(request: NextRequest) {
     }
 
     // TODO: Get userId from authenticated session
+    // In production, implement proper authentication (e.g., NextAuth.js)
+    // and extract userId and organizationId from the session
     const userId = 'default-user-id';
     const organizationId = 'default-org-id';
 

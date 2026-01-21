@@ -73,7 +73,7 @@ async function processWebhookAsync(payload: any) {
     // Store raw event for idempotency and replay
     for (const entry of payload.entry || []) {
       for (const change of entry.changes || []) {
-        const eventId = `${entry.id}_${change.value?.message_id || change.value?.item || Date.now()}`;
+        const eventId = `${entry.id}_${change.value?.message_id || change.value?.item || crypto.randomUUID()}`;
         
         // Check if event already processed (idempotency)
         const existing = await db.query.webhookEvents.findFirst({
@@ -105,7 +105,7 @@ async function processWebhookAsync(payload: any) {
 
       // Handle messaging events
       for (const messaging of entry.messaging || []) {
-        const eventId = `${entry.id}_${messaging.message?.mid || Date.now()}`;
+        const eventId = `${entry.id}_${messaging.message?.mid || crypto.randomUUID()}`;
         
         const existing = await db.query.webhookEvents.findFirst({
           where: eq(webhookEvents.eventId, eventId),

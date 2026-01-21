@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
 
     // TODO: Get organizationId from authenticated user session
+    // In production, implement proper authentication (e.g., NextAuth.js)
+    // and extract organizationId from the session to ensure tenant isolation
     const organizationId = 'default-org-id';
 
     // Fetch conversations with related data

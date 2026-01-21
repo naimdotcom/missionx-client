@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, jsonb, varchar, boolean, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, uuid, jsonb, varchar, boolean, pgEnum, integer } from 'drizzle-orm/pg-core';
 
 // Enums
 export const channelTypeEnum = pgEnum('channel_type', ['facebook_page', 'instagram_business']);
@@ -96,7 +96,7 @@ export const webhookEvents = pgTable('webhook_events', {
   status: webhookEventStatusEnum('status').default('pending').notNull(),
   processedAt: timestamp('processed_at'),
   errorMessage: text('error_message'),
-  retryCount: varchar('retry_count', { length: 10 }).default('0').notNull(),
+  retryCount: integer('retry_count').default(0).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
