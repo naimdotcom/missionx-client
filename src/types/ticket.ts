@@ -11,24 +11,12 @@ export interface SLATimer {
 }
 
 export interface Ticket {
-  id: string;
-  workspaceId: string;
-  channelConnectionId: string;
-  contactId: string;
+  id: string | number;
   contactName: string;
-  contactAvatarUrl?: string;
-  contactUsername?: string;
-  status: TicketStatus;
-  priority: TicketPriority;
-  assignedTo?: string; // Agent ID
-  unreadCount: number;
-  lastMessagePreview: string;
-  lastMessageTimestamp: string;
-  sentiment?: SentimentType;
-  sla?: SLATimer;
-  tags?: string[];
-  createdAt: string;
-  updatedAt: string;
+  lastMessage: string;
+  timestamp: string;
+  unread: number;
+  channel: string;
 }
 
 export interface TicketFilters {

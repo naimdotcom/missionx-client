@@ -100,7 +100,7 @@ function InboxPage() {
   };
 
   return (
-    <div className="h-full flex">
+    <div className="grid grid-cols-[auto_1fr] h-full">
       {/* Ticket List Sidebar */}
       <div className="w-80 border-r flex flex-col bg-background">
         <div className="border-b p-4">

@@ -1,11 +1,7 @@
 // Individual ticket card component
 
-import { formatDistanceToNow } from "date-fns";
-import { ChannelBadge } from "~/components/shared/channel-badge";
-import { SentimentBadge } from "~/components/shared/sentiment-badge";
-import { SLATimerComponent } from "~/components/shared/sla-timer";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "~/lib/utils";
-import { useChannelStore } from "~/stores/channel-store";
 import { Ticket } from "~/types/ticket";
 
 interface TicketCardProps {
@@ -19,13 +15,6 @@ export const TicketCard = ({
   isSelected,
   onClick,
 }: TicketCardProps) => {
-  const { channels } = useChannelStore();
-  const channel = channels.find((c) => c.id === ticket.channelConnectionId);
-
-  const timeAgo = formatDistanceToNow(new Date(ticket.lastMessageTimestamp), {
-    addSuffix: true,
-  });
-
   return (
     <button
       onClick={onClick}
@@ -39,7 +28,7 @@ export const TicketCard = ({
       <div className="flex items-start gap-3">
         {/* Avatar */}
         <div className="flex-shrink-0">
-          {ticket.contactAvatarUrl ? (
+          {/* {ticket ? (
             <img
               src={ticket.contactAvatarUrl}
               alt={ticket.contactName}
@@ -49,7 +38,7 @@ export const TicketCard = ({
             <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-sm">
               {ticket.contactName.charAt(0).toUpperCase()}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Content */}
@@ -58,31 +47,31 @@ export const TicketCard = ({
             <h3 className="font-semibold text-sm truncate">
               {ticket.contactName}
             </h3>
-            {ticket.unreadCount > 0 && (
+            {ticket.unread > 0 && (
               <span className="flex-shrink-0 bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
-                {ticket.unreadCount}
+                {ticket.unread}
               </span>
             )}
           </div>
 
           <p className="text-xs text-muted-foreground truncate mb-2">
-            {ticket.lastMessagePreview}
+            {ticket.lastMessage}
           </p>
 
           {/* Metadata */}
           <div className="flex items-center gap-2 flex-wrap">
-            {channel && (
-              <ChannelBadge
-                channelType={channel.type}
-                platformName={channel.platformName}
-                size="sm"
-              />
+            {ticket.channel && (
+              <Badge variant={"secondary"} color="blue">
+                {ticket.channel}
+              </Badge>
             )}
-            {ticket.sentiment && (
+            {/* {ticket.sentiment && (
               <SentimentBadge sentiment={ticket.sentiment} size="sm" />
-            )}
-            {ticket.sla && <SLATimerComponent sla={ticket.sla} size="sm" />}
-            <span className="text-xs text-muted-foreground">{timeAgo}</span>
+            )} */}
+            {/* {ticket.sla && <SLATimerComponent sla={ticket.sla} size="sm" />} */}
+            <span className="text-xs text-muted-foreground">
+              {ticket.timestamp}
+            </span>
           </div>
         </div>
       </div>
