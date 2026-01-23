@@ -24,6 +24,25 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+
+    /* Inbox-specific tokens */
+    --inbox-sidebar-width: 320px;
+    --inbox-replier-height: 160px;
+    --ticket-card-height: 72px;
+
+    /* Channel colors */
+    --channel-facebook: 214 89% 52%; /* #1877F2 */
+    --channel-instagram: 330 75% 55%; /* #E1306C */
+
+    /* SLA states */
+    --sla-safe: 142 76% 36%;
+    --sla-warning: 45 93% 47%;
+    --sla-critical: 0 84% 60%;
+
+    /* Sentiment colors */
+    --sentiment-positive: 142 76% 36%;
+    --sentiment-neutral: 220 9% 46%;
+    --sentiment-negative: 0 84% 60%;
   }
 
   .dark {

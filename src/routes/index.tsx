@@ -1,36 +1,32 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Button } from "~/components/ui/button";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useAuthStore } from "~/stores/auth-store";
+
 export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    const { isAuthenticated } = useAuthStore.getState();
+    if (isAuthenticated) {
+      throw redirect({ to: "/inbox" });
+    }
+  },
   component: Home,
 });
 
 function Home() {
-  const { isAuthenticated } = useAuthStore();
-
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-foreground">
-          MissionX CX Inbox
+        <h1 className="text-5xl font-bold tracking-tight text-foreground mb-2">
+          MissionX
         </h1>
-        <p className="mt-4 text-lg text-muted-foreground">
-          Omnichannel customer communication platform
+        <p className="text-xl text-muted-foreground mb-8">
+          Customer Experience Platform
         </p>
-        <div className="mt-8 flex gap-4 justify-center">
-          {isAuthenticated ? (
-            <Link to="/inbox">
-              <Button size="lg">Open Inbox</Button>
-            </Link>
-          ) : (
-            <Link to="/login">
-              <Button size="lg">Sign In</Button>
-            </Link>
-          )}
-          <Button variant="outline" size="lg" disabled>
-            Connect Facebook (Demo)
-          </Button>
-        </div>
+        <a
+          href="/_auth/login"
+          className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+        >
+          Sign In
+        </a>
       </div>
     </div>
   );
