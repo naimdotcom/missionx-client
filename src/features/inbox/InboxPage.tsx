@@ -3,12 +3,28 @@
 import { Inbox, Paperclip, Send, Smile } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import type { Ticket } from "~/types/ticket";
 import { TicketCard } from "./components/ticket-card";
 
 // Mock data
-const mockTickets = [
+const mockTickets: Ticket[] = [
   {
     id: "1",
+    workspaceId: "ws-1",
+    channelType: "facebook_page",
+    status: "open",
+    priority: "normal",
+    subject: "Product inquiry",
+    customer: {
+      id: "c1",
+      name: "Sarah Johnson",
+    },
+    sentiment: "neutral",
+    unreadCount: 2,
+    lastMessageAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+    // Legacy properties
     contactName: "Sarah Johnson",
     lastMessage: "Hey! I have a question about your product...",
     timestamp: "2 min ago",
@@ -17,6 +33,21 @@ const mockTickets = [
   },
   {
     id: "2",
+    workspaceId: "ws-1",
+    channelType: "instagram_business",
+    status: "pending",
+    priority: "normal",
+    subject: "Thank you message",
+    customer: {
+      id: "c2",
+      name: "Mike Chen",
+    },
+    sentiment: "positive",
+    unreadCount: 0,
+    lastMessageAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+    // Legacy properties
     contactName: "Mike Chen",
     lastMessage: "Thanks for your help!",
     timestamp: "1 hour ago",
@@ -25,6 +56,21 @@ const mockTickets = [
   },
   {
     id: "3",
+    workspaceId: "ws-1",
+    channelType: "facebook_page",
+    status: "open",
+    priority: "high",
+    subject: "Details request",
+    customer: {
+      id: "c3",
+      name: "Emma Wilson",
+    },
+    sentiment: "neutral",
+    unreadCount: 1,
+    lastMessageAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    // Legacy properties
     contactName: "Emma Wilson",
     lastMessage: "Can you send me more details?",
     timestamp: "2 hours ago",

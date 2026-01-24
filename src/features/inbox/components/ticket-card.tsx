@@ -47,7 +47,7 @@ export const TicketCard = ({
             <h3 className="font-semibold text-sm truncate">
               {ticket.contactName}
             </h3>
-            {ticket.unread > 0 && (
+            {(ticket.unread ?? 0) > 0 && (
               <span className="flex-shrink-0 bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
                 {ticket.unread}
               </span>

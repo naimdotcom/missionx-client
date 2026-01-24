@@ -2,19 +2,26 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { apiClient } from "~/services/api-client";
-import { wsService } from "~/services/websocket";
-import { MessagePayload, UnifiedMessage } from "~/types/message";
+import type { SendMessagePayload, UnifiedMessage } from "~/api";
+import { messagesService } from "~/api";
+import { useAuthStore } from "~/stores/auth-store";
+import { queryKeys } from "./api/query-keys";
+
+// Legacy types for backward compatibility
+export interface MessagePayload {
+  ticketId: string;
+  text?: string;
+  attachments?: any[];
+  replyToId?: string;
+}
 
 // Fetch messages for a ticket
 export const useMessages = (ticketId: string | undefined) => {
   return useQuery({
-    queryKey: ["messages", ticketId],
-    queryFn: async () => {
+    queryKey: queryKeys.messages.byTicket(ticketId!),
+    queryFn: async ({ signal }) => {
       if (!ticketId) return [];
-      const response = await apiClient.get<UnifiedMessage[]>(
-        `/tickets/${ticketId}/messages`,
-      );
+      const response = await messagesService.getByTicket(ticketId, { signal });
       return response.data;
     },
     enabled: !!ticketId,
@@ -25,30 +32,31 @@ export const useMessages = (ticketId: string | undefined) => {
 // Send a new message with optimistic updates
 export const useSendMessage = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
 
   return useMutation({
     mutationFn: async (payload: MessagePayload) => {
-      const response = await apiClient.post<UnifiedMessage>(
-        `/tickets/${payload.ticketId}/messages`,
-        {
-          text: payload.text,
-          attachments: payload.attachments,
-          replyToId: payload.replyToId,
-        },
+      const apiPayload: SendMessagePayload = {
+        text: payload.text,
+        attachmentIds: [], // TODO: Handle attachments
+      };
+
+      const response = await messagesService.sendMessage(
+        payload.ticketId,
+        apiPayload,
       );
       return response.data;
     },
     onMutate: async (payload: MessagePayload) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({
-        queryKey: ["messages", payload.ticketId],
+        queryKey: queryKeys.messages.byTicket(payload.ticketId),
       });
 
       // Snapshot the previous value
-      const previousMessages = queryClient.getQueryData<UnifiedMessage[]>([
-        "messages",
-        payload.ticketId,
-      ]);
+      const previousMessages = queryClient.getQueryData<UnifiedMessage[]>(
+        queryKeys.messages.byTicket(payload.ticketId),
+      );
 
       // Optimistically update the cache
       const optimisticMessage: UnifiedMessage = {
@@ -57,9 +65,8 @@ export const useSendMessage = () => {
         channelType: "facebook_page", // TODO: Get from context
         direction: "outbound",
         sender: {
-          id: "current-user", // TODO: Get from auth store
-          name: "You",
-          type: "agent",
+          id: user?.id || "current-user",
+          name: user?.name || "You",
         },
         contentType:
           payload.attachments && payload.attachments.length > 0
@@ -73,7 +80,7 @@ export const useSendMessage = () => {
       };
 
       queryClient.setQueryData<UnifiedMessage[]>(
-        ["messages", payload.ticketId],
+        queryKeys.messages.byTicket(payload.ticketId),
         (old) => [...(old || []), optimisticMessage],
       );
 
@@ -83,7 +90,7 @@ export const useSendMessage = () => {
       // Rollback to previous state on error
       if (context?.previousMessages) {
         queryClient.setQueryData(
-          ["messages", payload.ticketId],
+          queryKeys.messages.byTicket(payload.ticketId),
           context.previousMessages,
         );
       }
@@ -92,9 +99,9 @@ export const useSendMessage = () => {
     onSettled: (_data, _error, payload) => {
       // Refetch to sync with server
       queryClient.invalidateQueries({
-        queryKey: ["messages", payload.ticketId],
+        queryKey: queryKeys.messages.byTicket(payload.ticketId),
       });
-      queryClient.invalidateQueries({ queryKey: ["tickets"] }); // Update ticket list
+      queryClient.invalidateQueries({ queryKey: queryKeys.tickets.all }); // Update ticket list
     },
   });
 };
@@ -111,15 +118,14 @@ export const useMarkAsRead = () => {
       ticketId: string;
       messageIds: string[];
     }) => {
-      const response = await apiClient.post(
-        `/tickets/${ticketId}/messages/read`,
-        { messageIds },
-      );
+      const response = await messagesService.markAsRead(ticketId, messageIds);
       return response.data;
     },
     onSuccess: (_, { ticketId }) => {
-      queryClient.invalidateQueries({ queryKey: ["messages", ticketId] });
-      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.messages.byTicket(ticketId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tickets.all });
     },
   });
 };
@@ -131,25 +137,26 @@ export const useRealtimeMessages = (ticketId: string | undefined) => {
   useEffect(() => {
     if (!ticketId) return;
 
-    const unsubscribe = wsService.onMessage((newMessage: UnifiedMessage) => {
-      // Only add message if it belongs to the current ticket
-      if (newMessage.ticketId === ticketId) {
-        queryClient.setQueryData<UnifiedMessage[]>(
-          ["messages", ticketId],
-          (old) => {
-            // Avoid duplicates
-            if (old?.some((msg) => msg.id === newMessage.id)) {
-              return old;
-            }
-            return [...(old || []), newMessage];
-          },
-        );
-      }
+    // TODO: Uncomment when WebSocket service is implemented
+    // const unsubscribe = wsService.onMessage((newMessage: UnifiedMessage) => {
+    //   // Only add message if it belongs to the current ticket
+    //   if (newMessage.ticketId === ticketId) {
+    //     queryClient.setQueryData<UnifiedMessage[]>(
+    //       queryKeys.messages.byTicket(ticketId),
+    //       (old) => {
+    //         // Avoid duplicates
+    //         if (old?.some((msg) => msg.id === newMessage.id)) {
+    //           return old;
+    //         }
+    //         return [...(old || []), newMessage];
+    //       },
+    //     );
+    //   }
 
-      // Update ticket list to reflect new message
-      queryClient.invalidateQueries({ queryKey: ["tickets"] });
-    });
+    //   // Update ticket list to reflect new message
+    //   queryClient.invalidateQueries({ queryKey: queryKeys.tickets.all });
+    // });
 
-    return unsubscribe;
+    // return unsubscribe;
   }, [ticketId, queryClient]);
 };
