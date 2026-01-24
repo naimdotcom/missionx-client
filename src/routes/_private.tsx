@@ -18,7 +18,7 @@ import {
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useAuthStore } from "~/stores/auth-store";
 
-export const Route = createFileRoute("/_authenticated")({
+export const Route = createFileRoute("/_private")({
   beforeLoad: () => {
     const { isAuthenticated } = useAuthStore.getState();
 
@@ -27,10 +27,10 @@ export const Route = createFileRoute("/_authenticated")({
       throw redirect({ to: "/login" });
     }
   },
-  component: AuthenticatedLayout,
+  component: PrivateLayout,
 });
 
-function AuthenticatedLayout() {
+function PrivateLayout() {
   return (
     <SidebarProvider>
       <AppSidebar />

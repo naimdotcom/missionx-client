@@ -7,7 +7,7 @@ import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { useAuthStore } from "~/stores/auth-store";
 
-export const Route = createFileRoute("/_auth/signup")({
+export const Route = createFileRoute("/_public/signup")({
   component: SignupPage,
 });
 

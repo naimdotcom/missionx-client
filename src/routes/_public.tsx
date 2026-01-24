@@ -3,7 +3,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useAuthStore } from "~/stores/auth-store";
 
-export const Route = createFileRoute("/_auth")({
+export const Route = createFileRoute("/_public")({
   beforeLoad: () => {
     const { isAuthenticated } = useAuthStore.getState();
 
@@ -12,10 +12,10 @@ export const Route = createFileRoute("/_auth")({
       throw redirect({ to: "/inbox" });
     }
   },
-  component: AuthLayout,
+  component: PublicLayout,
 });
 
-function AuthLayout() {
+function PublicLayout() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
       <div className="w-full max-w-md">

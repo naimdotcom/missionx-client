@@ -5,7 +5,7 @@ import { Inbox, Paperclip, Send, Smile } from "lucide-react";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 
-export const Route = createFileRoute("/_authenticated/inbox/ws-1")({
+export const Route = createFileRoute("/_private/inbox/ws-1")({
   component: InboxPage,
 });
 
