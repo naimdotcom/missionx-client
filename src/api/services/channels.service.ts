@@ -1,6 +1,6 @@
 // Channels service
 
-import type { APIResponse, RequestOptions } from "../types/api.types";
+import type { RequestOptions } from "../types/api.types";
 import { API_ENDPOINTS } from "../types/endpoints";
 import { BaseAPIService } from "./base.service";
 import type {
@@ -12,57 +12,38 @@ export class ChannelsService extends BaseAPIService {
   /**
    * Get all channel connections
    */
-  async getChannels(
-    options?: RequestOptions,
-  ): Promise<APIResponse<ChannelConnection[]>> {
-    return this.get<ChannelConnection[]>(
+  getChannels = (options?: RequestOptions) =>
+    this.get<ChannelConnection[]>(
       API_ENDPOINTS.CHANNELS.LIST,
       undefined,
       options,
     );
-  }
 
   /**
    * Get single channel connection
    */
-  async getChannel(
-    channelId: string,
-    options?: RequestOptions,
-  ): Promise<APIResponse<ChannelConnection>> {
-    return this.get<ChannelConnection>(
+  getChannel = (channelId: string, options?: RequestOptions) =>
+    this.get<ChannelConnection>(
       API_ENDPOINTS.CHANNELS.DETAIL(channelId),
       undefined,
       options,
     );
-  }
 
   /**
    * Connect new channel
    */
-  async connectChannel(
-    data: ConnectChannelRequest,
-    options?: RequestOptions,
-  ): Promise<APIResponse<ChannelConnection>> {
-    return this.post<ConnectChannelRequest, ChannelConnection>(
-      API_ENDPOINTS.CHANNELS.CONNECT,
-      data,
-      options,
-    );
-  }
+  connectChannel = (data: ConnectChannelRequest, options?: RequestOptions) =>
+    this.post<ChannelConnection>(API_ENDPOINTS.CHANNELS.CONNECT, data, options);
 
   /**
    * Disconnect channel
    */
-  async disconnectChannel(
-    channelId: string,
-    options?: RequestOptions,
-  ): Promise<APIResponse<void>> {
-    return this.post<void, void>(
+  disconnectChannel = (channelId: string, options?: RequestOptions) =>
+    this.post<void>(
       API_ENDPOINTS.CHANNELS.DISCONNECT(channelId),
-      undefined as any,
+      undefined,
       options,
     );
-  }
 }
 
 // Export singleton instance

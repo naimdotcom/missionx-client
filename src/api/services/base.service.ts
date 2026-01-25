@@ -85,7 +85,7 @@ export abstract class BaseAPIService {
   /**
    * POST request with type-safe request/response
    */
-  protected async post<TRequest, TResponse>(
+  protected async post<TResponse, TRequest = any>(
     endpoint: string,
     data: TRequest,
     options?: RequestOptions,
@@ -101,7 +101,7 @@ export abstract class BaseAPIService {
   /**
    * PUT request with type-safe request/response
    */
-  protected async put<TRequest, TResponse>(
+  protected async put<TResponse, TRequest = any>(
     endpoint: string,
     data: TRequest,
     options?: RequestOptions,
@@ -117,7 +117,7 @@ export abstract class BaseAPIService {
   /**
    * PATCH request with type-safe request/response
    */
-  protected async patch<TRequest, TResponse>(
+  protected async patch<TResponse, TRequest = any>(
     endpoint: string,
     data: Partial<TRequest>,
     options?: RequestOptions,

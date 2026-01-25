@@ -1,10 +1,6 @@
 // Tickets service
 
-import type {
-  APIResponse,
-  PaginatedResponse,
-  RequestOptions,
-} from "../types/api.types";
+import type { RequestOptions } from "../types/api.types";
 import { API_ENDPOINTS } from "../types/endpoints";
 import { BaseAPIService } from "./base.service";
 import type {
@@ -19,98 +15,63 @@ export class TicketsService extends BaseAPIService {
   /**
    * Get paginated list of tickets with filters
    */
-  async getTickets(
-    filters?: TicketFilters,
-    options?: RequestOptions,
-  ): Promise<PaginatedResponse<Ticket>> {
-    return this.getPaginated<Ticket>(
+  getTickets = (filters?: TicketFilters, options?: RequestOptions) =>
+    this.getPaginated<Ticket>(
       API_ENDPOINTS.TICKETS.LIST,
       filters as any,
       options,
     );
-  }
 
   /**
    * Get single ticket by ID
    */
-  async getTicket(
-    ticketId: string,
-    options?: RequestOptions,
-  ): Promise<APIResponse<Ticket>> {
-    return this.get<Ticket>(
+  getTicket = (ticketId: string, options?: RequestOptions) =>
+    this.get<Ticket>(
       API_ENDPOINTS.TICKETS.DETAIL(ticketId),
       undefined,
       options,
     );
-  }
 
   /**
    * Create new ticket
    */
-  async createTicket(
-    data: CreateTicketRequest,
-    options?: RequestOptions,
-  ): Promise<APIResponse<Ticket>> {
-    return this.post<CreateTicketRequest, Ticket>(
-      API_ENDPOINTS.TICKETS.CREATE,
-      data,
-      options,
-    );
-  }
+  createTicket = (data: CreateTicketRequest, options?: RequestOptions) =>
+    this.post<Ticket>(API_ENDPOINTS.TICKETS.CREATE, data, options);
 
   /**
    * Update existing ticket
    */
-  async updateTicket(
+  updateTicket = (
     ticketId: string,
     data: UpdateTicketRequest,
     options?: RequestOptions,
-  ): Promise<APIResponse<Ticket>> {
-    return this.patch<UpdateTicketRequest, Ticket>(
-      API_ENDPOINTS.TICKETS.UPDATE(ticketId),
-      data,
-      options,
-    );
-  }
+  ) =>
+    this.patch<Ticket>(API_ENDPOINTS.TICKETS.UPDATE(ticketId), data, options);
 
   /**
    * Delete ticket
    */
-  async deleteTicket(
-    ticketId: string,
-    options?: RequestOptions,
-  ): Promise<APIResponse<void>> {
-    return this.delete<void>(API_ENDPOINTS.TICKETS.DELETE(ticketId), options);
-  }
+  deleteTicket = (ticketId: string, options?: RequestOptions) =>
+    this.delete<void>(API_ENDPOINTS.TICKETS.DELETE(ticketId), options);
 
   /**
    * Assign ticket to user
    */
-  async assignTicket(
+  assignTicket = (
     ticketId: string,
     data: AssignTicketRequest,
     options?: RequestOptions,
-  ): Promise<APIResponse<Ticket>> {
-    return this.post<AssignTicketRequest, Ticket>(
-      API_ENDPOINTS.TICKETS.ASSIGN(ticketId),
-      data,
-      options,
-    );
-  }
+  ) => this.post<Ticket>(API_ENDPOINTS.TICKETS.ASSIGN(ticketId), data, options);
 
   /**
    * Close ticket
    */
-  async closeTicket(
-    ticketId: string,
-    options?: RequestOptions,
-  ): Promise<APIResponse<Ticket>> {
-    return this.post<void, Ticket>(
+  closeTicket = (ticketId: string, options?: RequestOptions) =>
+    this.post<Ticket>(
       API_ENDPOINTS.TICKETS.CLOSE(ticketId),
-      undefined as any,
+      undefined,
       options,
     );
-  }
 }
 
 // Export singleton instance

@@ -1,73 +1,62 @@
 // Messages service
 
-import type { APIResponse, RequestOptions } from "../types/api.types";
+import type { RequestOptions } from "../types/api.types";
 import { API_ENDPOINTS } from "../types/endpoints";
 import { BaseAPIService } from "./base.service";
-import type {
-  MarkReadRequest,
-  SendMessagePayload,
-  UnifiedMessage,
-} from "./types/message.types";
+import type { SendMessagePayload, UnifiedMessage } from "./types/message.types";
 
 export class MessagesService extends BaseAPIService {
   /**
    * Get all messages for a ticket
    */
-  async getByTicket(
-    ticketId: string,
-    options?: RequestOptions,
-  ): Promise<APIResponse<UnifiedMessage[]>> {
-    return this.get<UnifiedMessage[]>(
+  getByTicket = (ticketId: string, options?: RequestOptions) =>
+    this.get<UnifiedMessage[]>(
       API_ENDPOINTS.MESSAGES.BY_TICKET(ticketId),
       undefined,
       options,
     );
-  }
 
   /**
    * Send a new message to a ticket
    */
-  async sendMessage(
+  sendMessage = (
     ticketId: string,
     payload: SendMessagePayload,
     options?: RequestOptions,
-  ): Promise<APIResponse<UnifiedMessage>> {
-    return this.post<SendMessagePayload, UnifiedMessage>(
+  ) =>
+    this.post<UnifiedMessage>(
       API_ENDPOINTS.MESSAGES.SEND(ticketId),
       payload,
       options,
     );
-  }
 
   /**
    * Get single message details
    */
-  async getMessage(
+  getMessage = (
     ticketId: string,
     messageId: string,
     options?: RequestOptions,
-  ): Promise<APIResponse<UnifiedMessage>> {
-    return this.get<UnifiedMessage>(
+  ) =>
+    this.get<UnifiedMessage>(
       API_ENDPOINTS.MESSAGES.DETAIL(ticketId, messageId),
       undefined,
       options,
     );
-  }
 
   /**
    * Mark messages as read
    */
-  async markAsRead(
+  markAsRead = (
     ticketId: string,
     messageIds: string[],
     options?: RequestOptions,
-  ): Promise<APIResponse<void>> {
-    return this.post<MarkReadRequest, void>(
+  ) =>
+    this.post<void>(
       API_ENDPOINTS.MESSAGES.MARK_READ(ticketId),
       { messageIds },
       options,
     );
-  }
 
   /**
    * Upload attachment and return attachment ID
@@ -76,7 +65,7 @@ export class MessagesService extends BaseAPIService {
     file: File,
     onProgress?: (progress: number) => void,
     options?: RequestOptions,
-  ): Promise<APIResponse<{ id: string; url: string }>> {
+  ) {
     const formData = new FormData();
     formData.append("file", file);
 
