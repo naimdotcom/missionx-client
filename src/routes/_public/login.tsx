@@ -2,7 +2,7 @@
 
 import { useLogin } from "@/hooks/use-auth";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -14,8 +14,8 @@ export const Route = createFileRoute("/_public/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { setUser } = useAuthStore();
   const loginMutation = useLogin();
+  const { setUser } = useAuthStore();
 
   const form = useForm({
     defaultValues: { email: "", password: "" },
@@ -176,6 +176,13 @@ function LoginPage() {
 
       <div className="mt-4 text-center text-sm text-muted-foreground">
         <p>Demo credentials are pre-filled</p>
+      </div>
+
+      <div className="mt-4 text-center text-sm">
+        <span className="text-muted-foreground">Don't have an account? </span>
+        <Link to="/signup" className="text-primary hover:underline">
+          Register
+        </Link>
       </div>
     </Card>
   );

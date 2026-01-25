@@ -22,8 +22,8 @@ export class AuthService extends BaseAPIService {
   /**
    * Register new user
    */
-  register = (userData: RegisterRequest, options?: RequestOptions) =>
-    this.post<LoginResponse>(API_ENDPOINTS.AUTH.REGISTER, userData, options);
+  register = (payload: RegisterRequest, options?: RequestOptions) =>
+    this.post(API_ENDPOINTS.AUTH.REGISTER, payload, options);
 
   /**
    * Logout current user

@@ -1,11 +1,11 @@
 // Signup page
 
+import { useRegister } from "@/hooks/use-auth";
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-import { useAuthStore } from "~/stores/auth-store";
 
 export const Route = createFileRoute("/_public/signup")({
   component: SignupPage,
@@ -13,113 +13,120 @@ export const Route = createFileRoute("/_public/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
-  const { setUser } = useAuthStore();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const registerMutation = useRegister();
+
+  const form = useForm({
+    defaultValues: { email: "", password: "", phone: "" },
+    onSubmit: async ({ value }) => {
+      registerMutation.mutate(
+        { email: value.email, password: value.password, phone: value.phone },
+        { onSuccess: () => navigate({ to: "/login" }) },
+      );
+    },
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Basic validation
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
-    // Mock signup - replace with actual API call
-    setUser({
-      id: `user-${Date.now()}`,
-      email: formData.email,
-      name: formData.name,
-      organizationId: "org-1",
-      role: "agent",
-    });
-
-    navigate({ to: "/inbox" });
-  };
 
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-semibold mb-6">Create Account</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="text-sm font-medium mb-1.5 block">
-            Full Name
-          </label>
-          <Input
-            id="name"
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="John Doe"
-            required
-          />
-        </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-4"
+      >
+        <form.Field
+          name="phone"
+          children={(field) => (
+            <div>
+              <label
+                htmlFor={field.name}
+                className="text-sm font-medium mb-1.5 block"
+              >
+                Phone
+              </label>
+              <Input
+                required
+                type="text"
+                id={field.name}
+                name={field.name}
+                placeholder="1234567890"
+                onBlur={field.handleBlur}
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {field.state.meta.errors ? (
+                <em className="text-destructive text-xs">
+                  {field.state.meta.errors.join(", ")}
+                </em>
+              ) : null}
+            </div>
+          )}
+        />
 
-        <div>
-          <label htmlFor="email" className="text-sm font-medium mb-1.5 block">
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            placeholder="john@example.com"
-            required
-          />
-        </div>
+        <form.Field
+          name="email"
+          children={(field) => (
+            <div>
+              <label
+                htmlFor={field.name}
+                className="text-sm font-medium mb-1.5 block"
+              >
+                Email
+              </label>
+              <Input
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                type="email"
+                placeholder="agent@example.com"
+                required
+              />
+              {field.state.meta.errors ? (
+                <em className="text-destructive text-xs">
+                  {field.state.meta.errors.join(", ")}
+                </em>
+              ) : null}
+            </div>
+          )}
+        />
 
-        <div>
-          <label
-            htmlFor="password"
-            className="text-sm font-medium mb-1.5 block"
-          >
-            Password
-          </label>
-          <Input
-            id="password"
-            type="password"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-            placeholder="••••••••"
-            required
-            minLength={8}
-          />
-        </div>
+        <form.Field
+          name="password"
+          children={(field) => (
+            <div>
+              <label
+                htmlFor={field.name}
+                className="text-sm font-medium mb-1.5 block"
+              >
+                Password
+              </label>
+              <Input
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                type="password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+          )}
+        />
 
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="text-sm font-medium mb-1.5 block"
-          >
-            Confirm Password
-          </label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            value={formData.confirmPassword}
-            onChange={(e) =>
-              setFormData({ ...formData, confirmPassword: e.target.value })
-            }
-            placeholder="••••••••"
-            required
-            minLength={8}
-          />
-        </div>
-
-        <Button type="submit" className="w-full">
-          Sign Up
-        </Button>
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <Button type="submit" className="w-full" disabled={!canSubmit}>
+              {isSubmitting ? "Registering..." : "Register"}
+            </Button>
+          )}
+        />
       </form>
 
       <div className="mt-4 text-center text-sm">
