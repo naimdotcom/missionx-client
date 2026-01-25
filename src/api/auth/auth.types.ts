@@ -12,18 +12,17 @@ export interface RegisterRequest {
 }
 
 export interface LoginResponse {
-  user: User;
-  token: string;
-  refreshToken?: string;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  organizationId: string;
-  role: string;
-  avatarUrl?: string;
+  expires_in: number;
+  token_type: string;
+  user?: {
+    id?: string;
+    phone?: string;
+    email?: string;
+  };
+  access_token: string;
+  refresh_token: string;
+  refresh_expires_in?: number;
+  session_id?: string | number;
 }
 
 export interface RefreshTokenRequest {

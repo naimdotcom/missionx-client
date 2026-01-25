@@ -2,7 +2,7 @@
 
 import type { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "~/stores/auth-store";
-import { PUBLIC_ROUTES } from "../types/endpoints";
+import { PUBLIC_ROUTES } from "../../api/endpoints";
 
 /**
  * Request interceptor to inject Bearer token for authenticated routes
@@ -10,17 +10,15 @@ import { PUBLIC_ROUTES } from "../types/endpoints";
 export const authRequestInterceptor = (
   config: InternalAxiosRequestConfig,
 ): InternalAxiosRequestConfig => {
-  const { user } = useAuthStore.getState();
+  const { accessToken } = useAuthStore.getState();
 
   // Skip token injection for public routes
   const isPublicRoute = PUBLIC_ROUTES.some((route) =>
     config.url?.includes(route),
   );
 
-  if (!isPublicRoute && user) {
-    // TODO: Replace with actual JWT token once backend implements it
-    const token = user.id; // Temporary: using user ID as token
-    config.headers.Authorization = `Bearer ${token}`;
+  if (!isPublicRoute && accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
   return config;

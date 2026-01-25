@@ -1,16 +1,15 @@
 // Authentication service
 
-import type { RequestOptions } from "../types/api.types";
-import { API_ENDPOINTS } from "../types/endpoints";
-import { BaseAPIService } from "./base.service";
+import type { RequestOptions } from "../../api-service/api.types";
+import { BaseAPIService } from "../../api-service/services/base.service";
+import { API_ENDPOINTS } from "../endpoints";
 import type {
   LoginRequest,
   LoginResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
   RegisterRequest,
-  User,
-} from "./types/auth.types";
+} from "./auth.types";
 
 export class AuthService extends BaseAPIService {
   /**
@@ -37,11 +36,16 @@ export class AuthService extends BaseAPIService {
   refreshToken = (request: RefreshTokenRequest) =>
     this.post<RefreshTokenResponse>(API_ENDPOINTS.AUTH.REFRESH, request);
 
+  googleLogin = (
+    request: { firebase_token: string },
+    options?: RequestOptions,
+  ) => this.post<LoginResponse>(API_ENDPOINTS.AUTH.GOOGLE, request, options);
+
   /**
    * Get current user profile
    */
-  getCurrentUser = (options?: RequestOptions) =>
-    this.get<User>(API_ENDPOINTS.AUTH.ME, undefined, options);
+  // getCurrentUser = (options?: RequestOptions) =>
+  //   this.get<User>(API_ENDPOINTS.AUTH.ME, undefined, options);
 }
 
 // Export singleton instance

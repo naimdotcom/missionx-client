@@ -41,17 +41,17 @@ export const loggingResponseInterceptor = (
 ): AxiosResponse => {
   if (!isDevelopment) return response;
 
-  const { config, status, data } = response;
-  const duration = Date.now() - ((config as any).metadata?.startTime || 0);
-  const dataSize = JSON.stringify(data).length;
+  // const { config, status, data } = response;
+  // const duration = Date.now() - ((config as any).metadata?.startTime || 0);
+  // const dataSize = JSON.stringify(data).length;
 
-  console.group(
-    `📥 [API Response] ${config.method?.toUpperCase()} ${config.url} - ${status}`,
-  );
-  console.log("Duration:", `${duration}ms`);
-  console.log("Size:", `${(dataSize / 1024).toFixed(2)} KB`);
-  console.log("Data:", data);
-  console.groupEnd();
+  // console.group(
+  //   `📥 [API Response] ${config.method?.toUpperCase()} ${config.url} - ${status}`,
+  // );
+  // console.log("Duration:", `${duration}ms`);
+  // console.log("Size:", `${(dataSize / 1024).toFixed(2)} KB`);
+  // console.log("Data:", data);
+  // console.groupEnd();
 
   return response;
 };
@@ -62,16 +62,16 @@ export const loggingResponseInterceptor = (
 export const loggingErrorInterceptor = (error: AxiosError): Promise<never> => {
   if (!isDevelopment) return Promise.reject(error);
 
-  const { config, response } = error;
-  const duration = Date.now() - ((config as any)?.metadata?.startTime || 0);
+  // const { config, response } = error;
+  // const duration = Date.now() - ((config as any)?.metadata?.startTime || 0);
 
-  console.group(
-    `❌ [API Error] ${config?.method?.toUpperCase()} ${config?.url} - ${response?.status || "Network Error"}`,
-  );
-  console.log("Duration:", `${duration}ms`);
-  console.error("Error:", error.message);
-  if (response?.data) console.error("Response:", response.data);
-  console.groupEnd();
+  // console.group(
+  //   `❌ [API Error] ${config?.method?.toUpperCase()} ${config?.url} - ${response?.status || "Network Error"}`,
+  // );
+  // console.log("Duration:", `${duration}ms`);
+  // console.error("Error:", error.message);
+  // if (response?.data) console.error("Response:", response.data);
+  // console.groupEnd();
 
   return Promise.reject(error);
 };

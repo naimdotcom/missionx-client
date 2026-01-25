@@ -1,8 +1,10 @@
 // Signup page
 
-import { useRegister } from "@/hooks/use-auth";
+import { useRegister } from "@/api/auth/hook/use-auth";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import axios from "axios";
+import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -20,7 +22,14 @@ function SignupPage() {
     onSubmit: async ({ value }) => {
       registerMutation.mutate(
         { email: value.email, password: value.password, phone: value.phone },
-        { onSuccess: () => navigate({ to: "/login" }) },
+        {
+          onSuccess: () => navigate({ to: "/login" }),
+          onError: (err) => {
+            if (axios.isAxiosError(err)) {
+              toast.error(err.response?.data?.detail);
+            }
+          },
+        },
       );
     },
   });

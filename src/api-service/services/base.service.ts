@@ -1,13 +1,13 @@
 // Abstract base service class with generic HTTP methods and AbortController support
 
 import type { AxiosInstance, AxiosRequestConfig } from "axios";
-import { axiosInstance } from "../axios-instance";
 import type {
   APIResponse,
   PaginatedResponse,
   QueryParams,
   RequestOptions,
-} from "../types/api.types";
+} from "../api.types";
+import { axiosInstance } from "../axios-instance";
 
 /**
  * Abstract base service class providing common HTTP methods with:
@@ -89,8 +89,8 @@ export abstract class BaseAPIService {
     endpoint: string,
     data: TRequest,
     options?: RequestOptions,
-  ): Promise<APIResponse<TResponse>> {
-    const response = await this.axios.post<APIResponse<TResponse>>(
+  ): Promise<TResponse> {
+    const response = await this.axios.post<TResponse>(
       endpoint,
       data,
       this.buildConfig(options),
