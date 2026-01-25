@@ -5,12 +5,6 @@
  * https://tkdodo.eu/blog/effective-react-query-keys
  */
 export const queryKeys = {
-  // Auth queries
-  auth: {
-    all: ["auth"] as const,
-    me: () => [...queryKeys.auth.all, "me"] as const,
-  },
-
   // // Ticket queries
   // tickets: {
   //   all: ["tickets"] as const,
@@ -49,13 +43,6 @@ export const queryKeys = {
  * Mutation keys for tracking mutation states
  */
 export const mutationKeys = {
-  auth: {
-    login: ["auth", "login"] as const,
-    register: ["auth", "register"] as const,
-    logout: ["auth", "logout"] as const,
-    google: ["auth", "google"] as const,
-    refreshToken: ["auth", "refreshToken"] as const,
-  },
   tickets: {
     create: ["tickets", "create"] as const,
     update: ["tickets", "update"] as const,

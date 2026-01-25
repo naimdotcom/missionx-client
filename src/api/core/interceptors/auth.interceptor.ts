@@ -1,8 +1,8 @@
 // Authentication interceptor - injects Bearer token and handles 401 responses
 
+import { PUBLIC_ROUTES } from "@/api";
 import type { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "~/stores/auth-store";
-import { PUBLIC_ROUTES } from "../../api/endpoints";
 
 /**
  * Request interceptor to inject Bearer token for authenticated routes

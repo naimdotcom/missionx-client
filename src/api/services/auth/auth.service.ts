@@ -1,14 +1,15 @@
 // Authentication service
 
-import type { RequestOptions } from "../../api-service/api.types";
-import { BaseAPIService } from "../../api-service/services/base.service";
-import { API_ENDPOINTS } from "../endpoints";
+import type { RequestOptions } from "../../core/api.types";
+import { BaseAPIService } from "../../core/base.service";
+import { API_ENDPOINTS } from "../../endpoints";
 import type {
   LoginRequest,
   LoginResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
   RegisterRequest,
+  VerifyToken,
 } from "./auth.types";
 
 export class AuthService extends BaseAPIService {
@@ -40,6 +41,10 @@ export class AuthService extends BaseAPIService {
     request: { firebase_token: string },
     options?: RequestOptions,
   ) => this.post<LoginResponse>(API_ENDPOINTS.AUTH.GOOGLE, request, options);
+
+  verifyToken = (options?: RequestOptions) => {
+    return this.get<VerifyToken>(API_ENDPOINTS.AUTH.VERIFY, undefined, options);
+  };
 
   /**
    * Get current user profile

@@ -1,13 +1,14 @@
 // Login page with dummy authentication
 
-import { useGoogleLogin, useLogin } from "@/api";
+import { useGoogleLogin, useLogin, useVerifyToken } from "@/api";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import { Card } from "~/components/ui/card";
+import { Card, CardHeader } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { auth, googleProvider } from "~/lib/firebase";
 import { useAuthStore } from "~/stores/auth-store";
@@ -21,6 +22,7 @@ function LoginPage() {
   const loginMutation = useLogin();
   const { setAuth } = useAuthStore();
   const googleAuthMutation = useGoogleLogin();
+  const verifyTokenQuery = useVerifyToken(loginMutation.isSuccess);
 
   const handleGoogleLogin = async () => {
     try {
@@ -50,28 +52,52 @@ function LoginPage() {
     }
   };
 
+  useEffect(() => {
+    if (verifyTokenQuery.isSuccess) {
+      toast.success("Login successful");
+      navigate({ to: "/inbox" });
+    }
+  }, [verifyTokenQuery.isSuccess, navigate]);
+
   const form = useForm({
     defaultValues: { email: "", password: "" },
     onSubmit: async ({ value }) => {
-      loginMutation.mutate(
-        { email: value.email, password: value.password },
-        {
-          onSuccess: (data) => {
-            setAuth(data.access_token, data.refresh_token);
-            navigate({ to: "/inbox" });
+      try {
+        loginMutation.mutate(
+          { email: value.email, password: value.password },
+          {
+            onSuccess: (data) => {
+              setAuth(data.access_token, data.refresh_token);
+            },
+            onError: (err) => {
+              if (axios.isAxiosError(err)) {
+                toast.error(err.response?.data?.detail);
+              }
+            },
           },
-          onError: (err) => {
-            if (axios.isAxiosError(err)) {
-              toast.error(err.response?.data?.detail);
-            }
-          },
-        },
-      );
+        );
+      } catch (error) {}
     },
   });
 
+  if (verifyTokenQuery.isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-lg">Verifying session...</p>
+      </div>
+    );
+  }
+
   return (
     <Card className="p-6">
+      <CardHeader>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold">MissionX</h1>
+          <p className="text-muted-foreground mt-2">
+            Customer Experience Platform
+          </p>
+        </div>
+      </CardHeader>
       <h2 className="text-2xl font-semibold mb-6">Sign In</h2>
 
       <form

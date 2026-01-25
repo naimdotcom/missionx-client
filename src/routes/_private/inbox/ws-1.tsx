@@ -102,7 +102,7 @@ function InboxPage() {
   return (
     <div className="grid grid-cols-[auto_1fr] h-full">
       {/* Ticket List Sidebar */}
-      <div className="w-80 border-r flex flex-col bg-background">
+      <div className="border-r flex flex-col w-96">
         <div className="border-b p-4">
           <h2 className="font-semibold text-lg">Inbox</h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -110,7 +110,7 @@ function InboxPage() {
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="overflow-y-auto">
           {mockTickets.map((ticket) => (
             <button
               key={ticket.id}
@@ -161,7 +161,7 @@ function InboxPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-col">
         {selectedTicket ? (
           <>
             {/* Header */}

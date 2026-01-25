@@ -6,8 +6,8 @@ import type {
   PaginatedResponse,
   QueryParams,
   RequestOptions,
-} from "../api.types";
-import { axiosInstance } from "../axios-instance";
+} from "./api.types";
+import { axiosInstance } from "./axios-instance";
 
 /**
  * Abstract base service class providing common HTTP methods with:

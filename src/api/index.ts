@@ -1,12 +1,12 @@
-// Endpoint constants
-export { API_ENDPOINTS, PUBLIC_ROUTES } from "../api/endpoints";
-import { authService } from "./auth/auth.service";
+// Infrastructure & Core
+export * from "./core/api.types";
+export * from "./core/axios-instance";
+export * from "./core/base.service";
+export * from "./core/query-keys";
+export { API_ENDPOINTS, PUBLIC_ROUTES } from "./endpoints";
 
-// Auth service
-export { authService };
-
-// Auth types
-export * from "./auth/auth.types";
-
-// Other services and types can be exported similarly
-export * from "./auth/hook/use-auth";
+// Auth Domain
+export * from "./services/auth/auth.hooks";
+export * from "./services/auth/auth.keys";
+export * from "./services/auth/auth.service";
+export * from "./services/auth/auth.types";

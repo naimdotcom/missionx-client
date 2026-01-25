@@ -25,6 +25,16 @@ export interface LoginResponse {
   session_id?: string | number;
 }
 
+export type VerifyToken = {
+  status?: string;
+  payload: {
+    user_id?: string;
+    email?: string;
+    session_id?: string | null;
+    token_type?: string;
+  };
+};
+
 export interface RefreshTokenRequest {
   refreshToken: string;
 }

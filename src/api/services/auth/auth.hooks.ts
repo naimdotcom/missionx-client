@@ -1,9 +1,7 @@
-// TanStack Query hooks for messages with optimistic updates
-
-import type { LoginRequest, RegisterRequest } from "@/api-service";
-import { authService } from "@/api-service";
-import { useMutation } from "@tanstack/react-query";
-import { mutationKeys } from "../../../api-service/query-keys";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { authMutationKeys } from "./auth.keys";
+import { authService } from "./auth.service";
+import type { LoginRequest, RegisterRequest } from "./auth.types";
 
 export const useLogin = () => {
   return useMutation({
@@ -11,7 +9,7 @@ export const useLogin = () => {
       const response = await authService.login(payload);
       return response;
     },
-    mutationKey: mutationKeys.auth.login,
+    mutationKey: authMutationKeys.login,
   });
 };
 
@@ -21,7 +19,7 @@ export const useRegister = () => {
       const response = await authService.register(payload);
       return response;
     },
-    mutationKey: mutationKeys.auth.register,
+    mutationKey: authMutationKeys.register,
   });
 };
 
@@ -31,7 +29,18 @@ export function useGoogleLogin() {
       const response = await authService.googleLogin(payload);
       return response;
     },
-    mutationKey: mutationKeys.auth.google,
+    mutationKey: authMutationKeys.google,
+  });
+}
+
+export function useVerifyToken(enable: boolean) {
+  return useQuery({
+    enabled: !!enable,
+    queryKey: authMutationKeys.verify,
+    queryFn: async () => {
+      const response = await authService.verifyToken();
+      return response;
+    },
   });
 }
 
@@ -41,6 +50,6 @@ export function useRefreshToken() {
       const response = await authService.refreshToken(payload);
       return response;
     },
-    mutationKey: mutationKeys.auth.refreshToken,
+    mutationKey: authMutationKeys.refreshToken,
   });
 }

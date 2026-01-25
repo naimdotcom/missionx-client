@@ -1,6 +1,6 @@
 // Signup page
 
-import { useRegister } from "@/api/auth/hook/use-auth";
+import { useRegister } from "@/api";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import axios from "axios";
