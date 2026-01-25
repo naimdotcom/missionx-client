@@ -1,7 +1,8 @@
 // Login page with dummy authentication
 
+import { useLogin } from "@/hooks/use-auth";
+import { useForm } from "@tanstack/react-form";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -14,70 +15,91 @@ export const Route = createFileRoute("/_public/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const { setUser } = useAuthStore();
-  const [formData, setFormData] = useState({
-    email: "agent@example.com",
-    password: "password",
+  const loginMutation = useLogin();
+
+  const form = useForm({
+    defaultValues: { email: "", password: "" },
+    onSubmit: async ({ value }) => {
+      loginMutation.mutate(
+        { email: value.email, password: value.password },
+        { onSuccess: () => navigate({ to: "/inbox" }) },
+      );
+    },
   });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Set dummy user token
-    setUser({
-      id: "user-1",
-      email: formData.email,
-      name: "Demo Agent",
-      organizationId: "org-1",
-      role: "agent",
-    });
-
-    // Navigate to inbox
-    navigate({ to: "/inbox/ws-1" });
-  };
 
   return (
     <Card className="p-6">
       <h2 className="text-2xl font-semibold mb-6">Sign In</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="text-sm font-medium mb-1.5 block">
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            placeholder="agent@example.com"
-            required
-          />
-        </div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-4"
+      >
+        <form.Field
+          name="email"
+          children={(field) => (
+            <div>
+              <label
+                htmlFor={field.name}
+                className="text-sm font-medium mb-1.5 block"
+              >
+                Email
+              </label>
+              <Input
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                type="email"
+                placeholder="agent@example.com"
+                required
+              />
+              {field.state.meta.errors ? (
+                <em className="text-destructive text-xs">
+                  {field.state.meta.errors.join(", ")}
+                </em>
+              ) : null}
+            </div>
+          )}
+        />
 
-        <div>
-          <label
-            htmlFor="password"
-            className="text-sm font-medium mb-1.5 block"
-          >
-            Password
-          </label>
-          <Input
-            id="password"
-            type="password"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-            placeholder="••••••••"
-            required
-          />
-        </div>
+        <form.Field
+          name="password"
+          children={(field) => (
+            <div>
+              <label
+                htmlFor={field.name}
+                className="text-sm font-medium mb-1.5 block"
+              >
+                Password
+              </label>
+              <Input
+                id={field.name}
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                type="password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+          )}
+        />
 
-        <Button type="submit" className="w-full">
-          Sign In
-        </Button>
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <Button type="submit" className="w-full" disabled={!canSubmit}>
+              {isSubmitting ? "Signing In..." : "Sign In"}
+            </Button>
+          )}
+        />
       </form>
 
       <div className="relative my-6">
