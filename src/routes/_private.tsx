@@ -1,5 +1,6 @@
 // Protected layout for authenticated routes
 
+import { useVerifyToken } from "@/api";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import {
   Breadcrumb,
@@ -13,6 +14,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Spinner } from "@/components/ui/spinner";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useAuthStore } from "~/stores/auth-store";
 
@@ -29,6 +31,15 @@ export const Route = createFileRoute("/_private")({
 });
 
 function PrivateLayout() {
+  const verifyTokenQuery = useVerifyToken(true);
+
+  if (verifyTokenQuery.isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full">
+        <Spinner />
+      </div>
+    );
+  }
   return (
     <SidebarProvider>
       <AppSidebar />

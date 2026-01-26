@@ -53,12 +53,14 @@ function LoginPage() {
   };
 
   useEffect(() => {
-    if (verifyTokenQuery.isSuccess) {
+    if (
+      verifyTokenQuery.isSuccess &&
+      verifyTokenQuery.data.status === "valid"
+    ) {
       toast.success("Login successful");
       navigate({ to: "/inbox" });
     }
-  }, [verifyTokenQuery.isSuccess, navigate]);
-
+  }, [verifyTokenQuery.isSuccess, verifyTokenQuery.data?.status]);
   const form = useForm({
     defaultValues: { email: "", password: "" },
     onSubmit: async ({ value }) => {
