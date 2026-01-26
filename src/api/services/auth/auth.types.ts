@@ -43,3 +43,13 @@ export interface RefreshTokenResponse {
   token: string;
   refreshToken?: string;
 }
+
+export type UserInfo = {
+  email?: string;
+  phone?: string;
+  id?: string;
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};

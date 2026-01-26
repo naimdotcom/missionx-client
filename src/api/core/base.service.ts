@@ -57,9 +57,9 @@ export abstract class BaseAPIService {
     endpoint: string,
     params?: QueryParams,
     options?: RequestOptions,
-  ): Promise<APIResponse<T>> {
+  ): Promise<T> {
     const queryString = this.buildQueryString(params);
-    const response = await this.axios.get<APIResponse<T>>(
+    const response = await this.axios.get<T>(
       `${endpoint}${queryString}`,
       this.buildConfig(options),
     );

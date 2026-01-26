@@ -53,3 +53,13 @@ export function useRefreshToken() {
     mutationKey: authMutationKeys.refreshToken,
   });
 }
+
+export function useUserInfo() {
+  return useQuery({
+    queryKey: authMutationKeys.userInfo,
+    queryFn: async () => {
+      const response = await authService.getCurrentUser();
+      return response;
+    },
+  });
+}

@@ -9,6 +9,7 @@ import type {
   RefreshTokenRequest,
   RefreshTokenResponse,
   RegisterRequest,
+  UserInfo,
   VerifyToken,
 } from "./auth.types";
 
@@ -49,8 +50,8 @@ export class AuthService extends BaseAPIService {
   /**
    * Get current user profile
    */
-  // getCurrentUser = (options?: RequestOptions) =>
-  //   this.get<User>(API_ENDPOINTS.AUTH.ME, undefined, options);
+  getCurrentUser = (options?: RequestOptions) =>
+    this.get<UserInfo>(API_ENDPOINTS.AUTH.ME, undefined, options);
 }
 
 // Export singleton instance

@@ -12,4 +12,5 @@ export const authMutationKeys = {
   google: ["auth", "google"] as const,
   refreshToken: ["auth", "refreshToken"] as const,
   verify: ["auth", "verify"] as const,
+  userInfo: ["auth", "userInfo"] as const,
 };

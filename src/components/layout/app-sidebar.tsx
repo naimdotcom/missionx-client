@@ -1,5 +1,6 @@
 "use client";
 
+import { useUserInfo } from "@/api";
 import {
   Sidebar,
   SidebarContent,
@@ -22,11 +23,7 @@ import { TeamSwitcher } from "./team-switcher";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+  user: undefined,
   teams: [
     {
       name: "Acme Inc",
@@ -65,17 +62,33 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const userQuery = useUserInfo();
+
+  const sidebarData = React.useMemo(() => {
+    if (userQuery.isSuccess) {
+      return {
+        ...data,
+        user: {
+          name: undefined,
+          avatar: undefined,
+          email: userQuery.data.email,
+        },
+      };
+    }
+    return data;
+  }, [userQuery.data]);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={sidebarData.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={sidebarData.navMain} />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {sidebarData.user && <NavUser user={sidebarData.user} />}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
