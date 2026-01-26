@@ -1,5 +1,6 @@
 // Simple inbox page with mock data
 
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle2, Inbox, Paperclip, Send, Smile } from "lucide-react";
 import { useState } from "react";
@@ -146,7 +147,14 @@ function InboxPage() {
       {/* Ticket List Sidebar */}
       <div className="border-r col-span-1 overflow-hidden">
         <Tabs defaultValue="active">
-          <div className="flex flex-col gap-4 px-4 py-2 border-b">
+          <div className="flex flex-col gap-4 px-4 py-4 border-b">
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-bold">Inbox</h1>
+              <div className="flex items-center gap-1">
+                <ThemeToggle />
+              </div>
+            </div>
+
             {/* <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
