@@ -14,8 +14,7 @@ import { Route as PrivateRouteImport } from './routes/_private'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PublicSignupRouteImport } from './routes/_public/signup'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
-import { Route as PrivateInboxIndexRouteImport } from './routes/_private/inbox/index'
-import { Route as PrivateInboxWs1RouteImport } from './routes/_private/inbox/ws-1'
+import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -40,55 +39,46 @@ const PublicLoginRoute = PublicLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => PublicRoute,
 } as any)
-const PrivateInboxIndexRoute = PrivateInboxIndexRouteImport.update({
-  id: '/inbox/',
-  path: '/inbox/',
-  getParentRoute: () => PrivateRoute,
-} as any)
-const PrivateInboxWs1Route = PrivateInboxWs1RouteImport.update({
-  id: '/inbox/ws-1',
-  path: '/inbox/ws-1',
+const PrivateInboxRoute = PrivateInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => PrivateRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/inbox': typeof PrivateInboxRoute
   '/login': typeof PublicLoginRoute
   '/signup': typeof PublicSignupRoute
-  '/inbox/ws-1': typeof PrivateInboxWs1Route
-  '/inbox/': typeof PrivateInboxIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/inbox': typeof PrivateInboxRoute
   '/login': typeof PublicLoginRoute
   '/signup': typeof PublicSignupRoute
-  '/inbox/ws-1': typeof PrivateInboxWs1Route
-  '/inbox': typeof PrivateInboxIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_private': typeof PrivateRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
+  '/_private/inbox': typeof PrivateInboxRoute
   '/_public/login': typeof PublicLoginRoute
   '/_public/signup': typeof PublicSignupRoute
-  '/_private/inbox/ws-1': typeof PrivateInboxWs1Route
-  '/_private/inbox/': typeof PrivateInboxIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/signup' | '/inbox/ws-1' | '/inbox/'
+  fullPaths: '/' | '/inbox' | '/login' | '/signup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/inbox/ws-1' | '/inbox'
+  to: '/' | '/inbox' | '/login' | '/signup'
   id:
     | '__root__'
     | '/'
     | '/_private'
     | '/_public'
+    | '/_private/inbox'
     | '/_public/login'
     | '/_public/signup'
-    | '/_private/inbox/ws-1'
-    | '/_private/inbox/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -134,31 +124,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_private/inbox/': {
-      id: '/_private/inbox/'
+    '/_private/inbox': {
+      id: '/_private/inbox'
       path: '/inbox'
-      fullPath: '/inbox/'
-      preLoaderRoute: typeof PrivateInboxIndexRouteImport
-      parentRoute: typeof PrivateRoute
-    }
-    '/_private/inbox/ws-1': {
-      id: '/_private/inbox/ws-1'
-      path: '/inbox/ws-1'
-      fullPath: '/inbox/ws-1'
-      preLoaderRoute: typeof PrivateInboxWs1RouteImport
+      fullPath: '/inbox'
+      preLoaderRoute: typeof PrivateInboxRouteImport
       parentRoute: typeof PrivateRoute
     }
   }
 }
 
 interface PrivateRouteChildren {
-  PrivateInboxWs1Route: typeof PrivateInboxWs1Route
-  PrivateInboxIndexRoute: typeof PrivateInboxIndexRoute
+  PrivateInboxRoute: typeof PrivateInboxRoute
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
-  PrivateInboxWs1Route: PrivateInboxWs1Route,
-  PrivateInboxIndexRoute: PrivateInboxIndexRoute,
+  PrivateInboxRoute: PrivateInboxRoute,
 }
 
 const PrivateRouteWithChildren =

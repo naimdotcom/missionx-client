@@ -35,8 +35,12 @@ export class AuthService extends BaseAPIService {
   /**
    * Refresh access token
    */
-  refreshToken = (request: RefreshTokenRequest) =>
-    this.post<RefreshTokenResponse>(API_ENDPOINTS.AUTH.REFRESH, request);
+  refreshToken = (request: RefreshTokenRequest, options?: RequestOptions) =>
+    this.post<RefreshTokenResponse>(
+      API_ENDPOINTS.AUTH.REFRESH,
+      request,
+      options,
+    );
 
   googleLogin = (
     request: { firebase_token: string },
@@ -47,9 +51,6 @@ export class AuthService extends BaseAPIService {
     return this.get<VerifyToken>(API_ENDPOINTS.AUTH.VERIFY, undefined, options);
   };
 
-  /**
-   * Get current user profile
-   */
   getCurrentUser = (options?: RequestOptions) =>
     this.get<UserInfo>(API_ENDPOINTS.AUTH.ME, undefined, options);
 }

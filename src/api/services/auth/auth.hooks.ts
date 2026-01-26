@@ -1,7 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { authMutationKeys } from "./auth.keys";
 import { authService } from "./auth.service";
-import type { LoginRequest, RegisterRequest } from "./auth.types";
+import type {
+  LoginRequest,
+  RefreshTokenRequest,
+  RegisterRequest,
+} from "./auth.types";
 
 export const useLogin = () => {
   return useMutation({
@@ -46,7 +50,7 @@ export function useVerifyToken(enable: boolean) {
 
 export function useRefreshToken() {
   return useMutation({
-    mutationFn: async (payload: { refreshToken: string }) => {
+    mutationFn: async (payload: RefreshTokenRequest) => {
       const response = await authService.refreshToken(payload);
       return response;
     },
@@ -61,5 +65,15 @@ export function useUserInfo() {
       const response = await authService.getCurrentUser();
       return response;
     },
+  });
+}
+
+export function useLogout() {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await authService.logout();
+      return response;
+    },
+    mutationKey: authMutationKeys.logout,
   });
 }

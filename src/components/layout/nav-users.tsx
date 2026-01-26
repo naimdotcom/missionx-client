@@ -2,6 +2,7 @@
 
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
 
+import { useLogout } from "@/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { Spinner } from "../ui/spinner";
 
 export function NavUser({
   user,
@@ -31,15 +33,20 @@ export function NavUser({
     avatar?: string;
   };
 }) {
-  const { isMobile } = useSidebar();
   const navigate = useNavigate();
+  const { isMobile } = useSidebar();
   const queryClient = useQueryClient();
   const logout = useAuthStore((state) => state.logout);
+  const logoutMutation = useLogout();
 
   const handleLogout = () => {
-    logout();
-    queryClient.clear();
-    navigate({ to: "/login" });
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        logout();
+        queryClient.clear();
+        navigate({ to: "/login" });
+      },
+    });
   };
 
   return (
@@ -86,17 +93,18 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-
             <DropdownMenuSeparator />
+
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
-              <LogOut />
+              {logoutMutation.isPending ? <Spinner /> : <LogOut />}
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
