@@ -1,6 +1,5 @@
 // Simple inbox page with mock data
 
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle2, Inbox, Paperclip, Send, Smile } from "lucide-react";
 import { useState } from "react";
@@ -16,10 +15,8 @@ const mockTickets = [
     status: "open",
     priority: "normal",
     subject: "Product inquiry",
-    customer: {
-      id: "c1",
-      name: "Sarah Johnson",
-    },
+    contactAvatarUrl: "https://github.com/shadcn.png",
+    customer: { id: "c1", name: "Sarah Johnson" },
     sentiment: "neutral",
     unreadCount: 2,
     lastMessageAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
@@ -27,6 +24,8 @@ const mockTickets = [
     updatedAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
     // Legacy properties
     contactName: "Sarah Johnson",
+    firstName: "Sarah",
+    lastName: "Johnson",
     lastMessage: "Hey! I have a question about your product...",
     timestamp: "2 min ago",
     unread: 2,
@@ -50,6 +49,8 @@ const mockTickets = [
     updatedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
     // Legacy properties
     contactName: "Mike Chen",
+    firstName: "Mike",
+    lastName: "Chen",
     lastMessage: "Thanks for your help!",
     timestamp: "1 hour ago",
     unread: 0,
@@ -73,6 +74,8 @@ const mockTickets = [
     updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     // Legacy properties
     contactName: "Emma Wilson",
+    firstName: "Emma",
+    lastName: "Wilson",
     lastMessage: "Can you send me more details?",
     timestamp: "2 hours ago",
     unread: 1,
@@ -143,18 +146,11 @@ function InboxPage() {
   };
 
   return (
-    <div className="grid grid-cols-5 h-full overflow-hidden">
+    <div className="flex w-full h-full overflow-hidden">
       {/* Ticket List Sidebar */}
-      <div className="border-r col-span-1 overflow-hidden">
+      <div className="border-r overflow-hidden w-96">
         <Tabs defaultValue="active">
-          <div className="flex flex-col gap-4 px-4 py-4 border-b">
-            <div className="flex items-center justify-between">
-              <h1 className="text-xl font-bold">Inbox</h1>
-              <div className="flex items-center gap-1">
-                <ThemeToggle />
-              </div>
-            </div>
-
+          <div className="flex flex-col gap-4 px-4 py-2 border-b">
             {/* <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -206,7 +202,7 @@ function InboxPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="col-span-4 flex flex-col">
+      <div className="flex-1 flex flex-col">
         {selectedTicket ? (
           <>
             {/* Header */}

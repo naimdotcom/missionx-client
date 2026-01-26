@@ -1,13 +1,12 @@
 "use client";
 
-import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
+import { BadgeCheck, ChevronsUpDown, LogOut, Moon, Sun } from "lucide-react";
 
 import { useLogout } from "@/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -22,6 +21,7 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { useTheme } from "../theme-provider";
 import { Spinner } from "../ui/spinner";
 
 export function NavUser({
@@ -35,9 +35,10 @@ export function NavUser({
 }) {
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
-  const queryClient = useQueryClient();
-  const logout = useAuthStore((state) => state.logout);
   const logoutMutation = useLogout();
+  const queryClient = useQueryClient();
+  const { setTheme, theme } = useTheme();
+  const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
@@ -71,6 +72,7 @@ export function NavUser({
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
@@ -92,15 +94,24 @@ export function NavUser({
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+
             <DropdownMenuSeparator />
 
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+            <DropdownMenuItem>
+              <BadgeCheck />
+              Account
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              className="flex gap-2"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            >
+              <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <p className="capitalize">
+                {theme === "light" ? "Dark" : "Light"}
+              </p>
+            </DropdownMenuItem>
 
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>

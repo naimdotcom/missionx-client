@@ -9,12 +9,7 @@ import "./styles/globals.css";
 
 const router = createRouter({ routeTree });
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000, // 1 minute
-      retry: 1,
-    },
-  },
+  defaultOptions: { queries: { staleTime: 60 * 1000, retry: 1 } },
 });
 
 declare module "@tanstack/react-router" {
@@ -26,7 +21,7 @@ declare module "@tanstack/react-router" {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <Toaster />
         <RouterProvider router={router} />
       </ThemeProvider>
