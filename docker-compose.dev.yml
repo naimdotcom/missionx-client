@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  missionx-client-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: missionx-client-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    networks:
+      - missionx-network
+
+networks:
+  missionx-network:
+    driver: bridge
