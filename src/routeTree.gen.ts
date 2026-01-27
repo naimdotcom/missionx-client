@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PrivateRouteImport } from './routes/_private'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as PublicSignupRouteImport } from './routes/_public/signup'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
 
@@ -29,11 +28,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PublicSignupRoute = PublicSignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => PublicRoute,
-} as any)
 const PublicLoginRoute = PublicLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -49,13 +43,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/inbox': typeof PrivateInboxRoute
   '/login': typeof PublicLoginRoute
-  '/signup': typeof PublicSignupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/inbox': typeof PrivateInboxRoute
   '/login': typeof PublicLoginRoute
-  '/signup': typeof PublicSignupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -64,13 +56,12 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/_private/inbox': typeof PrivateInboxRoute
   '/_public/login': typeof PublicLoginRoute
-  '/_public/signup': typeof PublicSignupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/inbox' | '/login' | '/signup'
+  fullPaths: '/' | '/inbox' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/inbox' | '/login' | '/signup'
+  to: '/' | '/inbox' | '/login'
   id:
     | '__root__'
     | '/'
@@ -78,7 +69,6 @@ export interface FileRouteTypes {
     | '/_public'
     | '/_private/inbox'
     | '/_public/login'
-    | '/_public/signup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -110,13 +100,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_public/signup': {
-      id: '/_public/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof PublicSignupRouteImport
-      parentRoute: typeof PublicRoute
-    }
     '/_public/login': {
       id: '/_public/login'
       path: '/login'
@@ -147,12 +130,10 @@ const PrivateRouteWithChildren =
 
 interface PublicRouteChildren {
   PublicLoginRoute: typeof PublicLoginRoute
-  PublicSignupRoute: typeof PublicSignupRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
   PublicLoginRoute: PublicLoginRoute,
-  PublicSignupRoute: PublicSignupRoute,
 }
 
 const PublicRouteWithChildren =
