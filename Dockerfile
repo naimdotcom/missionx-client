@@ -62,15 +62,20 @@
 # CMD ["nginx", "-g", "daemon off;"]
 
 # syntax=docker/dockerfile:1
-FROM node:18-alpine AS build-stage
+# 1. Change this from node:18-alpine to the official Bun image
+FROM oven/bun:1-alpine AS build-stage
 WORKDIR /app
 
-COPY package*.json ./
+# 2. Declare your secrets (same as before)
+# ... (keep the same secret mount logic here)
+
+# 3. Use bun install
+COPY package*.json bun.lockb* ./
 RUN bun install
 
 COPY . .
 
-# Mount GitHub secrets and run the build
+# 4. Inject secrets and build
 RUN --mount=type=secret,id=VITE_FIREBASE_API_KEY \
     --mount=type=secret,id=VITE_FIREBASE_AUTH_DOMAIN \
     --mount=type=secret,id=VITE_FIREBASE_PROJECT_ID \
@@ -87,7 +92,7 @@ RUN --mount=type=secret,id=VITE_FIREBASE_API_KEY \
     VITE_API_BASE_URL=$(cat /run/secrets/VITE_API_BASE_URL) \
     bun run build
 
-# Stage 2: Production environment
+# Stage 2: Serve with Nginx (this stays the same)
 FROM nginx:stable-alpine
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 EXPOSE 80
