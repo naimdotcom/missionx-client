@@ -1,13 +1,19 @@
 // Login page with dummy authentication
 
-import { useGoogleLogin, useVerifyToken } from "@/api";
+import { API_ENDPOINTS, useGoogleLogin, useVerifyToken } from "@/api";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
-import { Card, CardHeader } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { auth, googleProvider } from "~/lib/firebase";
 import { useAuthStore } from "~/stores/auth-store";
 
@@ -18,6 +24,7 @@ export const Route = createFileRoute("/_public/login")({
 function LoginPage() {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
+  const [metaLoading, setMetaLoading] = useState(false);
   const googleAuthMutation = useGoogleLogin();
   const verifyTokenQuery = useVerifyToken(googleAuthMutation.isSuccess);
 
@@ -49,6 +56,14 @@ function LoginPage() {
     }
   };
 
+  const handleMetaLogin = () => {
+    setMetaLoading(true);
+    const base = import.meta.env.VITE_API_BASE_URL;
+    const url = new URL(API_ENDPOINTS.AUTH.META_LOGIN, base).toString();
+    window.open(url, "meta_login", "width=600,height=700");
+    setTimeout(() => setMetaLoading(false), 3000);
+  };
+
   useEffect(() => {
     if (
       verifyTokenQuery.isSuccess &&
@@ -68,61 +83,144 @@ function LoginPage() {
   }
 
   return (
-    <Card className="p-6">
-      <CardHeader>
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold">Mission X</h1>
-          <p className="text-muted-foreground mt-2">
-            Customer Experience Platform
-          </p>
-        </div>
-      </CardHeader>
-
-      <div className="flex flex-col gap-4">
-        <Button
-          variant="outline"
-          size="lg"
-          className="w-full"
-          onClick={handleGoogleLogin}
-          disabled={googleAuthMutation.isPending}
-        >
-          {googleAuthMutation.isPending ? (
-            "Connecting..."
-          ) : (
-            <>
+    <div className="flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-lg border-0">
+        <CardHeader className="text-center pb-2">
+          <div className="mb-4">
+            <div className="inline-block bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-lg p-3">
               <svg
-                className="mr-2 h-4 w-4 text-[#808080]"
-                fill="currentColor"
+                className="w-8 h-8"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
               </svg>
-              Continue with Google
-            </>
-          )}
-        </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          className="w-full"
-          onClick={() => {
-            /* Mock social login */
-            navigate({ to: "/inbox" });
-          }}
-        >
-          <svg
-            className="mr-2 h-4 w-4 text-[#808080]"
-            fill="currentColor"
-            viewBox="0 0 24 24"
+            </div>
+          </div>
+          <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Mission X
+          </CardTitle>
+          <CardDescription className="text-sm sm:text-base mt-2">
+            Customer Experience Platform
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-4 grid grid-cols-1">
+          <Button
+            size="lg"
+            className="w-full bg-white text-gray-900 border-2 hover:bg-gray-100 font-semibold"
+            onClick={handleGoogleLogin}
+            disabled={googleAuthMutation.isPending}
           >
-            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-          </svg>
-          Continue with Meta
-        </Button>
-      </div>
-    </Card>
+            {googleAuthMutation.isPending ? (
+              <span className="flex items-center gap-2">
+                <span className="inline-block animate-spin">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </span>
+                Connecting...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2 sm:gap-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                >
+                  <path
+                    d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span className="hidden sm:inline">Continue with Google</span>
+                <span className="sm:hidden">Google</span>
+              </span>
+            )}
+          </Button>
+
+          <Button
+            size="lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
+            onClick={handleMetaLogin}
+            disabled={metaLoading}
+          >
+            {metaLoading ? (
+              <span className="flex items-center gap-2">
+                <span className="inline-block animate-spin">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </span>
+                Opening Meta...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2 sm:gap-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                >
+                  <path
+                    d="M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a6.624 6.624 0 0 0 .265.86 5.297 5.297 0 0 0 .371.761c.696 1.159 1.818 1.927 3.593 1.927 1.497 0 2.633-.671 3.965-2.444.76-1.012 1.144-1.626 2.663-4.32l.756-1.339.186-.325c.061.1.121.196.183.3l2.152 3.595c.724 1.21 1.665 2.556 2.47 3.314 1.046.987 1.992 1.22 3.06 1.22 1.075 0 1.876-.355 2.455-.843a3.743 3.743 0 0 0 .81-.973c.542-.939.861-2.127.861-3.745 0-2.72-.681-5.357-2.084-7.45-1.282-1.912-2.957-2.93-4.716-2.93-1.047 0-2.088.467-3.053 1.308-.652.57-1.257 1.29-1.82 2.05-.69-.875-1.335-1.547-1.958-2.056-1.182-.966-2.315-1.303-3.454-1.303zm10.16 2.053c1.147 0 2.188.758 2.992 1.999 1.132 1.748 1.647 4.195 1.647 6.4 0 1.548-.368 2.9-1.839 2.9-.58 0-1.027-.23-1.664-1.004-.496-.601-1.343-1.878-2.832-4.358l-.617-1.028a44.908 44.908 0 0 0-1.255-1.98c.07-.109.141-.224.211-.327 1.12-1.667 2.118-2.602 3.358-2.602zm-10.201.553c1.265 0 2.058.791 2.675 1.446.307.327.737.871 1.234 1.579l-1.02 1.566c-.757 1.163-1.882 3.017-2.837 4.338-1.191 1.649-1.81 1.817-2.486 1.817-.524 0-1.038-.237-1.383-.794-.263-.426-.464-1.13-.464-2.046 0-2.221.63-4.535 1.66-6.088.454-.687.964-1.226 1.533-1.533a2.264 2.264 0 0 1 1.088-.285z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span className="hidden sm:inline">Continue with Meta</span>
+                <span className="sm:hidden">Meta</span>
+              </span>
+            )}
+          </Button>
+
+          <div className="relative py-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-xs sm:text-sm">
+              <span className="px-2 bg-background text-gray-500">
+                Secure OAuth Login
+              </span>
+            </div>
+          </div>
+
+          <p className="text-xs sm:text-sm text-center text-gray-600 leading-relaxed px-2">
+            By clicking continue, you agree to our{" "}
+            <a href="#" className="font-semibold text-blue-600 hover:underline">
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a href="#" className="font-semibold text-blue-600 hover:underline">
+              Privacy Policy
+            </a>
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

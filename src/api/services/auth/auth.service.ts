@@ -45,7 +45,8 @@ export class AuthService extends BaseAPIService {
   googleLogin = (
     request: { firebase_token: string },
     options?: RequestOptions,
-  ) => this.post<LoginResponse>(API_ENDPOINTS.AUTH.GOOGLE, request, options);
+  ) =>
+    this.post<LoginResponse>(API_ENDPOINTS.AUTH.GOOGLE_LOGIN, request, options);
 
   verifyToken = (options?: RequestOptions) => {
     return this.get<VerifyToken>(API_ENDPOINTS.AUTH.VERIFY, undefined, options);
