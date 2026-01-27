@@ -2,12 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [dev-hemel]
-
-# Added a global environment variable to handle the lowercase name
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: "" 
+    branches: ["dev-hemel"]
 
 jobs:
   build:
@@ -20,7 +15,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # CRITICAL: GHCR requires the image name to be all lowercase
       - name: Lowercase the repo name
         run: echo "IMAGE_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
@@ -30,7 +24,7 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -39,23 +33,17 @@ jobs:
         with:
           context: .
           push: true
-          # Use the lowercase name we created
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ghcr.io/${{ env.IMAGE_NAME }}:latest
           build-args: |
             VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
             VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-            VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-            VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-            VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-            VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}
             VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Lowercase the repo name (for deploy job)
+      - name: Lowercase the repo name
         run: echo "IMAGE_NAME=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Deploy to VPS
@@ -64,22 +52,25 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # Pass the PAT to the remote shell so it's not empty
-          envs: GH_PAT, IMAGE_NAME, REGISTRY
-        with:
+          port: 22
+          script_stop: true
           script: |
-            set -e # Make the script stop immediately if any command fails
-            
-            # Use the passed GH_PAT to login
+            # Login to GitHub Registry
             echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            # Pull the fresh image
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            
-            # Restart the container
+
+            # Pull the new image
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}:latest
+
+            # Stop and remove old container
             docker stop missionx-client || true
             docker rm missionx-client || true
-            docker run -d --name missionx-client -p 3000:80 --restart unless-stopped ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            
-            # Cleanup
-            docker image prune -af
+
+            # Start new container
+            docker run -d \
+              --name missionx-client \
+              -p 3000:3000 \
+              --restart unless-stopped \
+              ghcr.io/${{ env.IMAGE_NAME }}:latest
+
+            # Clean up old images
+            docker image prune -f
