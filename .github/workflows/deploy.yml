@@ -1,35 +1,35 @@
-# name: Deploy Front-End
+name: Deploy Front-End
 
-# on:
-#   push:
-#     branches: [dev-hemel] # Runs every time you push to main
+on:
+  push:
+    branches: [dev-hemel] # Runs every time you push to main
 
-# jobs:
-#   build-and-deploy:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout Code
-#         uses: actions/checkout@v4
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-#       - name: Setup Bun
-#         uses: oven-sh/setup-bun@v2
-#         with:
-#           bun-version: latest
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
-#       - name: Install & Build
-#         run: |
-#           bun install
-#           bun run build
+      - name: Install & Build
+        run: |
+          bun install
+          bun run build
 
-#       - name: Deploy to VPS
-#         uses: appleboy/scp-action@master
-#         with:
-#           host: ${{ secrets.SERVER_IP }}
-#           username: ${{ secrets.SERVER_USER }}
-#           key: ${{ secrets.SSH_PRIVATE_KEY }}
-#           source: "dist/*" # Or "build/*" depending on your framework
-#           target: "/var/www/nebula"
-#           strip_components: 1
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "dist/*" # Or "build/*" depending on your framework
+          target: "/var/www/nebula"
+          strip_components: 1
 
 # name: Deploy Dockerized Front-End
 
@@ -100,76 +100,76 @@
 #             # Run the new container (Mapping port 8080 inside to 3000 outside, for example)
 #             docker run -d --name my-frontend -p 3000:80 ghcr.io/${{ github.repository }}:latest
 
-name: Deploy Frontend
+# name: Deploy Frontend
 
-on:
-  push:
-    branches: ["dev-hemel"]
+# on:
+#   push:
+#     branches: ["dev-hemel"]
 
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write # This fixes the 'insufficient scopes' error
+# jobs:
+#   build-and-push:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+#       packages: write # This fixes the 'insufficient scopes' error
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+#       - name: Log in to GitHub Container Registry
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}:latest
-          # Pass environment variables as build arguments
-          build-args: |
-            VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
-            VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-            VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-            VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-            VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-            VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}
-            VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
+#       - name: Build and push
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: .
+#           push: true
+#           tags: ghcr.io/${{ github.repository }}:latest
+#           # Pass environment variables as build arguments
+#           build-args: |
+#             VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
+#             VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+#             VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+#             VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+#             VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+#             VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}
+#             VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            # Login to GitHub Container Registry
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+#   deploy:
+#     needs: build-and-push
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Deploy to VPS
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.SERVER_IP }}
+#           username: ${{ secrets.SERVER_USER }}
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           script: |
+#             # Login to GitHub Container Registry
+#             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Pull the latest image
-            docker pull ghcr.io/${{ github.repository }}:latest
+#             # Pull the latest image
+#             docker pull ghcr.io/${{ github.repository }}:latest
 
-            # Stop and remove old container if it exists
-            docker stop missionx-client || true
-            docker rm missionx-client || true
+#             # Stop and remove old container if it exists
+#             docker stop missionx-client || true
+#             docker rm missionx-client || true
 
-            # Run new container
-            docker run -d \
-              --name missionx-client \
-              -p 80:80 \
-              --restart unless-stopped \
-              ghcr.io/${{ github.repository }}:latest
+#             # Run new container
+#             docker run -d \
+#               --name missionx-client \
+#               -p 80:80 \
+#               --restart unless-stopped \
+#               ghcr.io/${{ github.repository }}:latest
 
-            # Clean up old images
-            docker image prune -af
+#             # Clean up old images
+#             docker image prune -af
