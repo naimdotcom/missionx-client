@@ -56,5 +56,5 @@ jobs:
             docker pull ghcr.io/${{ github.repository }}:latest
             docker stop missionx-client || true
             docker rm missionx-client || true
-            docker run -d --name missionx-client -p 80:80 --restart unless-stopped ghcr.io/${{ github.repository }}:latest
+            docker run -d --name missionx-client -p 3000:80 --restart unless-stopped ghcr.io/${{ github.repository }}:latest
             docker image prune -af
