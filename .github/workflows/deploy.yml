@@ -68,7 +68,7 @@ jobs:
             # Start new container
             docker run -d \
               --name missionx-client \
-              -p 3000:3000 \
+              -p 3000:80 \
               --restart unless-stopped \
               ghcr.io/${{ env.IMAGE_NAME }}:latest
 
