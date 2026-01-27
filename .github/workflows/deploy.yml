@@ -1,32 +1,79 @@
-name: Deploy Front-End
+# name: Deploy Front-End
+
+# on:
+#   push:
+#     branches: [dev-hemel] # Runs every time you push to main
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Setup Bun
+#         uses: oven-sh/setup-bun@v2
+#         with:
+#           bun-version: latest
+
+#       - name: Install & Build
+#         run: |
+#           bun install
+#           bun run build
+
+#       - name: Deploy to VPS
+#         uses: appleboy/scp-action@master
+#         with:
+#           host: ${{ secrets.SERVER_IP }}
+#           username: ${{ secrets.SERVER_USER }}
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           source: "dist/*" # Or "build/*" depending on your framework
+#           target: "/var/www/nebula"
+#           strip_components: 1
+
+name: Deploy Dockerized Front-End
 
 on:
   push:
-    branches: [dev-hemel] # Runs every time you push to main
+    branches: [dev-hemel]
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          bun-version: latest
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install & Build
-        run: |
-          bun install
-          bun run build
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
 
-      - name: Deploy to VPS
-        uses: appleboy/scp-action@master
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "dist/*" # Or "build/*" depending on your framework
-          target: "/var/www/nebula"
-          strip_components: 1
+          script: |
+            # Login to GHCR on the server
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # Stop and remove the old container
+            docker stop my-frontend || true
+            docker rm my-frontend || true
+            # Pull the latest image
+            docker pull ghcr.io/${{ github.repository }}:latest
+            # Run the new container (Mapping port 8080 inside to 3000 outside, for example)
+            docker run -d --name my-frontend -p 3000:80 ghcr.io/${{ github.repository }}:latest
