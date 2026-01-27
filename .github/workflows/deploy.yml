@@ -1,0 +1,27 @@
+name: Deploy Front-End
+
+on:
+  push:
+    branches: [dev-hemel] # Runs every time you push to main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install & Build
+        run: |
+          bun install
+          bun run build # This creates your 'dist' or 'build' folder
+
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "dist/*" # Or "build/*" depending on your framework
+          target: "/var/www/nebula"
+          strip_components: 1
