@@ -71,7 +71,7 @@ function LoginPage() {
     <Card className="p-6">
       <CardHeader>
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold">MissionX</h1>
+          <h1 className="text-3xl font-bold">Mission X</h1>
           <p className="text-muted-foreground mt-2">
             Customer Experience Platform
           </p>
