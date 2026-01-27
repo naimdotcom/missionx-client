@@ -71,7 +71,7 @@ on:
 env:
   REGISTRY: ghcr.io
   # Replace 'naimdotcom' with your GitHub username if it is different
-  LOW_IMG: ghcr.io/naimdotcom/missionx-client
+  LOW_IMG: front-end/missionx-client
 
 jobs:
   build-and-deploy:
