@@ -1,14 +1,13 @@
 // Logging interceptor - logs requests and responses in development
 
+import { env } from "@/lib/env";
 import type {
   AxiosError,
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
 
-const isDevelopment =
-  import.meta.env.MODE === "development" ||
-  import.meta.env.VITE_ENABLE_API_LOGGING === "true";
+const isDevelopment = env.isDev || env.enableApiLogging;
 
 /**
  * Request interceptor - logs outgoing requests

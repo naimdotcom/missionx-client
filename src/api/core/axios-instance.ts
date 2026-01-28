@@ -1,5 +1,6 @@
 // Configured Axios instance with interceptors for the MissionX API
 
+import { env } from "@/lib/env";
 import axios, { type AxiosInstance } from "axios";
 import {
   authErrorInterceptor,
@@ -14,12 +15,9 @@ import {
 } from "./interceptors/logging.interceptor";
 
 // Configuration from environment variables
-const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3001/api";
+const BASE_URL = env.apiUrl;
 
-const TIMEOUT = import.meta.env.VITE_API_TIMEOUT
-  ? parseInt(import.meta.env.VITE_API_TIMEOUT, 10)
-  : 15000; // 15 seconds default
+const TIMEOUT = env.apiTimeout;
 
 /**
  * Creates and configures the Axios instance with interceptors

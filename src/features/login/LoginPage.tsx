@@ -1,5 +1,6 @@
 import { API_ENDPOINTS, useGoogleLogin } from "@/api";
 import { Spinner } from "@/components/ui/spinner";
+import { env } from "@/lib/env";
 import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
@@ -145,7 +146,7 @@ function GoogleLoginBtn() {
 
 function MetaLoginBtn() {
   const handleMetaLogin = () => {
-    const base = import.meta.env.VITE_API_BASE_URL;
+    const base = env.apiUrl;
     const url = new URL(API_ENDPOINTS.AUTH.META_LOGIN, base).toString();
     window.open(url, "meta_login", "width=600,height=700");
   };
