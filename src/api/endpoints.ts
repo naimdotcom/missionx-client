@@ -25,6 +25,17 @@ export const API_ENDPOINTS = {
     FULL_PROFILE: "/api/v1/users/profile/me",
   },
 
+  //APPS
+  APPS: {
+    CREATE_APP: "/api/v1/apps",
+    LIST_APPS: "/api/v1/apps",
+    LIST_MY_APPS: "/api/v1/apps/me",
+    SEARCH_APPS: "/api/v1/apps/search",
+    APP_DETAILS: (id: string) => `/api/v1/apps/${id}`,
+    UPDATE_APP: (id: string) => `/api/v1/apps/${id}`,
+    DELETE_APP: (id: string) => `/api/v1/apps/${id}`,
+  },
+
   // Upload
   UPLOAD: {
     FILE: "/upload/file",

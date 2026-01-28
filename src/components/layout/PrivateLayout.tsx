@@ -1,5 +1,5 @@
 import { useVerifyToken } from "@/api";
-import { AppSidebar } from "@/components/layout/app-sidebar";
+import { AppSidebar } from "@/components/nav-menu/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -41,10 +41,6 @@ function PrivateLayout() {
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="#">Inbox</BreadcrumbLink>
                 </BreadcrumbItem>
-                {/* <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                </BreadcrumbItem> */}
               </BreadcrumbList>
             </Breadcrumb>
           </div>

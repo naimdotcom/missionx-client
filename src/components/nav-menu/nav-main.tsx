@@ -4,7 +4,6 @@ import { type LucideIcon } from "lucide-react";
 
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
@@ -22,8 +21,6 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
-
       {items.map((item) => {
         // If no items, render as a simple link
         if (!item.items || item.items.length === 0) {

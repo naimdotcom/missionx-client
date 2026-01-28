@@ -14,12 +14,12 @@ import {
   Command,
   GalleryVerticalEnd,
   Inbox,
-  Settings,
+  Users2,
 } from "lucide-react";
 import * as React from "react";
 import { NavMain } from "./nav-main";
-import { NavUser } from "./nav-users";
 import { TeamSwitcher } from "./team-switcher";
+import { UserMenu } from "./user-menu";
 
 // This is sample data.
 const data = {
@@ -48,16 +48,8 @@ const data = {
       icon: Inbox,
       isActive: true,
     },
-    {
-      title: "Channels",
-      url: "#",
-      icon: Activity,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings,
-    },
+    { title: "Channels", url: "channels", icon: Activity },
+    { title: "Users", url: "users", icon: Users2 },
   ],
 };
 
@@ -69,9 +61,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       return {
         ...data,
         user: {
-          name: undefined,
-          avatar: undefined,
           email: userQuery.data.user.email,
+          avatar: userQuery.data.profile?.avatar_url,
+          lastName: userQuery.data.profile?.last_name,
+          firstName: userQuery.data.profile?.first_name,
         },
       };
     }
@@ -83,12 +76,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <TeamSwitcher teams={sidebarData.teams} />
       </SidebarHeader>
+
       <SidebarContent>
         <NavMain items={sidebarData.navMain} />
-        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
+
       <SidebarFooter>
-        {sidebarData.user && <NavUser user={sidebarData.user} />}
+        {sidebarData.user && <UserMenu user={sidebarData.user} />}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
