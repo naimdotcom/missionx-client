@@ -1,10 +1,10 @@
 // Login page with dummy authentication
 
-import { API_ENDPOINTS, useGoogleLogin, useVerifyToken } from "@/api";
+import { API_ENDPOINTS, useGoogleLogin } from "@/api";
+import { Spinner } from "@/components/ui/spinner";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
-import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -22,66 +22,6 @@ export const Route = createFileRoute("/_public/login")({
 });
 
 function LoginPage() {
-  const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
-  const [metaLoading, setMetaLoading] = useState(false);
-  const googleAuthMutation = useGoogleLogin();
-  const verifyTokenQuery = useVerifyToken(googleAuthMutation.isSuccess);
-
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
-
-      googleAuthMutation.mutate(
-        { firebase_token: idToken },
-        {
-          onSuccess: (data) => {
-            setAuth(data.access_token, data.refresh_token);
-            toast.success("Login successful with Google");
-            navigate({ to: "/inbox" });
-          },
-          onError: (err) => {
-            if (axios.isAxiosError(err)) {
-              toast.error(
-                err.response?.data?.detail || "Google authentication failed",
-              );
-            }
-          },
-        },
-      );
-    } catch (error: any) {
-      console.error("Google Popup Error:", error);
-      toast.error(error.message || "Could not complete Google Sign-In");
-    }
-  };
-
-  const handleMetaLogin = () => {
-    setMetaLoading(true);
-    const base = import.meta.env.VITE_API_BASE_URL;
-    const url = new URL(API_ENDPOINTS.AUTH.META_LOGIN, base).toString();
-    window.open(url, "meta_login", "width=600,height=700");
-    setTimeout(() => setMetaLoading(false), 3000);
-  };
-
-  useEffect(() => {
-    if (
-      verifyTokenQuery.isSuccess &&
-      verifyTokenQuery.data.status === "valid"
-    ) {
-      toast.success("Login successful");
-      navigate({ to: "/inbox" });
-    }
-  }, [verifyTokenQuery.isSuccess, verifyTokenQuery.data?.status]);
-
-  if (verifyTokenQuery.isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg">Verifying session...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg border-0">
@@ -112,91 +52,8 @@ function LoginPage() {
         </CardHeader>
 
         <CardContent className="space-y-4 grid grid-cols-1">
-          <Button
-            size="lg"
-            className="w-full bg-white text-gray-900 border-2 hover:bg-gray-100 font-semibold"
-            onClick={handleGoogleLogin}
-            disabled={googleAuthMutation.isPending}
-          >
-            {googleAuthMutation.isPending ? (
-              <span className="flex items-center gap-2">
-                <span className="inline-block animate-spin">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                </span>
-                Connecting...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2 sm:gap-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="w-4 h-4 sm:w-5 sm:h-5"
-                >
-                  <path
-                    d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="hidden sm:inline">Continue with Google</span>
-                <span className="sm:hidden">Google</span>
-              </span>
-            )}
-          </Button>
-
-          <Button
-            size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
-            onClick={handleMetaLogin}
-            disabled={metaLoading}
-          >
-            {metaLoading ? (
-              <span className="flex items-center gap-2">
-                <span className="inline-block animate-spin">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                </span>
-                Opening Meta...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2 sm:gap-3">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  className="w-4 h-4 sm:w-5 sm:h-5"
-                >
-                  <path
-                    d="M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a6.624 6.624 0 0 0 .265.86 5.297 5.297 0 0 0 .371.761c.696 1.159 1.818 1.927 3.593 1.927 1.497 0 2.633-.671 3.965-2.444.76-1.012 1.144-1.626 2.663-4.32l.756-1.339.186-.325c.061.1.121.196.183.3l2.152 3.595c.724 1.21 1.665 2.556 2.47 3.314 1.046.987 1.992 1.22 3.06 1.22 1.075 0 1.876-.355 2.455-.843a3.743 3.743 0 0 0 .81-.973c.542-.939.861-2.127.861-3.745 0-2.72-.681-5.357-2.084-7.45-1.282-1.912-2.957-2.93-4.716-2.93-1.047 0-2.088.467-3.053 1.308-.652.57-1.257 1.29-1.82 2.05-.69-.875-1.335-1.547-1.958-2.056-1.182-.966-2.315-1.303-3.454-1.303zm10.16 2.053c1.147 0 2.188.758 2.992 1.999 1.132 1.748 1.647 4.195 1.647 6.4 0 1.548-.368 2.9-1.839 2.9-.58 0-1.027-.23-1.664-1.004-.496-.601-1.343-1.878-2.832-4.358l-.617-1.028a44.908 44.908 0 0 0-1.255-1.98c.07-.109.141-.224.211-.327 1.12-1.667 2.118-2.602 3.358-2.602zm-10.201.553c1.265 0 2.058.791 2.675 1.446.307.327.737.871 1.234 1.579l-1.02 1.566c-.757 1.163-1.882 3.017-2.837 4.338-1.191 1.649-1.81 1.817-2.486 1.817-.524 0-1.038-.237-1.383-.794-.263-.426-.464-1.13-.464-2.046 0-2.221.63-4.535 1.66-6.088.454-.687.964-1.226 1.533-1.533a2.264 2.264 0 0 1 1.088-.285z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="hidden sm:inline">Continue with Meta</span>
-                <span className="sm:hidden">Meta</span>
-              </span>
-            )}
-          </Button>
+          <GoogleLoginBtn />
+          <MetaLoginBtn />
 
           <div className="relative py-4">
             <div className="absolute inset-0 flex items-center">
@@ -222,5 +79,100 @@ function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function GoogleLoginBtn() {
+  const navigate = useNavigate();
+  const { setAuth } = useAuthStore();
+  const googleAuthMutation = useGoogleLogin();
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+
+      googleAuthMutation.mutate(
+        { firebase_token: idToken },
+        {
+          onSuccess: (data) => {
+            setAuth(data.access_token, data.refresh_token);
+            toast.success("Login successful with Google");
+            navigate({ to: "/inbox" });
+          },
+          onError: (err) => {
+            if (axios.isAxiosError(err)) {
+              toast.error(
+                err.response?.data?.detail || "Google authentication failed",
+              );
+            }
+          },
+        },
+      );
+    } catch (error: any) {
+      console.error("Google Popup Error:", error);
+      toast.error(error.message || "Could not complete Google Sign-In");
+    }
+  };
+  return (
+    <Button
+      size="lg"
+      className="w-full bg-white text-gray-900 border-2 hover:bg-gray-100 font-semibold"
+      onClick={handleGoogleLogin}
+      disabled={googleAuthMutation.isPending}
+    >
+      {googleAuthMutation.isPending && (
+        <div className="flex items-center justify-center gap-1">
+          <Spinner />
+          Connecting...
+        </div>
+      )}
+      {!googleAuthMutation.isPending && (
+        <span className="flex items-center justify-center gap-2 sm:gap-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            className="w-4 h-4 sm:w-5 sm:h-5"
+          >
+            <path
+              d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+              fill="currentColor"
+            />
+          </svg>
+          <span className="hidden sm:inline">Continue with Google</span>
+          <span className="sm:hidden">Google</span>
+        </span>
+      )}
+    </Button>
+  );
+}
+
+function MetaLoginBtn() {
+  const handleMetaLogin = () => {
+    const base = import.meta.env.VITE_API_BASE_URL;
+    const url = new URL(API_ENDPOINTS.AUTH.META_LOGIN, base).toString();
+    window.open(url, "meta_login", "width=600,height=700");
+  };
+  return (
+    <Button
+      size="lg"
+      onClick={handleMetaLogin}
+      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
+    >
+      <span className="flex items-center justify-center gap-2 sm:gap-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          className="w-4 h-4 sm:w-5 sm:h-5"
+        >
+          <path
+            d="M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a6.624 6.624 0 0 0 .265.86 5.297 5.297 0 0 0 .371.761c.696 1.159 1.818 1.927 3.593 1.927 1.497 0 2.633-.671 3.965-2.444.76-1.012 1.144-1.626 2.663-4.32l.756-1.339.186-.325c.061.1.121.196.183.3l2.152 3.595c.724 1.21 1.665 2.556 2.47 3.314 1.046.987 1.992 1.22 3.06 1.22 1.075 0 1.876-.355 2.455-.843a3.743 3.743 0 0 0 .81-.973c.542-.939.861-2.127.861-3.745 0-2.72-.681-5.357-2.084-7.45-1.282-1.912-2.957-2.93-4.716-2.93-1.047 0-2.088.467-3.053 1.308-.652.57-1.257 1.29-1.82 2.05-.69-.875-1.335-1.547-1.958-2.056-1.182-.966-2.315-1.303-3.454-1.303zm10.16 2.053c1.147 0 2.188.758 2.992 1.999 1.132 1.748 1.647 4.195 1.647 6.4 0 1.548-.368 2.9-1.839 2.9-.58 0-1.027-.23-1.664-1.004-.496-.601-1.343-1.878-2.832-4.358l-.617-1.028a44.908 44.908 0 0 0-1.255-1.98c.07-.109.141-.224.211-.327 1.12-1.667 2.118-2.602 3.358-2.602zm-10.201.553c1.265 0 2.058.791 2.675 1.446.307.327.737.871 1.234 1.579l-1.02 1.566c-.757 1.163-1.882 3.017-2.837 4.338-1.191 1.649-1.81 1.817-2.486 1.817-.524 0-1.038-.237-1.383-.794-.263-.426-.464-1.13-.464-2.046 0-2.221.63-4.535 1.66-6.088.454-.687.964-1.226 1.533-1.533a2.264 2.264 0 0 1 1.088-.285z"
+            fill="currentColor"
+          />
+        </svg>
+        <span className="hidden sm:inline">Continue with Meta</span>
+        <span className="sm:hidden">Meta</span>
+      </span>
+    </Button>
   );
 }

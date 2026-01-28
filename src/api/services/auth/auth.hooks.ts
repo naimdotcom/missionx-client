@@ -58,16 +58,6 @@ export function useRefreshToken() {
   });
 }
 
-export function useUserInfo() {
-  return useQuery({
-    queryKey: authMutationKeys.userInfo,
-    queryFn: async () => {
-      const response = await authService.getCurrentUser();
-      return response;
-    },
-  });
-}
-
 export function useLogout() {
   return useMutation({
     mutationFn: async () => {

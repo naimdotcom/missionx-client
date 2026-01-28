@@ -1,6 +1,6 @@
 "use client";
 
-import { useUserInfo } from "@/api";
+import { useUserProfileFull } from "@/api/services/users/users.hooks";
 import {
   Sidebar,
   SidebarContent,
@@ -62,7 +62,7 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const userQuery = useUserInfo();
+  const userQuery = useUserProfileFull();
 
   const sidebarData = React.useMemo(() => {
     if (userQuery.isSuccess) {
@@ -71,7 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         user: {
           name: undefined,
           avatar: undefined,
-          email: userQuery.data.email,
+          email: userQuery.data.user.email,
         },
       };
     }

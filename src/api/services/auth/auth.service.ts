@@ -9,7 +9,6 @@ import type {
   RefreshTokenRequest,
   RefreshTokenResponse,
   RegisterRequest,
-  UserInfo,
   VerifyToken,
 } from "./auth.types";
 
@@ -51,9 +50,6 @@ export class AuthService extends BaseAPIService {
   verifyToken = (options?: RequestOptions) => {
     return this.get<VerifyToken>(API_ENDPOINTS.AUTH.VERIFY, undefined, options);
   };
-
-  getCurrentUser = (options?: RequestOptions) =>
-    this.get<UserInfo>(API_ENDPOINTS.AUTH.ME, undefined, options);
 }
 
 // Export singleton instance
