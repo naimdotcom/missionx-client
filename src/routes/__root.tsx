@@ -7,7 +7,7 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="overflow-hidden h-screen w-screen grid grid-rows-[auto_1fr]">
       <Outlet />
     </div>
   );
