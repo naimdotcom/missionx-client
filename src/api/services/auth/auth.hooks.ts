@@ -1,5 +1,5 @@
+import { mutationKeys, queryKeys } from "@/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { authMutationKeys } from "./auth.keys";
 import { authService } from "./auth.service";
 import type {
   LoginRequest,
@@ -13,7 +13,7 @@ export const useLogin = () => {
       const response = await authService.login(payload);
       return response;
     },
-    mutationKey: authMutationKeys.login,
+    mutationKey: mutationKeys.authMutationKeys.login,
   });
 };
 
@@ -23,7 +23,7 @@ export const useRegister = () => {
       const response = await authService.register(payload);
       return response;
     },
-    mutationKey: authMutationKeys.register,
+    mutationKey: mutationKeys.authMutationKeys.register,
   });
 };
 
@@ -33,14 +33,14 @@ export function useGoogleLogin() {
       const response = await authService.googleLogin(payload);
       return response;
     },
-    mutationKey: authMutationKeys.google,
+    mutationKey: mutationKeys.authMutationKeys.google,
   });
 }
 
 export function useVerifyToken(enable: boolean) {
   return useQuery({
     enabled: !!enable,
-    queryKey: authMutationKeys.verify,
+    queryKey: queryKeys.authKeys.verifyToken,
     queryFn: async () => {
       const response = await authService.verifyToken();
       return response;
@@ -54,7 +54,7 @@ export function useRefreshToken() {
       const response = await authService.refreshToken(payload);
       return response;
     },
-    mutationKey: authMutationKeys.refreshToken,
+    mutationKey: mutationKeys.authMutationKeys.refreshToken,
   });
 }
 
@@ -64,6 +64,6 @@ export function useLogout() {
       const response = await authService.logout();
       return response;
     },
-    mutationKey: authMutationKeys.logout,
+    mutationKey: mutationKeys.authMutationKeys.logout,
   });
 }
