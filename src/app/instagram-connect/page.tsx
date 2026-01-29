@@ -1,25 +1,58 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-
-interface MetaAccount {
-  id: string;
-  page_id: string;
-  instagram_business_account_id: string | null;
-  platform: string;
-  page_name: string;
-  instagram_username: string | null;
-  is_active: boolean;
-  connected_at: string;
-}
+import {
+  useGetInstagramAccountsQuery,
+  useInitiateInstagramOAuthMutation,
+  useHandleInstagramOAuthCallbackMutation,
+  useDisconnectInstagramAccountMutation,
+} from "@/store/api/instagramApi";
 
 export default function InstagramConnectPage() {
-  const [accounts, setAccounts] = useState<MetaAccount[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const searchParams = useSearchParams();
+
+  // Redux Query hooks
+  const {
+    data: accountsData,
+    isLoading: isLoadingAccounts,
+    refetch: refetchAccounts,
+  } = useGetInstagramAccountsQuery();
+  const [initiateOAuth, { isLoading: isInitiating }] =
+    useInitiateInstagramOAuthMutation();
+  const [handleOAuthCallback, { isLoading: isProcessingCallback }] =
+    useHandleInstagramOAuthCallbackMutation();
+  const [disconnectAccount, { isLoading: isDisconnecting }] =
+    useDisconnectInstagramAccountMutation();
+
+  const accounts = accountsData?.accounts || [];
+
+  // Listen for messages from popup window
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from our own origin for security
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+
+      if (event.data.type === "INSTAGRAM_OAUTH_SUCCESS") {
+        setSuccess(
+          `Successfully connected ${event.data.accounts_added} account(s)!`,
+        );
+        // Refresh the accounts list
+        refetchAccounts();
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+          setSuccess(null);
+        }, 5000);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [refetchAccounts]);
 
   // Check for OAuth callback
   useEffect(() => {
@@ -30,136 +63,119 @@ export default function InstagramConnectPage() {
 
     if (errorParam) {
       setError(`OAuth Error: ${errorParam} - ${errorDescription}`);
+      // If in popup, close after showing error
+      if (window.opener) {
+        setTimeout(() => {
+          window.close();
+        }, 3000);
+      }
       return;
     }
 
     if (code && state) {
-      handleOAuthCallback(code, state);
+      // Make direct fetch call to backend (no Redux needed since state identifies user)
+      fetch(
+        `http://localhost:8000/api/v1/auth/instagram/oauth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`,
+        {
+          credentials: "include",
+        },
+      )
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((data) => {
+              throw new Error(data.detail || "OAuth callback failed");
+            });
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setSuccess(
+            `Successfully connected ${data.accounts_added || data.total_accounts || 1} account(s)!`,
+          );
+          // Clear URL params
+          window.history.replaceState({}, "", "/instagram-connect");
+
+          // If in popup, close the window after success
+          if (window.opener) {
+            // Notify parent window about success
+            window.opener.postMessage(
+              {
+                type: "INSTAGRAM_OAUTH_SUCCESS",
+                accounts_added: data.accounts_added || data.total_accounts || 1,
+              },
+              "*",
+            );
+            // Close popup after 1 second
+            setTimeout(() => {
+              window.close();
+            }, 1000);
+          }
+        })
+        .catch((err: any) => {
+          const errorMsg = err.message || "Failed to connect Instagram account";
+          setError(errorMsg);
+
+          // If in popup, close after showing error
+          if (window.opener) {
+            setTimeout(() => {
+              window.close();
+            }, 3000);
+          }
+        });
     }
   }, [searchParams]);
 
-  // Load connected accounts on mount
-  useEffect(() => {
-    loadAccounts();
-  }, []);
-
-  const handleOAuthCallback = async (code: string, state: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `http://localhost:8000/api/v1/auth/instagram/oauth/callback?code=${code}&state=${state}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.detail || "Failed to connect Instagram account",
-        );
-      }
-
-      const data = await response.json();
-      setSuccess(`Successfully connected ${data.accounts_added} account(s)!`);
-
-      // Reload accounts
-      await loadAccounts();
-
-      // Clear URL params
-      window.history.replaceState({}, "", "/instagram-connect");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadAccounts = async () => {
-    try {
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/instagram/accounts",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to load accounts");
-      }
-
-      const data = await response.json();
-      setAccounts(data.accounts || []);
-    } catch (err: any) {
-      console.error("Failed to load accounts:", err);
-    }
-  };
-
-  const initiateOAuth = async () => {
-    setLoading(true);
+  const handleInitiateOAuth = async () => {
     setError(null);
     setSuccess(null);
 
     try {
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        "http://localhost:8000/api/v1/auth/instagram/oauth/initiate",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
+      const data = await initiateOAuth().unwrap();
+
+      // Open OAuth in a popup window instead of redirecting
+      const width = 500;
+      const height = 600;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+
+      const popup = window.open(
+        data.authorization_url,
+        "InstagramOAuth",
+        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`,
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to initiate OAuth");
+      if (!popup) {
+        setError(
+          "Popup window was blocked. Please enable popups for this site.",
+        );
+        return;
       }
 
-      const data = await response.json();
-
-      // Redirect to Meta authorization page
-      window.location.href = data.authorization_url;
+      // Poll for popup closure
+      const pollInterval = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(pollInterval);
+          // Refresh accounts after popup closes
+          // The callback should have already updated the data if successful
+        }
+      }, 1000);
     } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
+      setError(err.data?.detail || err.message || "Failed to initiate OAuth");
     }
   };
 
-  const disconnectAccount = async (accountId: string) => {
+  const handleDisconnectAccount = async (accountId: string) => {
     if (!confirm("Are you sure you want to disconnect this account?")) {
       return;
     }
 
     try {
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `http://localhost:8000/api/v1/auth/instagram/accounts/${accountId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to disconnect account");
-      }
-
+      await disconnectAccount(accountId).unwrap();
       setSuccess("Account disconnected successfully");
-      await loadAccounts();
     } catch (err: any) {
-      setError(err.message);
+      setError(
+        err.data?.detail || err.message || "Failed to disconnect account",
+      );
     }
   };
 
@@ -189,11 +205,11 @@ export default function InstagramConnectPage() {
           {/* Connect Button */}
           <div className="mb-8">
             <button
-              onClick={initiateOAuth}
-              disabled={loading}
+              onClick={handleInitiateOAuth}
+              disabled={isInitiating}
               className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              {loading ? "Connecting..." : "Connect Instagram Account"}
+              {isInitiating ? "Connecting..." : "Connect Instagram Account"}
             </button>
           </div>
 
@@ -203,7 +219,9 @@ export default function InstagramConnectPage() {
               Connected Accounts ({accounts.length})
             </h2>
 
-            {accounts.length === 0 ? (
+            {isLoadingAccounts ? (
+              <p className="text-gray-500">Loading accounts...</p>
+            ) : accounts.length === 0 ? (
               <p className="text-gray-500 italic">
                 No accounts connected yet. Click the button above to connect
                 your Instagram.
@@ -277,10 +295,11 @@ export default function InstagramConnectPage() {
                       </div>
 
                       <button
-                        onClick={() => disconnectAccount(account.id)}
-                        className="ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors text-sm"
+                        onClick={() => handleDisconnectAccount(account.id)}
+                        disabled={isDisconnecting}
+                        className="ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
                       >
-                        Disconnect
+                        {isDisconnecting ? "Disconnecting..." : "Disconnect"}
                       </button>
                     </div>
                   </div>
