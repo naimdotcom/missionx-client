@@ -84,7 +84,7 @@ export function SimplifiedReplier({
   const showCounter = charCount > maxLength * 0.8;
 
   return (
-    <div className="border-t bg-background">
+    <div className="border-t bg-background shrink-0">
       <div className="p-4">
         {/* Attachments Preview */}
         {attachments.length > 0 && (

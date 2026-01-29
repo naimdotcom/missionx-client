@@ -449,3 +449,54 @@ export const mockMessages = {
     },
   ],
 };
+
+export const mockCustomerData = {
+  name: "Sarah Johnson",
+  avatar: "https://github.com/shadcn.png",
+  email: "sarah.johnson@example.com",
+  phone: "+1 (555) 123-4567",
+  location: "San Francisco, CA",
+  joinedDate: "Jan 2024",
+  tags: ["VIP", "Returning Customer", "Newsletter"],
+  totalOrders: 12,
+  totalSpent: "$1,245.00",
+};
+
+export const mockOrders = [
+  {
+    id: "ORD-001",
+    date: "Jan 25, 2026",
+    amount: "$89.99",
+    status: "delivered" as const,
+    items: 2,
+  },
+  {
+    id: "ORD-002",
+    date: "Jan 20, 2026",
+    amount: "$149.99",
+    status: "pending" as const,
+    items: 1,
+  },
+  {
+    id: "ORD-003",
+    date: "Jan 15, 2026",
+    amount: "$59.99",
+    status: "delivered" as const,
+    items: 3,
+  },
+];
+
+export const mockNotes = [
+  {
+    id: "n1",
+    content: "Customer prefers email communication over phone calls.",
+    timestamp: "2 hours ago",
+    author: "John Doe",
+  },
+  {
+    id: "n2",
+    content: "Interested in bulk order discounts for future purchases.",
+    timestamp: "1 day ago",
+    author: "Jane Smith",
+  },
+];
