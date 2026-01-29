@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { href: "/register", label: "Register" },
-  { href: "/login", label: "Login" },
-  { href: "/session", label: "Session Info" },
-  { href: "/profile", label: "Profile" },
-  { href: "/users", label: "Users" },
-  { href: "/customers", label: "Customers" },
+  { href: "/i/register", label: "Register" },
+  { href: "/i/login", label: "Login" },
+  { href: "/i/session", label: "Session Info" },
+  { href: "/i/profile", label: "Profile" },
+  { href: "/i/users", label: "Users" },
+  { href: "/i/customers", label: "Customers" },
 ];
 
 export default function Navigation() {

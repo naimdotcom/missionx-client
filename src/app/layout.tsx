@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import StoreProvider from "@/components/StoreProvider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { AuthInitializer } from "@/components/auth-initializer";
+import AuthGuard from "@/components/auth-guard";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,9 +18,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Authentication API - MissionX",
+  title: "Brainchat ",
   description:
-    "Comprehensive authentication API interface with session management, user profiles, and customer data",
+    "Brainchat - AI-powered messaging agents for social media and messaging platforms",
+  icons: {
+    icon: "/icons/logo.svg",
+  },
 };
 
 export default function RootLayout({
@@ -25,11 +32,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          <AuthInitializer>
+            <AuthGuard>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="light"
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+              </ThemeProvider>
+            </AuthGuard>
+          </AuthInitializer>
+          <Toaster position="top-right" />
+        </StoreProvider>
       </body>
     </html>
   );
