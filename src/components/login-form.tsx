@@ -42,9 +42,29 @@ export function LoginForm({
 
   // Facebook login handler
   const handleFacebookLogin = () => {
+    const appId = process.env.NEXT_PUBLIC_META_APP_ID;
+    const configId = process.env.NEXT_PUBLIC_META_CONFIGURATION_ID;
     const backendUrl =
       process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:8000";
-    window.location.href = `${backendUrl}/api/auth/facebook`;
+    const redirectUri = `${backendUrl}/api/auth/facebook/callback`;
+    
+    // Calculate popup window dimensions (centered on screen)
+    const width = 600;
+    const height = 700;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+    
+    // Open Facebook OAuth in a popup window (Meta Login for Business)
+    const facebookAuthUrl = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${appId}&config_id=${configId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&display=popup`;
+    
+    const popup = window.open(
+      facebookAuthUrl,
+      'FacebookLogin',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,location=no,status=no`
+    );
+    
+    // Focus the popup
+    if (popup) popup.focus();
   };
 
   // Google login handler
