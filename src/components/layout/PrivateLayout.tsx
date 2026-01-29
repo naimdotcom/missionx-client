@@ -45,7 +45,7 @@ function PrivateLayout() {
             </Breadcrumb>
           </div>
         </header>
-        <div className="grid grid-rows-[auto_1fr] overflow-hidden">
+        <div className="flex flex-1 flex-col min-h-0 overflow-hidden">
           <Outlet />
         </div>
       </SidebarInset>

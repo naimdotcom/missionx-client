@@ -1,36 +1,80 @@
 // Simple inbox page with mock data
 
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { CheckCircle2, Inbox } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Inbox, Info } from "lucide-react";
 import { useState } from "react";
 import { SimplifiedReplier } from "../replier";
-import { DetailsPanel } from "./components/DetailsPanel";
 import { TicketCard } from "./components/ticket-card";
-import { mockMessages, mockTickets } from "./const";
+import {
+  CustomerInfoWidget,
+  NotesWidget,
+  OrderHistoryWidget,
+} from "./components/widgets";
+import {
+  mockCustomerData,
+  mockMessages,
+  mockNotes,
+  mockOrders,
+  mockTickets,
+} from "./const";
 
 function InboxPage() {
-  const [selectedTicket, setSelectedTicket] = useState("1");
+  const isMobile = useIsMobile();
+  const [selectedTicket, setSelectedTicket] = useState<string | null>("1");
+  const [showDetails, setShowDetails] = useState(false);
 
   const handleSendMessage = async (message: string, attachments?: File[]) => {
     console.log("Sending message:", message, "Attachments:", attachments);
     await new Promise((resolve) => setTimeout(resolve, 500));
   };
 
+  if (isMobile) {
+    return (
+      <div className="flex flex-col h-full w-full overflow-hidden bg-background">
+        {!selectedTicket ? (
+          <TicketsPanel
+            selectedTicket={selectedTicket || undefined}
+            setSelectedTicket={setSelectedTicket}
+            className="w-full border-r-0"
+          />
+        ) : (
+          <ConversationArea
+            selectedTicket={selectedTicket}
+            handleSendMessage={handleSendMessage}
+            onBack={() => setSelectedTicket(null)}
+            onShowDetails={() => setShowDetails(true)}
+          />
+        )}
+
+        <Sheet open={showDetails} onOpenChange={setShowDetails}>
+          <SheetContent side="right" className="w-[90%] sm:w-[400px] p-0 pt-10">
+            <DetailsPanel className="w-full border-0" />
+          </SheetContent>
+        </Sheet>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-[1fr_2fr_1fr] overflow-hidden">
+    <div className="grid grid-cols-[400px_1fr_400px] h-full overflow-hidden bg-background">
       <TicketsPanel
-        selectedTicket={selectedTicket}
+        selectedTicket={selectedTicket || undefined}
         setSelectedTicket={setSelectedTicket}
+        className="border-r"
       />
 
       <ConversationArea
-        selectedTicket={selectedTicket}
+        selectedTicket={selectedTicket || undefined}
         handleSendMessage={handleSendMessage}
       />
 
-      <DetailsPanel />
+      <DetailsPanel className="border-l" />
     </div>
   );
 }
@@ -40,8 +84,13 @@ export default InboxPage;
 type TicketsPanelProps = {
   selectedTicket?: string;
   setSelectedTicket?: (ticketId: string) => void;
+  className?: string;
 };
-function TicketsPanel(props: TicketsPanelProps) {
+function TicketsPanel({
+  selectedTicket,
+  setSelectedTicket,
+  className,
+}: TicketsPanelProps) {
   const navigate = useNavigate();
   const { status } = useSearch({ from: "/_private/inbox" });
 
@@ -50,7 +99,12 @@ function TicketsPanel(props: TicketsPanelProps) {
   };
 
   return (
-    <div className="grid grid-rows-[auto_1fr] h-full border-r p-2 gap-1 overflow-hidden">
+    <div
+      className={cn(
+        "grid grid-rows-[auto_1fr] h-full p-2 gap-1 overflow-hidden",
+        className,
+      )}
+    >
       <Tabs value={status}>
         <TabsList className="grid grid-cols-2">
           <TabsTrigger
@@ -80,9 +134,9 @@ function TicketsPanel(props: TicketsPanelProps) {
               <TicketCard
                 ticket={ticket}
                 key={ticket.id}
-                isSelected={ticket.id === props.selectedTicket}
+                isSelected={ticket.id === selectedTicket}
                 onClick={() =>
-                  props.setSelectedTicket && props.setSelectedTicket(ticket.id)
+                  setSelectedTicket && setSelectedTicket(ticket.id)
                 }
               />
             ))}
@@ -103,33 +157,66 @@ function TicketsPanel(props: TicketsPanelProps) {
 type ConversationAreaProps = {
   selectedTicket?: string;
   handleSendMessage: (message: string, attachments?: File[]) => Promise<void>;
+  onBack?: () => void;
+  onShowDetails?: () => void;
+  className?: string;
 };
-function ConversationArea(props: ConversationAreaProps) {
+
+function ConversationArea({
+  selectedTicket,
+  handleSendMessage,
+  onBack,
+  onShowDetails,
+  className,
+}: ConversationAreaProps) {
   return (
-    <div className="flex flex-col h-full overflow-hidden min-w-0 border-r">
-      {props.selectedTicket ? (
+    <div
+      className={cn("flex flex-col h-full overflow-hidden min-w-0", className)}
+    >
+      {selectedTicket ? (
         <>
           {/* Header */}
-          <div className="border-b px-4 py-1.5 flex flex-col shrink-0">
-            <h2 className="font-normal">
-              {
-                mockTickets.find((t) => t.id === props.selectedTicket)
-                  ?.contactName
-              }
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {mockTickets.find((t) => t.id === props.selectedTicket)
-                ?.channel === "facebook"
-                ? "Facebook Messenger"
-                : "Instagram Direct"}
-            </p>
+          <div className="border-b px-4 py-2 flex items-center justify-between shrink-0 h-14 bg-background z-10">
+            <div className="flex items-center gap-2 overflow-hidden">
+              {onBack && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onBack}
+                  className="shrink-0"
+                >
+                  <ArrowLeft className="size-4" />
+                </Button>
+              )}
+              <div className="overflow-hidden">
+                <h2 className="font-medium truncate">
+                  {
+                    mockTickets.find((t) => t.id === selectedTicket)
+                      ?.contactName
+                  }
+                </h2>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground truncate">
+                  <span className="truncate">
+                    {mockTickets.find((t) => t.id === selectedTicket)
+                      ?.channel === "facebook"
+                      ? "Facebook Messenger"
+                      : "Instagram Direct"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {onShowDetails && (
+              <Button variant="ghost" size="icon" onClick={onShowDetails}>
+                <Info className="size-4" />
+              </Button>
+            )}
           </div>
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-muted/30">
             {(
-              mockMessages[props.selectedTicket as keyof typeof mockMessages] ||
-              []
+              mockMessages[selectedTicket as keyof typeof mockMessages] || []
             ).map((msg) => (
               <div
                 key={msg.id}
@@ -162,7 +249,7 @@ function ConversationArea(props: ConversationAreaProps) {
 
           {/* Message Input - New SimplifiedReplier */}
           <SimplifiedReplier
-            onSend={props.handleSendMessage}
+            onSend={handleSendMessage}
             placeholder="Type a message..."
             maxLength={2000}
           />
@@ -182,6 +269,27 @@ function ConversationArea(props: ConversationAreaProps) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export function DetailsPanel({ className }: { className?: string }) {
+  const handleAddNote = (content: string) => {
+    console.log("Adding note:", content);
+  };
+  return (
+    <div
+      className={cn("flex flex-col h-full min-h-0 overflow-hidden", className)}
+    >
+      <ScrollArea className="h-full w-full">
+        <div className="p-4">
+          <div className="grid grid-cols-1 gap-4">
+            <CustomerInfoWidget customer={mockCustomerData} />
+            <OrderHistoryWidget orders={mockOrders} />
+            <NotesWidget notes={mockNotes} onAddNote={handleAddNote} />
+          </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 }

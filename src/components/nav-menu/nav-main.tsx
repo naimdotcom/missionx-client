@@ -20,7 +20,7 @@ export function NavMain({
   }[];
 }) {
   return (
-    <SidebarGroup>
+    <SidebarGroup className="flex flex-col gap-1">
       {items.map((item) => {
         // If no items, render as a simple link
         if (!item.items || item.items.length === 0) {
@@ -33,7 +33,7 @@ export function NavMain({
               >
                 <a href={item.url}>
                   {item.icon && <item.icon />}
-                  <span>{item.title}</span>
+                  <span className="text-[14.5px]">{item.title}</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>

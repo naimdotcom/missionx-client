@@ -22,7 +22,7 @@ function LoginPage() {
       <Card className="w-full max-w-md shadow-lg border-0">
         <CardHeader className="text-center pb-2">
           <div className="mb-4">
-            <div className="inline-block bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-lg p-3">
+            <div className="inline-block bg-gradient-to-br bg-black text-white rounded-lg p-3">
               <svg
                 className="w-8 h-8"
                 fill="none"
@@ -38,7 +38,7 @@ function LoginPage() {
               </svg>
             </div>
           </div>
-          <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r bg-black dark:text-white bg-clip-text text-transparent">
             Mission X
           </CardTitle>
           <CardDescription className="text-sm sm:text-base mt-2">
@@ -153,8 +153,9 @@ function MetaLoginBtn() {
   return (
     <Button
       size="lg"
+      variant={"secondary"}
       onClick={handleMetaLogin}
-      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
+      className=" font-semibold shadow-md"
     >
       <span className="flex items-center justify-center gap-2 sm:gap-3">
         <svg
