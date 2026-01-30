@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
 import { APP_ROLES } from "../../const";
@@ -46,15 +47,25 @@ export function AssignRoleDialog({
     }
 
     try {
-      await assignRole.mutateAsync({ id: appId, payload: { email, role } });
-      toast.success("Role assigned successfully");
-      setEmail("");
-      setRole("");
-      onOpenChange(false);
-    } catch (error) {
-      toast.error("Failed to assign role");
-      console.error(error);
-    }
+      await assignRole.mutateAsync(
+        { id: appId, payload: { email, role } },
+        {
+          onSuccess: () => {
+            toast.success("Role assigned successfully");
+            setEmail("");
+            setRole("");
+            onOpenChange(false);
+          },
+          onError: (error) => {
+            if (axios.isAxiosError(error)) {
+              toast.error(
+                error.response?.data?.detail || "Failed to assign role",
+              );
+            }
+          },
+        },
+      );
+    } catch (error) {}
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -113,13 +124,17 @@ export function AssignRoleDialog({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
+              variant="destructive"
               disabled={assignRole.isPending}
+              onClick={() => handleOpenChange(false)}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={assignRole.isPending}>
+            <Button
+              variant={"secondary"}
+              type="submit"
+              disabled={assignRole.isPending}
+            >
               {assignRole.isPending ? "Assigning..." : "Assign Role"}
             </Button>
           </DialogFooter>

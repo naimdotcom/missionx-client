@@ -2,7 +2,7 @@ import {
   useGetAppDetails,
   useListAppUsers,
 } from "@/api/services/apps/apps.hook";
-import type { App, AppUsers } from "@/api/services/apps/apps.type";
+import type { App } from "@/api/services/apps/apps.type";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -21,34 +21,26 @@ import { AssignRoleDialog } from "./app-users/AssignRoleDialog";
 
 type AppDetailsSheetProps = {
   app: App | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
 };
 
-export function AppDetailsSheet({
-  app,
-  open,
-  onOpenChange,
-}: AppDetailsSheetProps) {
+export function AppDetailsSheet({ app }: AppDetailsSheetProps) {
+  const [openSheet, setOpenSheet] = useState(false);
   const [assignRoleOpen, setAssignRoleOpen] = useState(false);
 
-  const { data: appDetails } = useGetAppDetails(
-    app?.id || "",
-    !!app?.id && open,
-  );
+  const { data: appDetails } = useGetAppDetails(app?.id || "", !!app?.id);
   const { data: appUsers, isLoading: isLoadingUsers } = useListAppUsers(
     app?.id || "",
-    !!app?.id && open,
+    !!app?.id,
   );
 
-  const appDetailsData = appDetails as App | undefined;
-  const appUsersData = appUsers as AppUsers | undefined;
+  const appDetailsData = appDetails;
+  const appUsersData = appUsers;
   const users = appUsersData?.users || [];
   const displayApp = appDetailsData || app;
 
   return (
     <>
-      <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet open={openSheet} onOpenChange={setOpenSheet}>
         <SheetContent className="w-full sm:max-w-[600px] overflow-y-auto p-4 md:p-6">
           <SheetHeader className="mb-6">
             <SheetTitle className="text-lg md:text-xl">
@@ -64,7 +56,6 @@ export function AppDetailsSheet({
           <div className="space-y-6">
             {/* App Information */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold">Information</h3>
               <div className="space-y-2 text-xs md:text-sm">
                 <div>
                   <div className="text-muted-foreground mb-1">Description</div>
@@ -102,6 +93,7 @@ export function AppDetailsSheet({
                 <h3 className="text-sm font-semibold">Users & Roles</h3>
                 <Button
                   size="sm"
+                  variant={"secondary"}
                   onClick={() => setAssignRoleOpen(true)}
                   disabled={isLoadingUsers}
                   className="text-xs md:text-sm"
@@ -126,6 +118,10 @@ export function AppDetailsSheet({
         open={assignRoleOpen}
         onOpenChange={setAssignRoleOpen}
       />
+
+      <Button variant={"link"} onClick={() => setOpenSheet(true)}>
+        {app?.name}
+      </Button>
     </>
   );
 }

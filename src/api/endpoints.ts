@@ -32,7 +32,7 @@ export const API_ENDPOINTS = {
     APP_CRUD: (id: string) => `/api/v1/apps/${id}`, // Get, Update, Delete a specific app
     APP_USERS: (id: string) => `/api/v1/apps/${id}/users`,
     LIST_ROLES: "/api/v1/me/roles",
-    APP_ROLE_CRUD: (id: string) => `/api/v1/apps/${id}/roles/`, // Assign, Update, Delete roles for an app
+    APP_ROLE_CRUD: (id: string) => `/api/v1/apps/${id}/roles`, // Assign, Update, Delete roles for an app
   },
 
   // Upload

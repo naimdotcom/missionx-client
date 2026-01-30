@@ -28,9 +28,9 @@ export interface App {
 
 export interface AppParams {
   id?: string;
-  page?: number;
+  page?: string;
   query?: string;
-  page_size?: number;
+  page_size?: string;
   short_id?: string;
 }
 

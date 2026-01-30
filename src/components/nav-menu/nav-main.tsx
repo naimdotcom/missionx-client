@@ -7,6 +7,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useNavigate } from "@tanstack/react-router";
 
 export function NavMain({
   items,
@@ -19,6 +20,7 @@ export function NavMain({
     items?: { title: string; url: string }[];
   }[];
 }) {
+  const navigate = useNavigate();
   return (
     <SidebarGroup className="flex flex-col gap-1">
       {items.map((item) => {
@@ -31,7 +33,10 @@ export function NavMain({
                 tooltip={item.title}
                 isActive={item.isActive}
               >
-                <a href={item.url}>
+                <a
+                  onClick={() => navigate({ href: item.url })}
+                  className="flex items-center gap-2"
+                >
                   {item.icon && <item.icon />}
                   <span className="text-[14.5px]">{item.title}</span>
                 </a>
