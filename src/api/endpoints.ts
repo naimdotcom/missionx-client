@@ -7,7 +7,6 @@ export const API_ENDPOINTS = {
     REGISTER: "/api/auth/register",
     REFRESH: "/api/auth/refresh",
     GOOGLE_LOGIN: "/api/auth/login/google",
-    ME: "/api/auth/me",
     LOGIN_FORM: "/api/auth/login/form",
     VERIFY: "/api/auth/verify",
     SESSION: "/api/auth/session",

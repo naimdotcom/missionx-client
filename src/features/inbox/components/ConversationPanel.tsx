@@ -34,7 +34,7 @@ function ConversationArea({
                   variant="ghost"
                   size="icon"
                   onClick={onBack}
-                  className="shrink-0"
+                  className="shrink-0 md:hidden"
                 >
                   <ArrowLeft className="size-4" />
                 </Button>
@@ -57,11 +57,14 @@ function ConversationArea({
               </div>
             </div>
 
-            {onShowDetails && (
-              <Button variant="ghost" size="icon" onClick={onShowDetails}>
-                <Info className="size-4" />
-              </Button>
-            )}
+            <Button
+              size="icon"
+              variant="ghost"
+              className="xl:hidden"
+              onClick={onShowDetails}
+            >
+              <Info className="size-4" />
+            </Button>
           </div>
 
           {/* Messages */}
