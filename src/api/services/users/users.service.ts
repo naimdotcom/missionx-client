@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, BaseAPIService, RequestOptions } from "@/api";
+import { env } from "@/lib/env";
 import { UserProfileFull } from "./users.type";
 
 export class UsersService extends BaseAPIService {
@@ -11,4 +12,4 @@ export class UsersService extends BaseAPIService {
   };
 }
 
-export const usersService = new UsersService();
+export const usersService = new UsersService(env.authUrl);

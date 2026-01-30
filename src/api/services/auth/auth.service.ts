@@ -1,5 +1,6 @@
 // Authentication service
 
+import { env } from "@/lib/env";
 import type { RequestOptions } from "../../core/api.types";
 import { BaseAPIService } from "../../core/base.service";
 import { API_ENDPOINTS } from "../../endpoints";
@@ -53,4 +54,4 @@ export class AuthService extends BaseAPIService {
 }
 
 // Export singleton instance
-export const authService = new AuthService();
+export const authService = new AuthService(env.authUrl || "");

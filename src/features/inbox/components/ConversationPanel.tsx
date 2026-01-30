@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SimplifiedReplier } from "@/features/replier";
+import { SimplifiedReplier } from "@/features/inbox/components/replier";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Inbox, Info } from "lucide-react";
 import { mockMessages, mockTickets } from "../const";

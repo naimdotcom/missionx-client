@@ -15,7 +15,7 @@ import {
 } from "./interceptors/logging.interceptor";
 
 // Configuration from environment variables
-const BASE_URL = env.apiUrl;
+const BASE_URL = env.authUrl;
 
 const TIMEOUT = env.apiTimeout;
 

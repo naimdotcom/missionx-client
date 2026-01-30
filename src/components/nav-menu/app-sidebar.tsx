@@ -8,50 +8,13 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import {
-  Activity,
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
-  Inbox,
-  Users2,
-} from "lucide-react";
 import * as React from "react";
+import { MAIN_NAV_ITEMS } from "./const";
 import { NavMain } from "./nav-main";
 import { TeamSwitcher } from "./team-switcher";
 import { UserMenu } from "./user-menu";
 
 // This is sample data.
-const data = {
-  user: undefined,
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  navMain: [
-    {
-      title: "Inbox",
-      url: "inbox",
-      icon: Inbox,
-      isActive: true,
-    },
-    { title: "Channels", url: "channels", icon: Activity },
-    { title: "Users", url: "users", icon: Users2 },
-  ],
-};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userQuery = useUserProfileFull();
@@ -59,7 +22,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const sidebarData = React.useMemo(() => {
     if (userQuery.isSuccess) {
       return {
-        ...data,
+        ...MAIN_NAV_ITEMS,
         user: {
           email: userQuery.data.user.email,
           avatar: userQuery.data.profile?.avatar_url,
@@ -68,7 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         },
       };
     }
-    return data;
+    return MAIN_NAV_ITEMS;
   }, [userQuery.data]);
 
   return (

@@ -84,4 +84,5 @@ export interface SortParams {
   sortOrder?: "asc" | "desc";
 }
 
-export type QueryParams = Record<string, string | number | boolean | undefined>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type QueryParams = Record<string, any>;

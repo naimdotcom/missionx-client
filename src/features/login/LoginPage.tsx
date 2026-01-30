@@ -146,7 +146,7 @@ function GoogleLoginBtn() {
 
 function MetaLoginBtn() {
   const handleMetaLogin = () => {
-    const base = env.apiUrl;
+    const base = env.authUrl;
     const url = new URL(API_ENDPOINTS.AUTH.META_LOGIN, base).toString();
     window.open(url, "meta_login", "width=600,height=700");
   };

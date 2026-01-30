@@ -14,6 +14,7 @@ import { Route as PrivateRouteImport } from './routes/_private'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
+import { Route as PrivateAppsRouteImport } from './routes/_private/apps'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -38,14 +39,21 @@ const PrivateInboxRoute = PrivateInboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => PrivateRoute,
 } as any)
+const PrivateAppsRoute = PrivateAppsRouteImport.update({
+  id: '/apps',
+  path: '/apps',
+  getParentRoute: () => PrivateRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/apps': typeof PrivateAppsRoute
   '/inbox': typeof PrivateInboxRoute
   '/login': typeof PublicLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/apps': typeof PrivateAppsRoute
   '/inbox': typeof PrivateInboxRoute
   '/login': typeof PublicLoginRoute
 }
@@ -54,19 +62,21 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_private': typeof PrivateRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
+  '/_private/apps': typeof PrivateAppsRoute
   '/_private/inbox': typeof PrivateInboxRoute
   '/_public/login': typeof PublicLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/inbox' | '/login'
+  fullPaths: '/' | '/apps' | '/inbox' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/inbox' | '/login'
+  to: '/' | '/apps' | '/inbox' | '/login'
   id:
     | '__root__'
     | '/'
     | '/_private'
     | '/_public'
+    | '/_private/apps'
     | '/_private/inbox'
     | '/_public/login'
   fileRoutesById: FileRoutesById
@@ -114,14 +124,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateInboxRouteImport
       parentRoute: typeof PrivateRoute
     }
+    '/_private/apps': {
+      id: '/_private/apps'
+      path: '/apps'
+      fullPath: '/apps'
+      preLoaderRoute: typeof PrivateAppsRouteImport
+      parentRoute: typeof PrivateRoute
+    }
   }
 }
 
 interface PrivateRouteChildren {
+  PrivateAppsRoute: typeof PrivateAppsRoute
   PrivateInboxRoute: typeof PrivateInboxRoute
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
+  PrivateAppsRoute: PrivateAppsRoute,
   PrivateInboxRoute: PrivateInboxRoute,
 }
 

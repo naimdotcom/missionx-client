@@ -26,13 +26,13 @@ export const API_ENDPOINTS = {
 
   //APPS
   APPS: {
-    CREATE_APP: "/api/v1/apps",
-    LIST_APPS: "/api/v1/apps",
-    LIST_MY_APPS: "/api/v1/apps/me",
-    SEARCH_APPS: "/api/v1/apps/search",
-    APP_DETAILS: (id: string) => `/api/v1/apps/${id}`,
-    UPDATE_APP: (id: string) => `/api/v1/apps/${id}`,
-    DELETE_APP: (id: string) => `/api/v1/apps/${id}`,
+    CREATE_APP: "/api/v1/apps", // POST API to create a new app
+    LIST_APPS: "/api/v1/apps", // GET API to list all apps
+    LIST_MY_APPS: "/api/v1/apps/me", // GET API to list apps of the authenticated user
+    APP_CRUD: (id: string) => `/api/v1/apps/${id}`, // Get, Update, Delete a specific app
+    APP_USERS: (id: string) => `/api/v1/apps/${id}/users`,
+    LIST_ROLES: "/api/v1/me/roles",
+    APP_ROLE_CRUD: (id: string) => `/api/v1/apps/${id}/roles/`, // Assign, Update, Delete roles for an app
   },
 
   // Upload

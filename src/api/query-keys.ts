@@ -7,6 +7,14 @@ export const queryKeys = {
   usersQueryKeys: {
     userProfileFull: ["user-profile", "full"] as const,
   },
+
+  appsQueryKeys: {
+    listApps: ["apps", "list"] as const,
+    listMyApps: ["apps", "list-my-apps"] as const,
+    appDetails: (id: string) => ["apps", "details", id] as const,
+    appUsers: (id: string) => ["apps", "users", id] as const,
+    listRoles: ["apps", "roles"] as const,
+  },
 } as const;
 
 export const mutationKeys = {

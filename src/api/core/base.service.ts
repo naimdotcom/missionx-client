@@ -7,7 +7,7 @@ import type {
   QueryParams,
   RequestOptions,
 } from "./api.types";
-import { axiosInstance } from "./axios-instance";
+import { axiosInstance, createScopedAxiosInstance } from "./axios-instance";
 
 /**
  * Abstract base service class providing common HTTP methods with:
@@ -18,8 +18,12 @@ import { axiosInstance } from "./axios-instance";
 export abstract class BaseAPIService {
   protected axios: AxiosInstance;
 
-  constructor(axios: AxiosInstance = axiosInstance) {
-    this.axios = axios;
+  constructor(baseURLOrInstance: string | AxiosInstance = axiosInstance) {
+    if (typeof baseURLOrInstance === "string") {
+      this.axios = createScopedAxiosInstance({ baseURL: baseURLOrInstance });
+    } else {
+      this.axios = baseURLOrInstance;
+    }
   }
 
   /**
@@ -40,11 +44,9 @@ export abstract class BaseAPIService {
 
     const filteredParams = Object.entries(params)
       .filter(([_, value]) => value !== undefined && value !== null)
-      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: String(value) }), {});
 
-    const searchParams = new URLSearchParams(
-      filteredParams as Record<string, string>,
-    );
+    const searchParams = new URLSearchParams(filteredParams);
 
     const query = searchParams.toString();
     return query ? `?${query}` : "";
@@ -135,10 +137,12 @@ export abstract class BaseAPIService {
    */
   protected async delete<T = void>(
     endpoint: string,
+    params?: QueryParams,
     options?: RequestOptions,
   ): Promise<APIResponse<T>> {
+    const queryString = this.buildQueryString(params);
     const response = await this.axios.delete<APIResponse<T>>(
-      endpoint,
+      `${endpoint}${queryString}`,
       this.buildConfig(options),
     );
     return response.data;

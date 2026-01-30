@@ -9,8 +9,8 @@ export interface CreateAppPayload {
 export interface Apps {
   apps?: App[];
   total?: number;
-  skip?: number;
-  limit?: number;
+  page?: number;
+  page_size?: number;
 }
 
 export interface App {
@@ -27,7 +27,39 @@ export interface App {
 }
 
 export interface AppParams {
-  q?: string;
-  skip?: number;
-  limit?: number;
+  id?: string;
+  page?: number;
+  query?: string;
+  page_size?: number;
+  short_id?: string;
+}
+
+export interface MyAppParams {
+  page?: number;
+  page_size?: number;
+}
+
+export interface UpdateRolePayload {
+  role: string;
+  email: string;
+}
+
+export interface AppUser {
+  user_id?: string;
+  email?: string;
+  role?: string;
+}
+export interface AppUsers {
+  users?: AppUser[];
+  total?: number;
+  page?: number;
+  page_size?: number;
+}
+
+export interface Role {
+  role?: string;
+  id?: string;
+  app_id?: string;
+  user_id?: string;
+  user_email?: string;
 }
