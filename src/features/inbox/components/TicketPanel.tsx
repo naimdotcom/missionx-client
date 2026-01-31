@@ -61,7 +61,7 @@ function TicketsPanel({
                 key={ticket.id}
                 isSelected={ticket.id === selectedTicket}
                 onClick={() => {
-                  if (selectedTicket) {
+                  if (selectedTicket === ticket.id) {
                     setSelectedTicket?.(undefined);
                   } else {
                     setSelectedTicket?.(ticket.id);

@@ -30,7 +30,7 @@ function InboxPage() {
       <TicketsPanel
         className={cn(
           "border-r-0 md:border-r",
-          selectedCase ? "hidden md:block" : "w-full",
+          selectedCase ? "hidden md:grid" : "w-full",
         )}
         setSelectedTicket={(ticket) =>
           navigate({
