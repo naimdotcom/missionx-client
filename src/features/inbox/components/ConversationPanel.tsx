@@ -1,16 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { SimplifiedReplier } from "@/features/inbox/components/replier";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, Inbox, Info } from "lucide-react";
+import { ArrowLeft, Inbox, Info, PanelRight } from "lucide-react";
 import { mockMessages, mockTickets } from "../const";
 import { MessageBubble } from "./message-bubble";
 
 type ConversationAreaProps = {
-  selectedTicket?: string;
-  handleSendMessage: (message: string, attachments?: File[]) => Promise<void>;
-  onBack?: () => void;
-  onShowDetails?: () => void;
   className?: string;
+  onBack?: () => void;
+  selectedTicket?: number;
+  onShowDetails?: () => void;
+  onShowSidebar?: () => void;
+  handleSendMessage: (message: string, attachments?: File[]) => Promise<void>;
 };
 
 function ConversationArea({
@@ -19,6 +20,7 @@ function ConversationArea({
   onBack,
   onShowDetails,
   className,
+  onShowSidebar,
 }: ConversationAreaProps) {
   return (
     <div
@@ -39,6 +41,7 @@ function ConversationArea({
                   <ArrowLeft className="size-4" />
                 </Button>
               )}
+
               <div className="overflow-hidden">
                 <h2 className="font-medium truncate">
                   {
@@ -64,6 +67,15 @@ function ConversationArea({
               onClick={onShowDetails}
             >
               <Info className="size-4" />
+            </Button>
+
+            <Button
+              size={"icon"}
+              variant={"ghost"}
+              className="hidden xl:flex"
+              onClick={onShowSidebar}
+            >
+              <PanelRight className="size-4" />
             </Button>
           </div>
 

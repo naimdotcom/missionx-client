@@ -2,6 +2,7 @@ import InboxPage from "@/features/inbox/InboxPage";
 import { createFileRoute } from "@tanstack/react-router";
 
 type InboxSearch = {
+  case?: number;
   status?: "active" | "closed";
 };
 
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/_private/inbox")({
   validateSearch: (search: Record<string, unknown>): InboxSearch => {
     return {
       status: (search.status as "active" | "closed" | undefined) ?? "active",
+      case: search.case as number | undefined,
     };
   },
 });

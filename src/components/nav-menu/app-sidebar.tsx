@@ -28,14 +28,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <SidebarMenuItem className="flex gap-2">
-          <Avatar>
-            <AvatarImage src={userProfile?.profile?.avatar_url} />
-            <AvatarFallback>
-              {userProfile?.profile?.first_name?.charAt(0).toUpperCase()}
-              {userProfile?.profile?.last_name?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+        <SidebarMenuItem className="flex gap-2 border-b-2 pb-2 ">
+          <div className="border-2 rounded-full p-1.5">
+            <Avatar className="size-6">
+              <AvatarImage src={userProfile?.profile?.avatar_url} />
+              <AvatarFallback>
+                {userProfile?.profile?.first_name?.charAt(0).toUpperCase()}
+                {userProfile?.profile?.last_name?.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
           <div className="flex items-center">
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{fullName}</span>

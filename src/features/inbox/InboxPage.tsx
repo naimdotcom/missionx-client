@@ -2,14 +2,18 @@
 
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { Route } from "@/routes";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import ConversationArea from "./components/ConversationPanel";
 import TicketsPanel from "./components/TicketPanel";
 import { DetailsPanel } from "./components/WidgetPanel";
 
 function InboxPage() {
-  const [selectedTicket, setSelectedTicket] = useState<string | null>("1");
+  const [showSidebar, setShowSidebar] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
+  const navigate = useNavigate({ from: Route.fullPath });
+  const { case: selectedCase } = useSearch({ from: "/_private/inbox" });
 
   const handleSendMessage = async (message: string, attachments?: File[]) => {
     console.log("Sending message:", message, "Attachments:", attachments);
@@ -17,25 +21,50 @@ function InboxPage() {
   };
 
   return (
-    <div className="flex flex-col md:grid md:grid-cols-[350px_1fr] xl:grid-cols-[350px_1fr_350px] 2xl:grid-cols-[400px_1fr_400px] h-full overflow-hidden bg-background">
+    <div
+      className={cn(
+        "h-full overflow-hidden",
+        "md:grid md:grid-cols-[350px_1fr_auto] 2xl:grid-cols-[400px_1fr_auto]",
+      )}
+    >
       <TicketsPanel
         className={cn(
           "border-r-0 md:border-r",
-          selectedTicket ? "hidden md:block" : "w-full md:w-auto",
+          selectedCase ? "hidden md:block" : "w-full",
         )}
-        setSelectedTicket={setSelectedTicket}
-        selectedTicket={selectedTicket || undefined}
+        setSelectedTicket={(ticket) =>
+          navigate({
+            to: "/inbox",
+            search: (prev) => ({ ...prev, case: ticket }),
+          })
+        }
+        selectedTicket={selectedCase || undefined}
       />
 
       <ConversationArea
-        className={cn(!selectedTicket ? "hidden md:flex" : "flex")}
-        selectedTicket={selectedTicket || undefined}
         handleSendMessage={handleSendMessage}
-        onBack={() => setSelectedTicket(null)}
+        onBack={() =>
+          navigate({ search: (prev) => ({ ...prev, case: undefined }) })
+        }
         onShowDetails={() => setShowDetails(true)}
+        selectedTicket={selectedCase || undefined}
+        onShowSidebar={() => setShowSidebar((prev) => !prev)}
+        className={cn(
+          "min-w-0",
+          !selectedCase ? "hidden md:flex" : "flex h-full",
+        )}
       />
 
-      <DetailsPanel className="border-l hidden xl:block" />
+      <div
+        className={cn(
+          "hidden xl:block shrink-0 transition-[width] duration-200 ease-linear overflow-hidden bg-background",
+          showSidebar && selectedCase
+            ? "w-[350px] 2xl:w-[400px] border-l"
+            : "w-0 border-none",
+        )}
+      >
+        <DetailsPanel className="w-[350px] 2xl:w-[400px] h-full border-none" />
+      </div>
 
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent side="right" className="w-[90%] sm:w-[400px] p-0 pt-10">

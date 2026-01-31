@@ -7,9 +7,9 @@ import { mockTickets } from "../const";
 import { TicketCard } from "./ticket-card";
 
 type TicketsPanelProps = {
-  selectedTicket?: string;
-  setSelectedTicket?: (ticketId: string) => void;
   className?: string;
+  selectedTicket?: number;
+  setSelectedTicket: (ticketId?: number) => void;
 };
 function TicketsPanel({
   selectedTicket,
@@ -20,7 +20,7 @@ function TicketsPanel({
   const { status } = useSearch({ from: "/_private/inbox" });
 
   const handleTicketStatus = (status: "active" | "closed") => {
-    navigate({ search: { status } as any });
+    navigate({ to: "/inbox", search: { status } });
   };
 
   return (
@@ -60,9 +60,13 @@ function TicketsPanel({
                 ticket={ticket}
                 key={ticket.id}
                 isSelected={ticket.id === selectedTicket}
-                onClick={() =>
-                  setSelectedTicket && setSelectedTicket(ticket.id)
-                }
+                onClick={() => {
+                  if (selectedTicket) {
+                    setSelectedTicket?.(undefined);
+                  } else {
+                    setSelectedTicket?.(ticket.id);
+                  }
+                }}
               />
             ))}
           </div>

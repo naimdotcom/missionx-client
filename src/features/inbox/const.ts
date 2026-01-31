@@ -1,81 +1,149 @@
-export const mockTickets = [
-  {
-    id: "1",
-    workspaceId: "ws-1",
-    channelType: "facebook_page",
-    status: "open",
-    priority: "normal",
-    subject: "Product inquiry",
-    contactAvatarUrl: "https://github.com/shadcn.png",
-    customer: { id: "c1", name: "Sarah Johnson" },
-    sentiment: "neutral",
-    unreadCount: 2,
-    lastMessageAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-    createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-    // Legacy properties
-    contactName: "Sarah Johnson",
-    firstName: "Sarah",
-    lastName: "Johnson",
-    lastMessage: "Hey! I have a question about your product...",
-    timestamp: "2 min ago",
-    unread: 2,
-    channel: "facebook",
-  },
-  {
-    id: "2",
-    workspaceId: "ws-1",
-    channelType: "instagram_business",
-    status: "pending",
-    priority: "normal",
-    subject: "Thank you message",
-    customer: {
-      id: "c2",
-      name: "Mike Chen",
-    },
-    sentiment: "positive",
-    unreadCount: 0,
-    lastMessageAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-    createdAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-    // Legacy properties
-    contactName: "Mike Chen",
-    firstName: "Mike",
-    lastName: "Chen",
-    lastMessage: "Thanks for your help!",
-    timestamp: "1 hour ago",
-    unread: 0,
-    channel: "instagram",
-  },
-  {
-    id: "3",
-    workspaceId: "ws-1",
-    channelType: "facebook_page",
-    status: "open",
-    priority: "high",
-    subject: "Details request",
-    customer: {
-      id: "c3",
-      name: "Emma Wilson",
-    },
-    sentiment: "neutral",
-    unreadCount: 1,
-    lastMessageAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    // Legacy properties
-    contactName: "Emma Wilson",
-    firstName: "Emma",
-    lastName: "Wilson",
-    lastMessage: "Can you send me more details?",
-    timestamp: "2 hours ago",
-    unread: 1,
-    channel: "facebook",
-  },
+const customerNames = [
+  { firstName: "Sarah", lastName: "Johnson" },
+  { firstName: "Mike", lastName: "Chen" },
+  { firstName: "Emma", lastName: "Wilson" },
+  { firstName: "James", lastName: "Anderson" },
+  { firstName: "Lisa", lastName: "Martinez" },
+  { firstName: "David", lastName: "Taylor" },
+  { firstName: "Jennifer", lastName: "Garcia" },
+  { firstName: "Robert", lastName: "Brown" },
+  { firstName: "Maria", lastName: "Rodriguez" },
+  { firstName: "William", lastName: "Lee" },
+  { firstName: "Patricia", lastName: "Davis" },
+  { firstName: "Michael", lastName: "Miller" },
+  { firstName: "Barbara", lastName: "Thompson" },
+  { firstName: "Christopher", lastName: "Harris" },
+  { firstName: "Susan", lastName: "Martin" },
+  { firstName: "Daniel", lastName: "Jackson" },
+  { firstName: "Jessica", lastName: "White" },
+  { firstName: "Matthew", lastName: "Harris" },
+  { firstName: "Karen", lastName: "Clark" },
+  { firstName: "Anthony", lastName: "Lewis" },
+  { firstName: "Rebecca", lastName: "Walker" },
+  { firstName: "Mark", lastName: "Hall" },
+  { firstName: "Donna", lastName: "Young" },
+  { firstName: "Donald", lastName: "King" },
+  { firstName: "Carol", lastName: "Wright" },
+  { firstName: "Steven", lastName: "Lopez" },
+  { firstName: "Margaret", lastName: "Hill" },
+  { firstName: "Paul", lastName: "Scott" },
+  { firstName: "Doris", lastName: "Green" },
+  { firstName: "Andrew", lastName: "Adams" },
 ];
 
+const subjects = [
+  "Product inquiry",
+  "Thank you message",
+  "Details request",
+  "Billing question",
+  "Technical support needed",
+  "Refund request",
+  "Order status update",
+  "Account issue",
+  "Shipping delay",
+  "Product quality concern",
+  "Bulk order quote",
+  "Discount inquiry",
+  "Feature request",
+  "Partnership opportunity",
+  "Feedback",
+  "Urgent: Cannot access account",
+  "Complaint about service",
+  "Warranty claim",
+  "Return request",
+  "Payment issue",
+  "Delivery confirmation",
+  "Customization request",
+  "Subscription cancellation",
+  "Upgrade inquiry",
+  "Login problems",
+];
+
+const messages = [
+  "Hey! I have a question about your product...",
+  "Is it available in different colors?",
+  "Thanks for your help!",
+  "Can you send me more details?",
+  "What's the pricing for bulk orders?",
+  "How long does delivery take?",
+  "I received a damaged item",
+  "Can I get a refund?",
+  "When will this be in stock?",
+  "Do you offer technical support?",
+  "Great service, highly recommended!",
+  "I have some feedback",
+  "Can we discuss a partnership?",
+  "What payment methods do you accept?",
+  "Is there a discount for long-term contracts?",
+  "Help! I can't log in",
+  "The product doesn't work as advertised",
+  "I need to cancel my subscription",
+  "Can I upgrade my plan?",
+  "Your customer service is amazing",
+  "When is the next update coming?",
+  "Do you ship internationally?",
+  "Can I get a custom quote?",
+  "The website is down",
+  "I love your products!",
+];
+
+const channels = [
+  "facebook_page",
+  "instagram_business",
+  "whatsapp_business",
+  "twitter",
+  "email",
+  "telegram",
+];
+
+const sentiments = ["positive", "neutral", "negative"];
+const statuses = ["open", "pending", "closed"];
+const priorities = ["low", "normal", "high"];
+
+export const mockTickets = Array.from({ length: 20 }, (_, index) => {
+  const customer = customerNames[index % customerNames.length];
+  const daysAgo = Math.floor(index / 4);
+  const hoursAgo = Math.floor(index / 10);
+
+  return {
+    id: index + 1,
+    workspaceId: "ws-1",
+    channelType: channels[index % channels.length],
+    status: statuses[index % statuses.length],
+    priority: priorities[index % priorities.length],
+    subject: subjects[index % subjects.length],
+    contactAvatarUrl: "https://github.com/shadcn.png",
+    customer: {
+      id: `c${index + 1}`,
+      name: `${customer.firstName} ${customer.lastName}`,
+    },
+    sentiment: sentiments[index % sentiments.length],
+    unreadCount: index % 3 === 0 ? Math.floor(Math.random() * 3) : 0,
+    lastMessageAt: new Date(
+      Date.now() - Math.max(daysAgo, hoursAgo) * 60 * 60 * 1000,
+    ).toISOString(),
+    createdAt: new Date(
+      Date.now() - (daysAgo + 1) * 24 * 60 * 60 * 1000,
+    ).toISOString(),
+    updatedAt: new Date(
+      Date.now() - Math.max(daysAgo, hoursAgo) * 60 * 60 * 1000,
+    ).toISOString(),
+    // Legacy properties
+    contactName: `${customer.firstName} ${customer.lastName}`,
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    lastMessage: messages[index % messages.length],
+    timestamp:
+      daysAgo === 0
+        ? `${hoursAgo} hour${hoursAgo > 1 ? "s" : ""} ago`
+        : `${daysAgo} day${daysAgo > 1 ? "s" : ""} ago`,
+    unread: index % 3 === 0 ? Math.floor(Math.random() * 3) : 0,
+    channel: channels[index % channels.length].split("_")[0],
+  };
+});
+
 export const mockMessages = {
-  "1": [
+  1: [
     {
       id: "m1",
       sender: "Sarah Johnson",
@@ -91,7 +159,7 @@ export const mockMessages = {
       isAgent: false,
     },
   ],
-  "2": [
+  2: [
     {
       id: "m3",
       sender: "Mike Chen",
@@ -114,7 +182,7 @@ export const mockMessages = {
       isAgent: false,
     },
   ],
-  "3": [
+  3: [
     {
       id: "m6",
       sender: "Emma Wilson",
@@ -123,7 +191,7 @@ export const mockMessages = {
       isAgent: false,
     },
   ],
-  "4": [
+  4: [
     {
       id: "m6",
       sender: "Emma Wilson",
@@ -132,7 +200,7 @@ export const mockMessages = {
       isAgent: false,
     },
   ],
-  "6": [
+  6: [
     {
       id: "m6",
       sender: "Emma Wilson",
@@ -141,7 +209,7 @@ export const mockMessages = {
       isAgent: false,
     },
   ],
-  "7": [
+  7: [
     {
       id: "m6",
       sender: "Emma Wilson",
@@ -150,7 +218,7 @@ export const mockMessages = {
       isAgent: false,
     },
   ],
-  "8": [
+  8: [
     {
       id: "m6",
       sender: "Emma Wilson",
@@ -159,7 +227,7 @@ export const mockMessages = {
       isAgent: false,
     },
   ],
-  "9": [
+  9: [
     {
       id: "m6",
       sender: "Emma Wilson",
@@ -168,7 +236,7 @@ export const mockMessages = {
       isAgent: false,
     },
   ],
-  "10": [
+  10: [
     {
       id: "m6",
       sender: "Emma Wilson",

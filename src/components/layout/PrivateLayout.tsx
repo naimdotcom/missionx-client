@@ -18,7 +18,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { Outlet } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { useEffect } from "react";
-import { UserMenu } from "../nav-menu/user-menu";
+import { UserMenu } from "../user-menu";
 
 function PrivateLayout() {
   const { setUserProfile } = useAuthStore();

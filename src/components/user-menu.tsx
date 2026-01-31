@@ -15,8 +15,8 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useTheme } from "../theme-provider";
-import { Spinner } from "../ui/spinner";
+import { useTheme } from "./theme-provider";
+import { Spinner } from "./ui/spinner";
 
 export function UserMenu() {
   const navigate = useNavigate();
@@ -39,21 +39,18 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        {/* <SidebarMenuButton
-          size={"sm"}
-          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-        > */}
-        <Avatar className="size-8 cursor-pointer">
-          <AvatarImage
-            src={userProfile?.profile?.avatar_url}
-            alt={userProfile?.profile?.first_name}
-          />
-          <AvatarFallback className="rounded-lg">
-            {userProfile?.profile?.first_name?.charAt(0).toUpperCase() ?? "U"}
-            {userProfile?.profile?.last_name?.charAt(0).toUpperCase() ?? "U"}
-          </AvatarFallback>
-        </Avatar>
-        {/* </SidebarMenuButton> */}
+        <div className="border-2 rounded-full p-1.5 cursor-pointer">
+          <Avatar className="size-4">
+            <AvatarImage
+              src={userProfile?.profile?.avatar_url}
+              alt={userProfile?.profile?.first_name}
+            />
+            <AvatarFallback className="rounded-lg text-xs">
+              {userProfile?.profile?.first_name?.charAt(0).toUpperCase() ?? "U"}
+              {userProfile?.profile?.last_name?.charAt(0).toUpperCase() ?? "U"}
+            </AvatarFallback>
+          </Avatar>
+        </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
