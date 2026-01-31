@@ -1,52 +1,64 @@
 "use client";
 
-import { useUserProfileFull } from "@/api/services/users/users.hooks";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/stores/auth-store";
+import { Settings } from "lucide-react";
 import * as React from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { MAIN_NAV_ITEMS } from "./const";
 import { NavMain } from "./nav-main";
-import { TeamSwitcher } from "./team-switcher";
-import { UserMenu } from "./user-menu";
 
 // This is sample data.
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const userQuery = useUserProfileFull();
+  const { userProfile } = useAuthStore();
 
-  const sidebarData = React.useMemo(() => {
-    if (userQuery.isSuccess) {
-      return {
-        ...MAIN_NAV_ITEMS,
-        user: {
-          email: userQuery.data.user.email,
-          avatar: userQuery.data.profile?.avatar_url,
-          lastName: userQuery.data.profile?.last_name,
-          firstName: userQuery.data.profile?.first_name,
-        },
-      };
-    }
-    return MAIN_NAV_ITEMS;
-  }, [userQuery.data]);
+  const fullName = `${userProfile?.profile?.first_name || ""} ${
+    userProfile?.profile?.last_name || ""
+  }`.trim();
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={sidebarData.teams} />
+        <SidebarMenuItem className="flex gap-2">
+          <Avatar>
+            <AvatarImage src={userProfile?.profile?.avatar_url} />
+            <AvatarFallback>
+              {userProfile?.profile?.first_name?.charAt(0).toUpperCase()}
+              {userProfile?.profile?.last_name?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex items-center">
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{fullName}</span>
+              <span className="truncate text-xs">
+                {userProfile?.user.email}
+              </span>
+            </div>
+          </div>
+        </SidebarMenuItem>
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={sidebarData.navMain} />
+        <NavMain items={MAIN_NAV_ITEMS.navMain} />
       </SidebarContent>
 
       <SidebarFooter>
-        {sidebarData.user && <UserMenu user={sidebarData.user} />}
+        <SidebarMenuItem>
+          <SidebarMenuButton>
+            <Settings className="size-4" /> Settings
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );

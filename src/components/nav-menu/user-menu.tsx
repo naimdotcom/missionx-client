@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, ChevronsUpDown, LogOut, Moon, Sun } from "lucide-react";
+import { BadgeCheck, LogOut, Moon, Sun } from "lucide-react";
 
 import { useLogout } from "@/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,25 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTheme } from "../theme-provider";
 import { Spinner } from "../ui/spinner";
 
-export function UserMenu({
-  user,
-}: {
-  user: {
-    email?: string;
-    avatar?: string;
-    firstName?: string;
-    lastName?: string;
-  };
-}) {
+export function UserMenu() {
   const navigate = useNavigate();
-  const { isMobile } = useSidebar();
+  const { userProfile } = useAuthStore();
   const logoutMutation = useLogout();
   const queryClient = useQueryClient();
   const { setTheme, theme } = useTheme();
@@ -49,46 +39,40 @@ export function UserMenu({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <SidebarMenuButton
-          size="lg"
+        {/* <SidebarMenuButton
+          size={"sm"}
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-        >
-          <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage src={user.avatar} alt={user.firstName} />
-            <AvatarFallback className="rounded-lg">
-              {user.firstName?.charAt(0).toUpperCase() ?? "U"}
-              {user.lastName?.charAt(0).toUpperCase() ?? "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-medium">{`${user.firstName} ${user.lastName}`}</span>
-            <span className="truncate text-xs">{user.email}</span>
-          </div>
-          <ChevronsUpDown className="ml-auto size-4" />
-        </SidebarMenuButton>
+        > */}
+        <Avatar className="size-8 cursor-pointer">
+          <AvatarImage
+            src={userProfile?.profile?.avatar_url}
+            alt={userProfile?.profile?.first_name}
+          />
+          <AvatarFallback className="rounded-lg">
+            {userProfile?.profile?.first_name?.charAt(0).toUpperCase() ?? "U"}
+            {userProfile?.profile?.last_name?.charAt(0).toUpperCase() ?? "U"}
+          </AvatarFallback>
+        </Avatar>
+        {/* </SidebarMenuButton> */}
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-        side={isMobile ? "bottom" : "right"}
+        side={"bottom"}
         align="end"
         sideOffset={4}
       >
-        <DropdownMenuLabel className="p-0 font-normal">
+        <DropdownMenuLabel className="p-0 font-normal px-1">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={user.avatar} alt={user.firstName} />
-              <AvatarFallback className="rounded-lg">
-                {" "}
-                {user.firstName?.charAt(0).toUpperCase() ?? "U"}
-                {user.lastName?.charAt(0).toUpperCase() ?? "U"}
-              </AvatarFallback>
-            </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">
-                {user.firstName + " " + user.lastName}
+                {userProfile?.profile?.first_name +
+                  " " +
+                  userProfile?.profile?.last_name}
               </span>
-              <span className="truncate text-xs">{user.email}</span>
+              <span className="truncate text-xs">
+                {userProfile?.user.email}
+              </span>
             </div>
           </div>
         </DropdownMenuLabel>

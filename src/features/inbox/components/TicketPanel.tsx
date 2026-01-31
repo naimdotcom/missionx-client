@@ -31,7 +31,7 @@ function TicketsPanel({
       )}
     >
       <Tabs value={status}>
-        <TabsList className="grid grid-cols-2">
+        <TabsList className="grid grid-cols-2 mb-2">
           <TabsTrigger
             value="active"
             onClick={() => handleTicketStatus("active")}

@@ -48,6 +48,7 @@ export function AppsTable() {
   const columns = useMemo<ColumnDef<App>[]>(
     () => [
       {
+        size: 250,
         id: "name",
         accessorKey: "name",
         header: ({ column }: { column: Column<App, unknown> }) => (
@@ -59,6 +60,7 @@ export function AppsTable() {
           variant: "text",
           placeholder: "Search by name...",
         },
+        enableHiding: false,
         enableSorting: false,
         enableColumnFilter: true,
         filterFn: "includesString",
@@ -66,11 +68,13 @@ export function AppsTable() {
       {
         id: "description",
         accessorKey: "description",
+        enableHiding: false,
+        enableSorting: false,
         header: ({ column }: { column: Column<App, unknown> }) => (
           <DataTableColumnHeader column={column} label="Description" />
         ),
         cell: ({ row }) => (
-          <div className="text-sm max-w-xs truncate">
+          <div className="text-sm max-w-xs truncate table-cell">
             {row.original.description || "-"}
           </div>
         ),
@@ -78,33 +82,47 @@ export function AppsTable() {
       {
         id: "short_id",
         accessorKey: "short_id",
+        enableHiding: false,
+        enableSorting: false,
         header: ({ column }: { column: Column<App, unknown> }) => (
           <DataTableColumnHeader column={column} label="Short ID" />
         ),
-        cell: ({ row }) => (
-          <span className="font-mono text-xs">{row.original.short_id}</span>
-        ),
+        cell: ({ cell }) => {
+          const shortID = cell.getValue<App["short_id"]>();
+          return (
+            <div className="text-sm max-w-xs truncate table-cell">
+              {shortID}
+            </div>
+          );
+        },
       },
       {
         id: "user_role",
         accessorKey: "user_role",
+        enableHiding: false,
+        enableSorting: false,
         header: ({ column }: { column: Column<App, unknown> }) => (
           <DataTableColumnHeader column={column} label="Role" />
         ),
         cell: ({ row }) => (
-          <Badge variant="secondary" className="text-xs capitalize">
+          <Badge
+            variant="secondary"
+            className="text-sm max-w-xs truncate table-cell capitalize"
+          >
             {row.original.user_role?.toLowerCase().replace("_", " ")}
           </Badge>
         ),
       },
       {
         id: "created_at",
+        enableHiding: false,
+        enableSorting: false,
         accessorKey: "created_at",
         header: ({ column }: { column: Column<App, unknown> }) => (
           <DataTableColumnHeader column={column} label="Created At" />
         ),
         cell: ({ row }) => (
-          <span className="text-muted-foreground text-xs">
+          <span className="text-sm max-w-xs truncate table-cell">
             {row.original.created_at
               ? format(new Date(row.original.created_at), "MMM d, yyyy")
               : "-"}
@@ -113,7 +131,12 @@ export function AppsTable() {
       },
       {
         id: "actions",
-        header: "Actions",
+        enableHiding: false,
+        enableSorting: false,
+        accessorKey: "actions",
+        header: ({ column }: { column: Column<App, unknown> }) => (
+          <DataTableColumnHeader column={column} label="" />
+        ),
         cell: ({ row }) => <AppActionsDropdown app={row.original} />,
       },
     ],
@@ -129,6 +152,12 @@ export function AppsTable() {
     enableAdvancedFilter: false,
     initialState: {
       columnPinning: { right: ["actions"] },
+      columnVisibility: {
+        description: true,
+        short_id: true,
+        user_role: true,
+        created_at: true,
+      },
     },
   });
 
@@ -138,7 +167,7 @@ export function AppsTable() {
 
   return (
     <div className="data-table-container">
-      <DataTable table={table.table} className="flex-1 overflow-hidden">
+      <DataTable table={table.table} className="py-1 font-normal group">
         <DataTableToolbar table={table.table} />
       </DataTable>
     </div>

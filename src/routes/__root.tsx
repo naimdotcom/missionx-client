@@ -1,13 +1,13 @@
 import { ScreenSizeIndicator } from "@/components/debug/screen-size-indicator";
 import { createRootRoute, Outlet, useRouter } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+// import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import "../styles/globals.css";
 
 export const Route = createRootRoute({
   component: () => (
     <>
       <RootComponent />
-      <TanStackRouterDevtools />
+      {/* <TanStackRouterDevtools /> */}
     </>
   ),
   notFoundComponent: () => {
