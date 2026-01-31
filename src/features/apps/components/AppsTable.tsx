@@ -4,22 +4,27 @@ import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { useMemo } from "react";
-import { DEFAULT_PAGE_SIZE } from "../const";
 import { AppDetailsSheet } from "./AppDetailsSheet";
 import { DeleteAppDialog } from "./DeleteAppDialog";
 import { EditAppDialog } from "./EditAppDialog";
 
+type AppSearch = {
+  page?: number;
+  name?: string;
+  perPage?: number;
+};
+
 export function AppsTable() {
-  const [name] = useQueryState("name", parseAsString.withDefault(""));
-  const [page] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [perPage] = useQueryState(
-    "perPage",
-    parseAsInteger.withDefault(DEFAULT_PAGE_SIZE),
-  );
+  const navigate = useNavigate();
+  const searchParams = useSearch({ from: "/_private/apps" }) as AppSearch;
+
+  const name = searchParams.name || "";
+  const page = searchParams.page || 1;
+  const perPage = searchParams.perPage || 10;
 
   const { data } = useListApps({
     page: String(page),
@@ -110,8 +115,30 @@ export function AppsTable() {
     columns,
     pageCount: totalPages,
     getRowId: (row) => row.id ?? "",
-    shallow: false,
-    scroll: false,
+    onFilterChange: (filters) => {
+      const filterObj = filters.reduce<Record<string, string | undefined>>(
+        (acc, f) => {
+          acc[f.id] = Array.isArray(f.value) ? f.value[0] : (f.value as string);
+          return acc;
+        },
+        {},
+      );
+      const newSearch: AppSearch = {
+        ...searchParams,
+        ...filterObj,
+        name: filterObj.name || undefined,
+        page: 1,
+      };
+      void navigate({ search: newSearch as any });
+    },
+    onPaginationChange: (pagination) => {
+      const newSearch: AppSearch = {
+        ...searchParams,
+        page: pagination.pageIndex + 1,
+      };
+      void navigate({ search: newSearch as any });
+    },
+    enableAdvancedFilter: false,
   });
 
   return (
