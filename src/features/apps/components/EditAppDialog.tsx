@@ -1,5 +1,5 @@
 import { useUpdateApp } from "@/api/services/apps/apps.hook";
-import type { App, CreateAppPayload } from "@/api/services/apps/apps.type";
+import type { App } from "@/api/services/apps/apps.type";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,131 +12,151 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 
 type EditAppDialogProps = {
   app: App | null;
+  isOpen?: boolean;
+  onCancel?: () => void;
 };
 
-export function EditAppDialog({ app }: EditAppDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<CreateAppPayload>>({
-    name: "",
-    description: "",
-    short_id: "",
-  });
-
+export function EditAppDialog({ app, isOpen, onCancel }: EditAppDialogProps) {
   const updateApp = useUpdateApp();
 
-  useEffect(() => {
-    if (app && open) {
-      setFormData({
-        name: app.name || "",
-        description: app.description || "",
-        short_id: app.short_id || "",
-      });
-    }
-  }, [app, open]);
+  const form = useForm({
+    defaultValues: {
+      name: app?.name || "",
+      short_id: app?.short_id || "",
+      description: app?.description || "",
+    },
+    onSubmit: async (values) => {
+      if (!app?.id) return;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+      if (!values.value.name?.trim()) {
+        toast.error("App name is required");
+        return;
+      }
 
-    if (!app?.id) return;
-
-    if (!formData.name?.trim()) {
-      toast.error("App name is required");
-      return;
-    }
-
-    try {
-      await updateApp.mutateAsync({ id: app.id, payload: formData });
-      toast.success("App updated successfully");
-      setOpen(false);
-    } catch (error) {
-      toast.error("Failed to update app");
-      console.error(error);
-    }
-  };
+      try {
+        await updateApp.mutateAsync({ id: app.id, payload: values.value });
+        toast.success("App updated successfully");
+        onCancel?.();
+      } catch (error) {
+        toast.error("Failed to update app");
+        console.error(error);
+      }
+    },
+  });
 
   return (
-    <div>
-      <Dialog open={open} onOpenChange={() => setOpen(false)}>
-        <DialogContent className="sm:max-w-[500px]">
-          <form onSubmit={handleSubmit}>
-            <DialogHeader>
-              <DialogTitle>Edit App</DialogTitle>
-              <DialogDescription>
-                Update your app information and settings.
-              </DialogDescription>
-            </DialogHeader>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(newOpen) => {
+        if (!newOpen) onCancel?.();
+      }}
+    >
+      <DialogContent className="sm:max-w-[500px]">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void form.handleSubmit();
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>Edit App</DialogTitle>
+            <DialogDescription>
+              Update your app information and settings.
+            </DialogDescription>
+          </DialogHeader>
 
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">
-                  App Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="edit-name"
-                  placeholder="My Awesome App"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-              </div>
+          <div className="space-y-4 py-4">
+            <form.Field
+              name="name"
+              validators={{
+                onChange: ({ value }) =>
+                  !value?.trim() ? "App name is required" : undefined,
+              }}
+              children={(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">
+                    App Name <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="edit-name"
+                    name={field.name}
+                    placeholder="My Awesome App"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-destructive">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
+              )}
+            />
 
-              <div className="space-y-2">
-                <Label htmlFor="edit-short_id">Short ID</Label>
-                <Input
-                  id="edit-short_id"
-                  placeholder="my-app"
-                  value={formData.short_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, short_id: e.target.value })
-                  }
-                />
-              </div>
+            <form.Field
+              name="short_id"
+              children={(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="edit-short_id">Short ID</Label>
+                  <Input
+                    id="edit-short_id"
+                    name={field.name}
+                    placeholder="my-app"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                  />
+                </div>
+              )}
+            />
 
-              <div className="space-y-2">
-                <Label htmlFor="edit-description">Description</Label>
-                <Textarea
-                  id="edit-description"
-                  placeholder="Describe what this app does..."
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
-            </div>
+            <form.Field
+              name="description"
+              children={(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">Description</Label>
+                  <Textarea
+                    id="edit-description"
+                    name={field.name}
+                    placeholder="Describe what this app does..."
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    rows={3}
+                  />
+                </div>
+              )}
+            />
+          </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => setOpen(false)}
-                disabled={updateApp.isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant={"secondary"}
-                type="submit"
-                disabled={updateApp.isPending}
-              >
-                {updateApp.isPending ? "Saving..." : "Save Changes"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-      <Button size="sm" variant="ghost" onClick={() => setOpen(true)}>
-        <Edit className="size-4" />
-      </Button>
-    </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                onCancel?.();
+              }}
+              disabled={updateApp.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={"secondary"}
+              type="submit"
+              disabled={updateApp.isPending}
+            >
+              {updateApp.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

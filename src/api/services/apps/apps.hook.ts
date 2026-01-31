@@ -77,23 +77,18 @@ export const useUpdateApp = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: Partial<CreateAppPayload>;
-    }) => appsService.updateApp(id, payload),
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.appsQueryKeys.appDetails(id),
-      });
+    mutationFn: ({ id, payload }: { id: string; payload: CreateAppPayload }) =>
+      appsService.updateApp(id, payload),
+    onSuccess: () => {
+      // queryClient.invalidateQueries({
+      //   queryKey: queryKeys.appsQueryKeys.appDetails(id),
+      // });
       queryClient.invalidateQueries({
         queryKey: queryKeys.appsQueryKeys.listApps,
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.appsQueryKeys.listMyApps,
-      });
+      // queryClient.invalidateQueries({
+      //   queryKey: queryKeys.appsQueryKeys.listMyApps,
+      // });
     },
   });
 };

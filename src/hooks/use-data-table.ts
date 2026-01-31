@@ -1,3 +1,5 @@
+import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import {
   type ColumnFiltersState,
   getCoreRowModel,
@@ -22,6 +24,7 @@ import type { ExtendedColumnSort } from "@/components/types/data-table";
 
 const DEBOUNCE_MS = 300;
 const THROTTLE_MS = 50;
+const PAGE_SIZE_DEFAULT = 10;
 
 interface UseDataTableProps<TData>
   extends
@@ -42,8 +45,6 @@ interface UseDataTableProps<TData>
   debounceMs?: number;
   throttleMs?: number;
   enableAdvancedFilter?: boolean;
-  onFilterChange?: (filters: ColumnFiltersState) => void;
-  onPaginationChange?: (pagination: PaginationState) => void;
 }
 
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
@@ -54,10 +55,13 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     debounceMs = DEBOUNCE_MS,
     throttleMs = THROTTLE_MS,
     enableAdvancedFilter = false,
-    onFilterChange,
-    onPaginationChange: onPaginationChangeCallback,
     ...tableProps
   } = props;
+
+  // Navigation
+  const navigate = useNavigate() as any;
+  // Using generic search for flexibility
+  const search: any = useSearch({ strict: false });
 
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
     initialState?.rowSelection ?? {},
@@ -65,9 +69,15 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
 
-  const [pagination, setPagination] = React.useState<PaginationState>(
-    initialState?.pagination ?? { pageIndex: 0, pageSize: 10 },
-  );
+  // Pagination state initialized from URL or defaults
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: search.page
+      ? Number(search.page) - 1
+      : (initialState?.pagination?.pageIndex ?? 0),
+    pageSize: search.perPage
+      ? Number(search.perPage)
+      : (initialState?.pagination?.pageSize ?? PAGE_SIZE_DEFAULT),
+  });
 
   const [sorting, setSorting] = React.useState<SortingState>(
     initialState?.sorting ?? [],
@@ -77,16 +87,46 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     initialState?.columnFilters ?? [],
   );
 
+  // Update URL function
+  const updateUrl = React.useCallback(
+    (newParams: Record<string, unknown>) => {
+      void navigate({
+        search: (prev: any) => {
+          const next = { ...prev, ...newParams };
+          // Remove undefined or null values to keep URL clean
+          Object.keys(next).forEach(
+            (key) =>
+              (next[key] === undefined ||
+                next[key] === null ||
+                next[key] === "") &&
+              delete next[key],
+          );
+          return next;
+        },
+      });
+    },
+    [navigate],
+  );
+
+  // Debounced navigation for inputs
+  const debouncedUpdateUrl = useDebouncedCallback(updateUrl, debounceMs);
+
   const onPaginationChange = React.useCallback(
     (updaterOrValue: Updater<PaginationState>) => {
       const newPagination =
         typeof updaterOrValue === "function"
           ? updaterOrValue(pagination)
           : updaterOrValue;
+
       setPagination(newPagination);
-      onPaginationChangeCallback?.(newPagination);
+
+      // Pagination changes are immediate
+      updateUrl({
+        page: newPagination.pageIndex + 1,
+        perPage: newPagination.pageSize,
+      });
     },
-    [pagination, onPaginationChangeCallback],
+    [pagination, updateUrl],
   );
 
   const onSortingChange = React.useCallback(
@@ -106,11 +146,39 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
         typeof updaterOrValue === "function"
           ? updaterOrValue(columnFilters)
           : updaterOrValue;
+
       setColumnFilters(newFilters);
-      onFilterChange?.(newFilters);
+
+      // Convert filters to object
+      const filterObj = newFilters.reduce<Record<string, unknown>>((acc, f) => {
+        acc[f.id] = Array.isArray(f.value) ? f.value[0] : f.value;
+        return acc;
+      }, {});
+
+      // Handle removed filters properly by setting them to undefined in the update
+      columnFilters.forEach((f) => {
+        if (!newFilters.some((nf) => nf.id === f.id)) {
+          filterObj[f.id] = undefined;
+        }
+      });
+
+      // Reset to page 1 on filter change
+      // Use debounce for filters to prevent rapid URL updates on typing
+      debouncedUpdateUrl({
+        ...filterObj,
+        page: 1,
+      });
     },
-    [columnFilters, onFilterChange],
+    [columnFilters, debouncedUpdateUrl],
   );
+
+  // Sync from URL changes (back button support)
+  React.useEffect(() => {
+    setPagination({
+      pageIndex: search.page ? Number(search.page) - 1 : 0,
+      pageSize: search.perPage ? Number(search.perPage) : PAGE_SIZE_DEFAULT,
+    });
+  }, [search.page, search.perPage]);
 
   const table = useReactTable({
     ...tableProps,

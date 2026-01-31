@@ -1,21 +1,14 @@
-import {
-  useGetAppDetails,
-  useListAppUsers,
-} from "@/api/services/apps/apps.hook";
+import { useListAppUsers } from "@/api/services/apps/apps.hook";
 import type { App } from "@/api/services/apps/apps.type";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
 import { UserPlus } from "lucide-react";
 import { useState } from "react";
-import { getRoleBadgeVariant } from "../const";
 import { AppUsersTable } from "./app-users/AppUsersTable";
 import { AssignRoleDialog } from "./app-users/AssignRoleDialog";
 
@@ -27,35 +20,30 @@ export function AppDetailsSheet({ app }: AppDetailsSheetProps) {
   const [openSheet, setOpenSheet] = useState(false);
   const [assignRoleOpen, setAssignRoleOpen] = useState(false);
 
-  const { data: appDetails } = useGetAppDetails(app?.id || "", !!app?.id);
   const { data: appUsers, isLoading: isLoadingUsers } = useListAppUsers(
     app?.id || "",
-    !!app?.id,
+    !!openSheet,
   );
-
-  const appDetailsData = appDetails;
   const appUsersData = appUsers;
   const users = appUsersData?.users || [];
-  const displayApp = appDetailsData || app;
+  const displayApp = app;
 
   return (
     <>
       <Sheet open={openSheet} onOpenChange={setOpenSheet}>
         <SheetContent className="w-full sm:max-w-[600px] overflow-y-auto p-4 md:p-6">
-          <SheetHeader className="mb-6">
-            <SheetTitle className="text-lg md:text-xl">
-              {displayApp?.name || "App Details"}
+          <SheetHeader className="border-b pb-4 mb-4">
+            <SheetTitle className="flex flex-col gap-1">
+              <span>{displayApp?.name}</span>
+              <span className="text-xs text-muted-foreground truncate">
+                {displayApp?.description}
+              </span>
             </SheetTitle>
-            {displayApp?.short_id && (
-              <SheetDescription className="text-xs md:text-sm">
-                ID: {displayApp.short_id}
-              </SheetDescription>
-            )}
           </SheetHeader>
 
           <div className="space-y-6">
             {/* App Information */}
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               <div className="space-y-2 text-xs md:text-sm">
                 <div>
                   <div className="text-muted-foreground mb-1">Description</div>
@@ -83,9 +71,7 @@ export function AppDetailsSheet({ app }: AppDetailsSheetProps) {
                   </div>
                 )}
               </div>
-            </div>
-
-            <Separator />
+            </div> */}
 
             {/* Users & Roles */}
             <div className="space-y-3">
@@ -98,7 +84,7 @@ export function AppDetailsSheet({ app }: AppDetailsSheetProps) {
                   disabled={isLoadingUsers}
                   className="text-xs md:text-sm"
                 >
-                  <UserPlus className="h-3.5 w-3.5 mr-2" />
+                  <UserPlus className="size-4" />
                   Add User
                 </Button>
               </div>

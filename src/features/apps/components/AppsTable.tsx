@@ -2,12 +2,22 @@ import { useListApps } from "@/api/services/apps/apps.hook";
 import { App } from "@/api/services/apps/apps.type";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useDataTable } from "@/hooks/use-data-table";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useSearch } from "@tanstack/react-router";
 import { Column, ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { useMemo } from "react";
+import { MoreHorizontal } from "lucide-react";
+import { useMemo, useState } from "react";
 import { AppDetailsSheet } from "./AppDetailsSheet";
 import { DeleteAppDialog } from "./DeleteAppDialog";
 import { EditAppDialog } from "./EditAppDialog";
@@ -19,14 +29,13 @@ type AppSearch = {
 };
 
 export function AppsTable() {
-  const navigate = useNavigate();
   const searchParams = useSearch({ from: "/_private/apps" }) as AppSearch;
 
   const name = searchParams.name || "";
   const page = searchParams.page || 1;
   const perPage = searchParams.perPage || 10;
 
-  const { data } = useListApps({
+  const { data, isLoading } = useListApps({
     page: String(page),
     query: name ?? undefined,
     page_size: String(perPage),
@@ -57,9 +66,11 @@ export function AppsTable() {
       {
         id: "description",
         accessorKey: "description",
-        header: "Description",
+        header: ({ column }: { column: Column<App, unknown> }) => (
+          <DataTableColumnHeader column={column} label="Description" />
+        ),
         cell: ({ row }) => (
-          <div className="hidden sm:block text-sm max-w-xs truncate">
+          <div className="text-sm max-w-xs truncate">
             {row.original.description || "-"}
           </div>
         ),
@@ -67,29 +78,33 @@ export function AppsTable() {
       {
         id: "short_id",
         accessorKey: "short_id",
-        header: "Short ID",
+        header: ({ column }: { column: Column<App, unknown> }) => (
+          <DataTableColumnHeader column={column} label="Short ID" />
+        ),
         cell: ({ row }) => (
-          <span className="hidden md:inline font-mono text-xs">
-            {row.original.short_id}
-          </span>
+          <span className="font-mono text-xs">{row.original.short_id}</span>
         ),
       },
       {
         id: "user_role",
         accessorKey: "user_role",
-        header: "Role",
+        header: ({ column }: { column: Column<App, unknown> }) => (
+          <DataTableColumnHeader column={column} label="Role" />
+        ),
         cell: ({ row }) => (
-          <span className="hidden lg:inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary capitalize">
+          <Badge variant="secondary" className="text-xs capitalize">
             {row.original.user_role?.toLowerCase().replace("_", " ")}
-          </span>
+          </Badge>
         ),
       },
       {
         id: "created_at",
         accessorKey: "created_at",
-        header: "Created At",
+        header: ({ column }: { column: Column<App, unknown> }) => (
+          <DataTableColumnHeader column={column} label="Created At" />
+        ),
         cell: ({ row }) => (
-          <span className="hidden lg:block text-muted-foreground text-xs">
+          <span className="text-muted-foreground text-xs">
             {row.original.created_at
               ? format(new Date(row.original.created_at), "MMM d, yyyy")
               : "-"}
@@ -99,12 +114,7 @@ export function AppsTable() {
       {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => (
-          <div className="flex items-center gap-0.5">
-            <EditAppDialog app={row.original} />
-            <DeleteAppDialog app={row.original} />
-          </div>
-        ),
+        cell: ({ row }) => <AppActionsDropdown app={row.original} />,
       },
     ],
     [],
@@ -115,37 +125,57 @@ export function AppsTable() {
     columns,
     pageCount: totalPages,
     getRowId: (row) => row.id ?? "",
-    onFilterChange: (filters) => {
-      const filterObj = filters.reduce<Record<string, string | undefined>>(
-        (acc, f) => {
-          acc[f.id] = Array.isArray(f.value) ? f.value[0] : (f.value as string);
-          return acc;
-        },
-        {},
-      );
-      const newSearch: AppSearch = {
-        ...searchParams,
-        ...filterObj,
-        name: filterObj.name || undefined,
-        page: 1,
-      };
-      void navigate({ search: newSearch as any });
-    },
-    onPaginationChange: (pagination) => {
-      const newSearch: AppSearch = {
-        ...searchParams,
-        page: pagination.pageIndex + 1,
-      };
-      void navigate({ search: newSearch as any });
-    },
+    debounceMs: 400,
     enableAdvancedFilter: false,
+    initialState: {
+      columnPinning: { right: ["actions"] },
+    },
   });
+
+  if (isLoading) {
+    return <DataTableSkeleton columnCount={10} />;
+  }
 
   return (
     <div className="data-table-container">
       <DataTable table={table.table} className="flex-1 overflow-hidden">
         <DataTableToolbar table={table.table} />
       </DataTable>
+    </div>
+  );
+}
+
+function AppActionsDropdown({ app }: { app: App }) {
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  return (
+    <div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setOpenEdit(true)}>
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setOpenDelete(true)}>
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <EditAppDialog
+        app={app}
+        isOpen={openEdit}
+        onCancel={() => setOpenEdit(false)}
+      />
+      <DeleteAppDialog
+        app={app}
+        isOpen={openDelete}
+        onCancel={() => setOpenDelete(false)}
+      />
     </div>
   );
 }
