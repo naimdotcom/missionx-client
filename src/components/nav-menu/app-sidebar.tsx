@@ -27,14 +27,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <SidebarMenuItem className="flex gap-2 border-b-2 pb-2 ">
-          <div className="border-2 rounded-full p-1.5">
-            <Avatar className="size-6">
-              <AvatarImage src={userProfile?.profile?.avatar_url} />
+      <SidebarHeader className="border-b py-1.5">
+        <SidebarMenuItem className="flex gap-2">
+          <div className="border-2 rounded-full flex items-center justify-center">
+            <Avatar className="size-7">
+              <AvatarImage
+                src={userProfile?.profile?.avatar_url}
+                alt={fullName}
+              />
               <AvatarFallback>
-                {userProfile?.profile?.first_name?.charAt(0).toUpperCase()}
-                {userProfile?.profile?.last_name?.charAt(0).toUpperCase()}
+                {userProfile?.profile?.first_name?.charAt(0).toUpperCase() ||
+                  "U"}
+                {userProfile?.profile?.last_name?.charAt(0).toUpperCase() ||
+                  "N"}
               </AvatarFallback>
             </Avatar>
           </div>

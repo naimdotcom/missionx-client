@@ -39,8 +39,8 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="border-2 rounded-full p-1.5 cursor-pointer">
-          <Avatar className="size-4">
+        <div className="border-2 rounded-full flex items-center justify-center cursor-pointer">
+          <Avatar className="size-7">
             <AvatarImage
               src={userProfile?.profile?.avatar_url}
               alt={userProfile?.profile?.first_name}
