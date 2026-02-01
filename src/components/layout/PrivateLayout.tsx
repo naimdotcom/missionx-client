@@ -14,6 +14,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
+import { env } from "@/lib/env";
 import { useAuthStore } from "@/stores/auth-store";
 import { Outlet } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
@@ -21,8 +22,9 @@ import { useEffect } from "react";
 import { UserMenu } from "../user-menu";
 
 function PrivateLayout() {
+  const openAllRoutes = env.isOpenAllRoutes === "true";
   const { setUserProfile } = useAuthStore();
-  const verifyTokenQuery = useVerifyToken(true);
+  const verifyTokenQuery = useVerifyToken(openAllRoutes ? false : true);
   const userQuery = useUserProfileFull(verifyTokenQuery.isSuccess);
 
   useEffect(() => {

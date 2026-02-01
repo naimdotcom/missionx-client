@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_public")({
     const { isAuthenticated } = useAuthStore.getState();
 
     // Skip redirect if openAllRoutes is true
-    if (env.openAllRoutes) {
+    if (env.isOpenAllRoutes === "true") {
       return;
     }
 

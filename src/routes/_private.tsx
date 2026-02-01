@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_private")({
     const { isAuthenticated } = useAuthStore.getState();
 
     // Skip authentication if environment variable is set
-    if (env.openAllRoutes) {
+    if (env.isOpenAllRoutes === "true") {
       return;
     }
 

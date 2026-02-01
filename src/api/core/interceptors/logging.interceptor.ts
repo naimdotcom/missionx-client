@@ -7,7 +7,7 @@ import type {
   InternalAxiosRequestConfig,
 } from "axios";
 
-const isDevelopment = env.isDev || env.enableApiLogging;
+const isDevelopment = env.environment === "development";
 
 /**
  * Request interceptor - logs outgoing requests
