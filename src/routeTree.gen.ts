@@ -13,8 +13,11 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PrivateRouteImport } from './routes/_private'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
+import { Route as PrivateSettingsRouteImport } from './routes/_private/settings'
 import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
+import { Route as PrivateChannelsRouteImport } from './routes/_private/channels'
 import { Route as PrivateAppsRouteImport } from './routes/_private/apps'
+import { Route as PrivateSettingsSlugRouteImport } from './routes/_private/settings.$slug'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -34,9 +37,19 @@ const PublicLoginRoute = PublicLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => PublicRoute,
 } as any)
+const PrivateSettingsRoute = PrivateSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => PrivateRoute,
+} as any)
 const PrivateInboxRoute = PrivateInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
+  getParentRoute: () => PrivateRoute,
+} as any)
+const PrivateChannelsRoute = PrivateChannelsRouteImport.update({
+  id: '/channels',
+  path: '/channels',
   getParentRoute: () => PrivateRoute,
 } as any)
 const PrivateAppsRoute = PrivateAppsRouteImport.update({
@@ -44,18 +57,29 @@ const PrivateAppsRoute = PrivateAppsRouteImport.update({
   path: '/apps',
   getParentRoute: () => PrivateRoute,
 } as any)
+const PrivateSettingsSlugRoute = PrivateSettingsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PrivateSettingsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/apps': typeof PrivateAppsRoute
+  '/channels': typeof PrivateChannelsRoute
   '/inbox': typeof PrivateInboxRoute
+  '/settings': typeof PrivateSettingsRouteWithChildren
   '/login': typeof PublicLoginRoute
+  '/settings/$slug': typeof PrivateSettingsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/apps': typeof PrivateAppsRoute
+  '/channels': typeof PrivateChannelsRoute
   '/inbox': typeof PrivateInboxRoute
+  '/settings': typeof PrivateSettingsRouteWithChildren
   '/login': typeof PublicLoginRoute
+  '/settings/$slug': typeof PrivateSettingsSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -63,22 +87,42 @@ export interface FileRoutesById {
   '/_private': typeof PrivateRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/_private/apps': typeof PrivateAppsRoute
+  '/_private/channels': typeof PrivateChannelsRoute
   '/_private/inbox': typeof PrivateInboxRoute
+  '/_private/settings': typeof PrivateSettingsRouteWithChildren
   '/_public/login': typeof PublicLoginRoute
+  '/_private/settings/$slug': typeof PrivateSettingsSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/apps' | '/inbox' | '/login'
+  fullPaths:
+    | '/'
+    | '/apps'
+    | '/channels'
+    | '/inbox'
+    | '/settings'
+    | '/login'
+    | '/settings/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/apps' | '/inbox' | '/login'
+  to:
+    | '/'
+    | '/apps'
+    | '/channels'
+    | '/inbox'
+    | '/settings'
+    | '/login'
+    | '/settings/$slug'
   id:
     | '__root__'
     | '/'
     | '/_private'
     | '/_public'
     | '/_private/apps'
+    | '/_private/channels'
     | '/_private/inbox'
+    | '/_private/settings'
     | '/_public/login'
+    | '/_private/settings/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,11 +161,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicLoginRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_private/settings': {
+      id: '/_private/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof PrivateSettingsRouteImport
+      parentRoute: typeof PrivateRoute
+    }
     '/_private/inbox': {
       id: '/_private/inbox'
       path: '/inbox'
       fullPath: '/inbox'
       preLoaderRoute: typeof PrivateInboxRouteImport
+      parentRoute: typeof PrivateRoute
+    }
+    '/_private/channels': {
+      id: '/_private/channels'
+      path: '/channels'
+      fullPath: '/channels'
+      preLoaderRoute: typeof PrivateChannelsRouteImport
       parentRoute: typeof PrivateRoute
     }
     '/_private/apps': {
@@ -131,17 +189,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateAppsRouteImport
       parentRoute: typeof PrivateRoute
     }
+    '/_private/settings/$slug': {
+      id: '/_private/settings/$slug'
+      path: '/$slug'
+      fullPath: '/settings/$slug'
+      preLoaderRoute: typeof PrivateSettingsSlugRouteImport
+      parentRoute: typeof PrivateSettingsRoute
+    }
   }
 }
 
+interface PrivateSettingsRouteChildren {
+  PrivateSettingsSlugRoute: typeof PrivateSettingsSlugRoute
+}
+
+const PrivateSettingsRouteChildren: PrivateSettingsRouteChildren = {
+  PrivateSettingsSlugRoute: PrivateSettingsSlugRoute,
+}
+
+const PrivateSettingsRouteWithChildren = PrivateSettingsRoute._addFileChildren(
+  PrivateSettingsRouteChildren,
+)
+
 interface PrivateRouteChildren {
   PrivateAppsRoute: typeof PrivateAppsRoute
+  PrivateChannelsRoute: typeof PrivateChannelsRoute
   PrivateInboxRoute: typeof PrivateInboxRoute
+  PrivateSettingsRoute: typeof PrivateSettingsRouteWithChildren
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
   PrivateAppsRoute: PrivateAppsRoute,
+  PrivateChannelsRoute: PrivateChannelsRoute,
   PrivateInboxRoute: PrivateInboxRoute,
+  PrivateSettingsRoute: PrivateSettingsRouteWithChildren,
 }
 
 const PrivateRouteWithChildren =

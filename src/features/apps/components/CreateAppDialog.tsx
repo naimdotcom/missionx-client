@@ -1,5 +1,5 @@
 import { useCreateApp } from "@/api/services/apps/apps.hook";
-import type { CreateAppPayload } from "@/api/services/apps/apps.type";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,51 +12,53 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useForm } from "@tanstack/react-form";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export function CreateAppDialog() {
   const [createOpen, setCreateOpen] = useState(false);
-  const [formData, setFormData] = useState<CreateAppPayload>({
-    name: "",
-    description: "",
-    short_id: "",
-  });
-
   const createApp = useCreateApp();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      description: "",
+      short_id: "",
+    },
+    onSubmit: async (values) => {
+      if (!values.value.name?.trim()) {
+        toast.error("App name is required");
+        return;
+      }
 
-    if (!formData.name?.trim()) {
-      toast.error("App name is required");
-      return;
-    }
-
-    try {
-      await createApp.mutateAsync(formData);
-      toast.success("App created successfully");
-      setCreateOpen(false);
-      setFormData({ name: "", description: "", short_id: "" });
-    } catch (error) {
-      toast.error("Failed to create app");
-      console.error(error);
-    }
-  };
-
-  const handleOpenChange = (newOpen: boolean) => {
-    if (!newOpen) {
-      setFormData({ name: "", description: "", short_id: "" });
-    }
-    setCreateOpen(newOpen);
-  };
+      try {
+        await createApp.mutateAsync(values.value);
+        toast.success("App created successfully");
+        setCreateOpen(false);
+      } catch (error) {
+        toast.error("Failed to create app");
+        console.error(error);
+      }
+    },
+  });
 
   return (
     <div>
-      <Dialog open={createOpen} onOpenChange={handleOpenChange}>
+      <Dialog
+        open={createOpen}
+        onOpenChange={(newOpen) => {
+          setCreateOpen(newOpen);
+        }}
+      >
         <DialogContent className="sm:max-w-[500px]">
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void form.handleSubmit();
+            }}
+          >
             <DialogHeader>
               <DialogTitle>Create New App</DialogTitle>
               <DialogDescription>
@@ -65,48 +67,72 @@ export function CreateAppDialog() {
             </DialogHeader>
 
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">
-                  App Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="name"
-                  placeholder="My Awesome App"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-              </div>
+              <form.Field
+                name="name"
+                validators={{
+                  onChange: ({ value }) =>
+                    !value?.trim() ? "App name is required" : undefined,
+                }}
+                children={(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor="name">
+                      App Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      name={field.name}
+                      placeholder="My Awesome App"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      required
+                    />
+                    {field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-destructive">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="short_id">Short ID</Label>
-                <Input
-                  id="short_id"
-                  placeholder="my-app"
-                  value={formData.short_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, short_id: e.target.value })
-                  }
-                />
-                <p className="text-xs text-muted-foreground">
-                  A unique identifier for your app (optional)
-                </p>
-              </div>
+              <form.Field
+                name="short_id"
+                children={(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor="short_id">Short ID</Label>
+                    <Input
+                      id="short_id"
+                      name={field.name}
+                      placeholder="my-app"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      A unique identifier for your app (optional)
+                    </p>
+                  </div>
+                )}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe what this app does..."
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  rows={3}
-                />
-              </div>
+              <form.Field
+                name="description"
+                children={(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      name={field.name}
+                      placeholder="Describe what this app does..."
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      rows={3}
+                    />
+                  </div>
+                )}
+              />
             </div>
 
             <DialogFooter>
@@ -114,7 +140,7 @@ export function CreateAppDialog() {
                 type="button"
                 variant="destructive"
                 disabled={createApp.isPending}
-                onClick={() => handleOpenChange(false)}
+                onClick={() => setCreateOpen(false)}
               >
                 Cancel
               </Button>

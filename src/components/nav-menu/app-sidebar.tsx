@@ -10,6 +10,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/stores/auth-store";
+import { useNavigate } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
 import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -20,6 +21,7 @@ import { NavMain } from "./nav-main";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { userProfile } = useAuthStore();
+  const navigation = useNavigate();
 
   const fullName = `${userProfile?.profile?.first_name || ""} ${
     userProfile?.profile?.last_name || ""
@@ -60,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarFooter>
         <SidebarMenuItem>
-          <SidebarMenuButton>
+          <SidebarMenuButton onClick={() => navigation({ to: "/settings" })}>
             <Settings className="size-4" /> Settings
           </SidebarMenuButton>
         </SidebarMenuItem>
