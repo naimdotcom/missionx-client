@@ -148,8 +148,9 @@ export function EditAppDialog({ app, isOpen, onCancel }: EditAppDialogProps) {
               Cancel
             </Button>
             <Button
-              variant={"secondary"}
               type="submit"
+              variant={"secondary"}
+              className="mb-2 md:mb-0"
               disabled={updateApp.isPending}
             >
               {updateApp.isPending ? "Saving..." : "Save Changes"}

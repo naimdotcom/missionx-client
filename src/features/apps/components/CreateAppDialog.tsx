@@ -113,14 +113,15 @@ export function CreateAppDialog() {
               <Button
                 type="button"
                 variant="destructive"
-                onClick={() => handleOpenChange(false)}
                 disabled={createApp.isPending}
+                onClick={() => handleOpenChange(false)}
               >
                 Cancel
               </Button>
               <Button
-                variant={"secondary"}
                 type="submit"
+                variant={"secondary"}
+                className="mb-2 md:mb-0"
                 disabled={createApp.isPending}
               >
                 {createApp.isPending ? "Creating..." : "Create App"}

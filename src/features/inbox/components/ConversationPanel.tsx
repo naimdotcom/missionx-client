@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { SimplifiedReplier } from "@/features/inbox/components/replier";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ function ConversationArea({
   className,
   onShowSidebar,
 }: ConversationAreaProps) {
+  const ticketDetails = mockTickets.find((t) => t.id === selectedTicket);
   return (
     <div
       className={cn("flex flex-col h-full overflow-hidden min-w-0", className)}
@@ -42,19 +44,24 @@ function ConversationArea({
                 </Button>
               )}
 
-              <div className="overflow-hidden">
-                <h2 className="font-medium truncate">
-                  {
-                    mockTickets.find((t) => t.id === selectedTicket)
-                      ?.contactName
-                  }
-                </h2>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground truncate">
-                  <span className="truncate">
-                    {mockTickets.find((t) => t.id === selectedTicket)
-                      ?.channel === "facebook"
-                      ? "Facebook Messenger"
-                      : "Instagram Direct"}
+              <div className="flex items-center gap-1">
+                <Avatar>
+                  <AvatarImage
+                    src={ticketDetails?.contactAvatarUrl}
+                    alt={ticketDetails?.contactName || "Avatar"}
+                  />
+                  <AvatarFallback>
+                    {ticketDetails?.firstName.charAt(0).toUpperCase()}
+                    {ticketDetails?.lastName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h2 className="font-medium truncate">
+                    {ticketDetails?.contactName}
+                  </h2>
+
+                  <span className="capitalize text-xs text-muted-foreground truncate">
+                    {ticketDetails?.channel}
                   </span>
                 </div>
               </div>
