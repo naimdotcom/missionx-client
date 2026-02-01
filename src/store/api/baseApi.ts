@@ -10,6 +10,7 @@ import {
 import { logout } from "../authSlice";
 import { tokenStore } from "./tokenStore";
 import { saveReturnLocation } from "@/lib/locationPersistence";
+import { getCookie } from "@/lib/cookies";
 
 const SERVICE_URLS: Record<string, string> = {
   auth: process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:8000",
@@ -93,7 +94,9 @@ const customBaseQuery: BaseQueryFn<
             {
               url: "/api/auth/refresh",
               method: "POST",
-              // Credentials are already set in baseQuery, but being explicit here
+              // Include refresh_token in body for cross-domain localhost dev
+              // Backend tries body first, then path cookie. Cross-site cookies don't work localhost->ngrok
+              body: { refresh_token: getCookie("refresh_token") },
               credentials: "include",
             },
             api,

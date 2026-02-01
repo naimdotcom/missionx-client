@@ -29,8 +29,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   // Handle Session Error (e.g. Backend down or token invalid)
   useEffect(() => {
     if (isError) {
-      console.log("[AuthGuard] Session check failed, logging out.");
-      dispatch(logout());
+      console.error("[AuthGuard] Session check failed (isError=true). Normally I would logout, but I am PAUSED for debugging.");
+      // dispatch(logout()); 
     }
   }, [isError, dispatch]);
 

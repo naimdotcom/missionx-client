@@ -4,7 +4,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Login | Brainchat",
   description:
-    "Login to your Brainchat account to manage your Meta and Google integrations.",
+    "Login to your Brainchat account to manage your Facebook and Google integrations.",
 };
 
 export default function LoginPage() {

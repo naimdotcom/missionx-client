@@ -56,7 +56,7 @@ export default function PrivacyPolicyPage() {
             </h2>
             <p className="mt-3">
               When you connect third-party messaging or social platforms (such
-              as WhatsApp, Instagram, Facebook, or similar services), we receive
+              as WhatsApp, Facebook, or similar services), we receive
               data through their official APIs, which may include:
             </p>
             <ul className="mt-2 list-disc space-y-1 pl-6">

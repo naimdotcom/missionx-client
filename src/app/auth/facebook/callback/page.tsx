@@ -16,6 +16,9 @@ function FacebookCallbackContent() {
   );
   const [message, setMessage] = useState("Processing Facebook login...");
 
+  // Check if this page is opened in a popup window
+  const isPopup = typeof window !== "undefined" && (window.opener !== null || window.name === 'FacebookLoginPopup');
+
   useEffect(() => {
     const processCallback = async () => {
       const error = searchParams.get("error");
@@ -24,6 +27,19 @@ function FacebookCallbackContent() {
       if (error) {
         setStatus("error");
         setMessage(errorDescription || error || "Facebook login failed");
+        
+        if (isPopup && window.opener) {
+          window.opener.postMessage(
+            { 
+              type: "FACEBOOK_LOGIN_ERROR", 
+              error: errorDescription || error || "Facebook login failed" 
+            },
+            "*"
+          );
+          setTimeout(() => window.close(), 1500);
+          return;
+        }
+        
         setTimeout(() => router.push("/login"), 3000);
         return;
       }
@@ -33,6 +49,17 @@ function FacebookCallbackContent() {
       if (!accessToken) {
         setStatus("error");
         setMessage("No access token received");
+        
+        // If in popup, send error message to parent and close
+        if (isPopup && window.opener) {
+          window.opener.postMessage(
+            { type: "FACEBOOK_LOGIN_ERROR", error: "No access token received" },
+            "*"
+          );
+          setTimeout(() => window.close(), 1500);
+          return;
+        }
+        
         setTimeout(() => router.push("/login"), 3000);
         return;
       }
@@ -40,8 +67,28 @@ function FacebookCallbackContent() {
       // Note: Backend already sets cookies for accessToken and refreshToken
       // So we don't need to manually store them in localStorage anymore.
 
-      dispatch(setAuthenticated(true));
       setStatus("success");
+      setMessage("Login successful!");
+
+      const refreshToken = searchParams.get("refresh_token");
+
+      // If in popup, send success message to parent and close
+      if (isPopup && window.opener) {
+        window.opener.postMessage(
+          { 
+            type: "FACEBOOK_LOGIN_SUCCESS", 
+            accessToken, 
+            refreshToken 
+          },
+          "*"
+        );
+        setMessage("Login successful! Closing window...");
+        setTimeout(() => window.close(), 1000);
+        return;
+      }
+
+      // If not in popup, continue with normal flow
+      dispatch(setAuthenticated(true));
       setMessage("Login successful! Checking workspaces...");
 
       try {
@@ -57,7 +104,7 @@ function FacebookCallbackContent() {
     };
 
     processCallback();
-  }, [searchParams, router, dispatch, getApps]);
+  }, [searchParams, router, dispatch, getApps, isPopup]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-100">

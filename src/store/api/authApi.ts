@@ -117,7 +117,7 @@ export const authApi = baseApi.injectEndpoints({
     }),
     getMyCustomer: build.query({
       query: () => ({
-        url: "/api/v1/customers/me/full",
+        url: "/api/v1/customers/me",
         service: "auth",
       }),
     }),

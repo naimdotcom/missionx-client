@@ -8,6 +8,8 @@
  * In production with proper domain setup, cookies can be shared across subdomains.
  */
 
+import { getCookie } from "@/lib/cookies";
+
 let storedAccessToken: string | null = null;
 
 export const tokenStore = {
@@ -27,6 +29,14 @@ export const tokenStore = {
    * Get the access token
    */
   getAccessToken: (): string | null => {
+    if (!storedAccessToken) {
+      // Try to rehydrate from cookie (persistence for localhost)
+      const cookieToken = getCookie("access_token");
+      console.log("[TokenStore] Rehydrating. Cookie found:", !!cookieToken);
+      if (cookieToken) {
+         storedAccessToken = cookieToken;
+      }
+    }
     return storedAccessToken;
   },
 

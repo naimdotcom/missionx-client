@@ -45,7 +45,7 @@ export default function TermsPage() {
               <li>Configure, train, and deploy AI messaging agents</li>
               <li>
                 Connect agents to third-party social and messaging platforms
-                (e.g., Facebook Messenger, Instagram, WhatsApp, X)
+                (e.g., Facebook Messenger, WhatsApp, X)
               </li>
               <li>
                 Automate communication, responses, and data collection across

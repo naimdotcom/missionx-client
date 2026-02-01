@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Facebook, Instagram } from "lucide-react";
+import { Facebook } from "lucide-react";
 
 interface Channel {
   id: string;
@@ -44,8 +44,6 @@ export function ChannelStatusTable({
     switch (platform.toLowerCase()) {
       case "facebook":
         return <Facebook className="h-4 w-4" />;
-      case "instagram":
-        return <Instagram className="h-4 w-4" />;
       default:
         return null;
     }
