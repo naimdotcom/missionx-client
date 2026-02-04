@@ -1,4 +1,5 @@
 import { useCreateApp } from "@/api/services/apps/apps.hook";
+import { TextareaField, TextField } from "@/components/form/FormField";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -9,17 +10,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "@tanstack/react-form";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export function CreateAppDialog() {
-  const [createOpen, setCreateOpen] = useState(false);
   const createApp = useCreateApp();
+  const [createOpen, setCreateOpen] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -74,63 +72,35 @@ export function CreateAppDialog() {
                     !value?.trim() ? "App name is required" : undefined,
                 }}
                 children={(field) => (
-                  <div className="space-y-2">
-                    <Label htmlFor="name">
-                      App Name <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="name"
-                      name={field.name}
-                      placeholder="My Awesome App"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                      required
-                    />
-                    {field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-destructive">
-                        {field.state.meta.errors[0]}
-                      </p>
-                    )}
-                  </div>
+                  <TextField
+                    field={field}
+                    label="App Name"
+                    placeholder="ABC App"
+                    description="The name of your app"
+                  />
                 )}
               />
 
               <form.Field
                 name="short_id"
                 children={(field) => (
-                  <div className="space-y-2">
-                    <Label htmlFor="short_id">Short ID</Label>
-                    <Input
-                      id="short_id"
-                      name={field.name}
-                      placeholder="my-app"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      A unique identifier for your app (optional)
-                    </p>
-                  </div>
+                  <TextField
+                    field={field}
+                    label="Short ID"
+                    placeholder="abc-app"
+                    description="A unique identifier for your app (optional)"
+                  />
                 )}
               />
 
               <form.Field
                 name="description"
                 children={(field) => (
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      name={field.name}
-                      placeholder="Describe what this app does..."
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      onBlur={field.handleBlur}
-                      rows={3}
-                    />
-                  </div>
+                  <TextareaField
+                    field={field}
+                    label="Description"
+                    placeholder="Describe your app..."
+                  />
                 )}
               />
             </div>
