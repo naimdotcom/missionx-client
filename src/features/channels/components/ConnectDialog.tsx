@@ -9,14 +9,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  ExternalLink,
-  Facebook,
-  Instagram,
-  Loader2,
-  ShieldCheck,
-} from "lucide-react";
+import { ExternalLink, Loader2, ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import { FacebookIcon, InstagramIcon } from "./ChannelIcons";
 
 interface ConnectDialogProps {
   open: boolean;
@@ -63,9 +58,9 @@ export function ConnectDialog({
 
           <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shadow-lg border border-white/30 z-10 animate-in zoom-in-50 duration-500">
             {isFacebook ? (
-              <Facebook className="text-white fill-white w-8 h-8" />
+              <FacebookIcon className="text-white fill-current w-8 h-8" />
             ) : (
-              <Instagram className="text-white w-8 h-8" />
+              <InstagramIcon className="text-white w-8 h-8" />
             )}
           </div>
         </div>

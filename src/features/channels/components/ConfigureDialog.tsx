@@ -11,17 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import {
-  Facebook,
-  Instagram,
-  Loader2,
-  Save,
-  Settings2,
-  Sparkles,
-} from "lucide-react";
+import { Loader2, Save, Settings2, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Channel } from "../types";
+import { FacebookIcon, InstagramIcon } from "./ChannelIcons";
 
 interface ConfigureDialogProps {
   open: boolean;
@@ -62,12 +56,12 @@ export function ConfigureDialog({
         <div className="p-8 space-y-8">
           <DialogHeader className="flex flex-row items-center gap-5 space-y-0 text-left">
             <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${isFacebook ? "bg-[#1877F2]/10" : "bg-gradient-to-tr from-[#f09433]/10 via-[#e6683c]/10 to-[#bc1888]/10"}`}
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${isFacebook ? "bg-[#1877F2]/10" : "bg-[#E1306C]/10"}`}
             >
               {isFacebook ? (
-                <Facebook className="text-[#1877F2] w-7 h-7" />
+                <FacebookIcon className="text-[#1877F2] w-7 h-7" />
               ) : (
-                <Instagram className="text-[#e6683c] w-7 h-7" />
+                <InstagramIcon className="text-[#E1306C] w-7 h-7" />
               )}
             </div>
             <div className="space-y-1">

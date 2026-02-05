@@ -1,21 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 import {
   AlertCircle,
-  Clock,
-  ExternalLink,
-  Facebook,
-  Instagram,
   Loader2,
   MessageSquare,
+  Plug,
   RefreshCw,
   Settings,
   Trash2,
-  TrendingUp,
   Unplug,
   Users,
 } from "lucide-react";
@@ -23,6 +16,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Channel } from "../types";
 import { Badge } from "./Badge";
+import { ChannelIcon } from "./ChannelIcons";
 
 interface ChannelCardProps {
   channel: Channel;
@@ -31,7 +25,6 @@ interface ChannelCardProps {
   onDelete: (channel: Channel) => void;
   onReconnect: (channel: Channel) => void;
   onRefresh: (channel: Channel) => void;
-  onToggleAutoReply: (channelId: string, value: boolean) => void;
 }
 
 export function ChannelCard({
@@ -41,13 +34,9 @@ export function ChannelCard({
   onDelete,
   onReconnect,
   onRefresh,
-  onToggleAutoReply,
 }: ChannelCardProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
-
-  const isFB = channel.type === "facebook";
-  const Icon = isFB ? Facebook : Instagram;
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -65,82 +54,40 @@ export function ChannelCard({
     onReconnect(channel);
   };
 
-  const formatLastSync = (isoString?: string) => {
-    if (!isoString) return "Never";
-    const date = new Date(isoString);
-    const now = new Date();
-    const diffMins = Math.floor((now.getTime() - date.getTime()) / 60000);
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return date.toLocaleDateString();
-  };
-
   return (
-    <Card className="group relative overflow-hidden transition-all hover:shadow-lg duration-300">
-      <div className={cn("absolute top-0 left-0 w-full h-1")} />
-      <CardHeader className="pb-3 pt-6">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-4">
-              <div
-                className={cn(
-                  "p-3 rounded-2xl transition-transform group-hover:scale-110 duration-300",
-                  isFB ? "bg-[#1877F2]/10" : "bg-[#E1306C]/10",
-                )}
-              >
-                <Icon
-                  className={cn(
-                    "w-6 h-6",
-                    isFB ? "text-[#1877F2]" : "text-[#E1306C]",
-                  )}
-                />
-              </div>
-              <div className="space-y-1">
-                <CardTitle className="text-lg font-bold tracking-tight">
-                  {channel.name}
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-muted text-muted-foreground uppercase">
-                    {channel.type}
-                  </span>
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    ID: {channel.pageId}
-                  </span>
-                </div>
-              </div>
+    <Card className="overflow-hidden h-72 flex flex-col justify-between group">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-4">
+          <ChannelIcon
+            type={channel.type}
+            variant="boxed"
+            className="p-3 rounded-2xl group-hover:scale-110 duration-300"
+            iconClassName="w-6 h-6"
+          />
+
+          <div>
+            <div className="text-lg font-bold tracking-tight">
+              {channel.name}
             </div>
-            <Badge
-              variant={
-                channel.status === "connected" ? "default" : "destructive"
-              }
-              className={cn(
-                "animate-in fade-in zoom-in duration-500",
-                channel.status === "connected"
-                  ? "bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800"
-                  : "bg-rose-50 text-rose-600 border border-rose-200 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-800",
-              )}
-            >
-              {channel.status === "connected" ? (
-                <div className="flex items-center gap-1">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  Live
-                </div>
-              ) : (
-                "Disconnected"
-              )}
-            </Badge>
+            {channel.status === "connected" && (
+              <Badge
+                variant="secondary"
+                className="capitalize bg-green-500/10 text-green-500"
+              >
+                {channel.status}
+              </Badge>
+            )}
+            {channel.status === "disconnected" && (
+              <Badge variant="destructive">{channel.status}</Badge>
+            )}
           </div>
-        </div>
+        </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-6">
         {channel.status === "connected" ? (
           <>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {[
                 {
                   label: "Messages",
@@ -154,11 +101,6 @@ export function ChannelCard({
                       ? `${(channel.followers / 1000).toFixed(1)}K`
                       : channel.followers,
                   Icon: Users,
-                },
-                {
-                  label: "Growth",
-                  val: `${channel.growth}%`,
-                  Icon: TrendingUp,
                 },
               ].map((stat) => (
                 <div
@@ -174,44 +116,6 @@ export function ChannelCard({
                   </p>
                 </div>
               ))}
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 group/sync">
-                <div
-                  className={cn(
-                    "p-1.5 rounded-full bg-muted/50",
-                    isRefreshing && "animate-pulse",
-                  )}
-                >
-                  <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
-                    Last Synced
-                  </span>
-                  <span className="text-xs font-medium">
-                    {formatLastSync(channel.lastSync)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 p-1 px-3 rounded-full bg-muted/50 border border-transparent hover:border-primary/10 transition-colors">
-                <Switch
-                  checked={channel.autoReply}
-                  id={`auto-reply-${channel.id}`}
-                  onCheckedChange={(checked) =>
-                    onToggleAutoReply(channel.id, checked)
-                  }
-                  className="scale-75"
-                />
-                <Label
-                  htmlFor={`auto-reply-${channel.id}`}
-                  className="text-[10px] font-bold uppercase cursor-pointer select-none"
-                >
-                  Auto Reply
-                </Label>
-              </div>
             </div>
 
             <Separator className="bg-muted-foreground/5" />
@@ -264,34 +168,38 @@ export function ChannelCard({
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-6 text-center space-y-4">
-            <div className="p-4 rounded-full bg-rose-500/10 animate-pulse">
-              <AlertCircle className="w-10 h-10 text-rose-500" />
+          <div className="flex flex-col items-center justify-center text-center gap-2">
+            <div className="p-4 rounded-full bg-destructive/10">
+              <AlertCircle className="size-9 text-rose-500" />
             </div>
+
             <div className="space-y-1">
-              <p className="font-bold text-rose-600 dark:text-rose-400">
+              <p className="font-bold text-destructive">
                 Connection Interrupted
               </p>
               <p className="text-xs text-muted-foreground px-4">
-                Your connection with this channel has expired or was revoked.
+                Your connection with this channel has expired.
               </p>
             </div>
+
             <Button
-              variant="default"
               size="sm"
+              className="w-full"
+              variant="destructive"
               onClick={handleReconnect}
               disabled={isReconnecting}
-              className="w-full h-10 rounded-xl font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-600/20"
             >
-              {isReconnecting ? (
+              {isReconnecting && (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                   Reconnecting...
                 </>
-              ) : (
+              )}
+
+              {!isReconnecting && (
                 <>
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Reconnect Now
+                  <Plug className="size-4" />
+                  Reconnect
                 </>
               )}
             </Button>
