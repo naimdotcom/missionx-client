@@ -61,8 +61,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-ENV NEXT_TELEMETRY_DISABLED=1
-
 # Build Next.js - This will now find TypeScript for next.config.ts
 RUN pnpm run build
 
