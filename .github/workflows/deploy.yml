@@ -32,7 +32,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: front-end:latest
+          tags: ${{ env.LOW_IMG }}:latest
           build-args: |
             VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}
             VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
