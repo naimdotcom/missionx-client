@@ -1,187 +1,207 @@
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
+  AlertCircle,
+  Loader2,
+  MessageSquare,
+  Plug,
+  RefreshCw,
   Settings,
   Trash2,
-  RefreshCw,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  MessageSquare,
+  Unplug,
   Users,
-  TrendingUp,
-  ExternalLink,
-  Instagram,
-  Facebook,
-  Loader2,
 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
-
-interface Channel {
-  id: string;
-  type: "facebook" | "instagram";
-  name: string;
-  pageId: string;
-  status: "connected" | "disconnected" | "pending";
-  lastSync?: string;
-  messageCount: number;
-  followers: number;
-  autoReply: boolean;
-  businessAccountId?: string;
-}
+import { Channel } from "../types";
+import { Badge } from "./Badge";
+import { ChannelIcon } from "./ChannelIcons";
 
 interface ChannelCardProps {
   channel: Channel;
   onConfigure: (channel: Channel) => void;
+  onDisconnect: (channel: Channel) => void;
   onDelete: (channel: Channel) => void;
+  onReconnect: (channel: Channel) => void;
   onRefresh: (channel: Channel) => void;
 }
 
-export function ChannelCard({ channel, onConfigure, onDelete, onRefresh }: ChannelCardProps) {
+export function ChannelCard({
+  channel,
+  onConfigure,
+  onDisconnect,
+  onDelete,
+  onReconnect,
+  onRefresh,
+}: ChannelCardProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsRefreshing(false);
     toast.success(`${channel.name} synced successfully`);
     onRefresh(channel);
   };
 
-  const Icon = channel.type === "facebook" ? Facebook : Instagram;
-  const iconColor = channel.type === "facebook" ? "text-[#1877F2]" : "text-[#E1306C]";
-  const bgColor = channel.type === "facebook" ? "bg-[#1877F2]/10" : "bg-[#E1306C]/10";
-  const accentColor = channel.type === "facebook" ? "bg-[#1877F2]" : "bg-[#E1306C]";
+  const handleReconnect = async () => {
+    setIsReconnecting(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsReconnecting(false);
+    toast.success(`${channel.name} reconnected successfully`);
+    onReconnect(channel);
+  };
 
   return (
-    <Card className="group relative overflow-hidden border-0 shadow-md hover:shadow-lg transition-all duration-300">
-      <div className={`absolute top-0 left-0 w-1 h-full ${accentColor}`} />
-      
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-3 rounded-xl ${bgColor}`}>
-              <Icon className={`w-6 h-6 ${iconColor}`} />
+    <Card className="overflow-hidden h-72 flex flex-col justify-between group">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-4">
+          <ChannelIcon
+            type={channel.type}
+            variant="boxed"
+            className="p-3 rounded-2xl group-hover:scale-110 duration-300"
+            iconClassName="w-6 h-6"
+          />
+
+          <div>
+            <div className="text-lg font-bold tracking-tight">
+              {channel.name}
             </div>
-            <div>
-              <CardTitle className="text-lg font-semibold">{channel.name}</CardTitle>
-              <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                ID: {channel.pageId}
-              </CardDescription>
-            </div>
+            {channel.status === "connected" && (
+              <Badge
+                variant="secondary"
+                className="capitalize bg-green-500/10 text-green-500"
+              >
+                {channel.status}
+              </Badge>
+            )}
+            {channel.status === "disconnected" && (
+              <Badge variant="destructive">{channel.status}</Badge>
+            )}
           </div>
-          
-          <div className="flex items-center gap-2">
-            <Badge 
-              variant={channel.status === "connected" ? "default" : channel.status === "pending" ? "secondary" : "destructive"}
-              className={
-                channel.status === "connected" 
-                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" 
-                  : channel.status === "disconnected"
-                  ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                  : ""
-              }
-            >
-              {channel.status === "connected" && <CheckCircle2 className="w-3 h-3 mr-1" />}
-              {channel.status === "pending" && <Clock className="w-3 h-3 mr-1" />}
-              {channel.status === "disconnected" && <AlertCircle className="w-3 h-3 mr-1" />}
-              {channel.status.charAt(0).toUpperCase() + channel.status.slice(1)}
-            </Badge>
-          </div>
-        </div>
+        </CardTitle>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        {channel.status === "connected" && (
+      <CardContent className="space-y-6">
+        {channel.status === "connected" ? (
           <>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-3 rounded-lg bg-muted/50">
-                <MessageSquare className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                <p className="text-lg font-semibold">{channel.messageCount.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">Messages</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-muted/50">
-                <Users className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                <p className="text-lg font-semibold">{(channel.followers / 1000).toFixed(1)}K</p>
-                <p className="text-xs text-muted-foreground">Followers</p>
-              </div>
-              <div className="text-center p-3 rounded-lg bg-muted/50">
-                <TrendingUp className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                <p className="text-lg font-semibold">+12%</p>
-                <p className="text-xs text-muted-foreground">Growth</p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                Last sync: {channel.lastSync ? new Date(channel.lastSync).toLocaleTimeString() : "Never"}
-              </span>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Switch checked={channel.autoReply} id={`auto-reply-${channel.id}`} />
-                <Label htmlFor={`auto-reply-${channel.id}`} className="text-sm cursor-pointer">
-                  Auto-reply enabled
-                </Label>
-              </div>
-              
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                {
+                  label: "Messages",
+                  val: channel.messageCount.toLocaleString(),
+                  Icon: MessageSquare,
+                },
+                {
+                  label: "Followers",
+                  val:
+                    channel.followers >= 1000
+                      ? `${(channel.followers / 1000).toFixed(1)}K`
+                      : channel.followers,
+                  Icon: Users,
+                },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="relative group/stat p-3 rounded-2xl bg-muted/30 border border-transparent transition-all hover:bg-muted/50 hover:border-muted-foreground/10"
                 >
-                  {isRefreshing ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="w-4 h-4" />
-                  )}
-                </Button>
-                <Button 
-                  variant="ghost" 
+                  <stat.Icon className="w-4 h-4 mb-2 text-muted-foreground transition-colors group-hover/stat:text-primary" />
+                  <p className="text-lg font-bold tabular-nums tracking-tight leading-none mb-1">
+                    {stat.val}
+                  </p>
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <Separator className="bg-muted-foreground/5" />
+
+            <div className="flex items-center justify-between pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="h-9 rounded-xl border-dashed hover:border-primary hover:text-primary transition-all px-4"
+              >
+                {isRefreshing ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
+                )}
+                Sync Now
+              </Button>
+
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="secondary"
                   size="icon"
                   onClick={() => onConfigure(channel)}
+                  className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+                  title="Settings"
                 >
-                  <Settings className="w-4 h-4" />
+                  <Settings className="w-4.5 h-4.5" />
                 </Button>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => onDisconnect(channel)}
+                  className="h-9 w-9 rounded-xl hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
+                  title="Disconnect Channel"
+                >
+                  <Unplug className="w-4.5 h-4.5" />
+                </Button>
+                <Button
+                  variant="secondary"
                   size="icon"
                   onClick={() => onDelete(channel)}
-                  className="text-destructive hover:text-destructive"
+                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
+                  title="Permanently Delete"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4.5 h-4.5" />
                 </Button>
               </div>
             </div>
           </>
-        )}
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center gap-2">
+            <div className="p-4 rounded-full bg-destructive/10">
+              <AlertCircle className="size-9 text-rose-500" />
+            </div>
 
-        {channel.status === "disconnected" && (
-          <div className="text-center py-4">
-            <AlertCircle className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-            <p className="text-sm text-muted-foreground mb-4">
-              This channel needs to be reconnected
-            </p>
-            <Button variant="outline" size="sm">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Reconnect
+            <div className="space-y-1">
+              <p className="font-bold text-destructive">
+                Connection Interrupted
+              </p>
+              <p className="text-xs text-muted-foreground px-4">
+                Your connection with this channel has expired.
+              </p>
+            </div>
+
+            <Button
+              size="sm"
+              className="w-full"
+              variant="destructive"
+              onClick={handleReconnect}
+              disabled={isReconnecting}
+            >
+              {isReconnecting && (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Reconnecting...
+                </>
+              )}
+
+              {!isReconnecting && (
+                <>
+                  <Plug className="size-4" />
+                  Reconnect
+                </>
+              )}
             </Button>
           </div>
         )}
