@@ -12,9 +12,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { auth } from "@/lib/firebase";
 import { useAuthStore } from "@/stores/auth-store";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { signOut } from "firebase/auth";
 import { useTheme } from "./theme-provider";
 import { Spinner } from "./ui/spinner";
 
@@ -26,14 +28,27 @@ export function UserMenu() {
   const { setTheme, theme } = useTheme();
   const logout = useAuthStore((state) => state.logout);
 
-  const handleLogout = () => {
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        logout();
-        queryClient.clear();
-        navigate({ to: "/login" });
-      },
-    });
+  const handleLogout = async () => {
+    try {
+      // Call backend logout
+      await logoutMutation.mutateAsync();
+    } catch (error) {
+      console.error("Backend logout error:", error);
+    } finally {
+      // Clear local state regardless of backend success
+      logout();
+      queryClient.clear();
+
+      // Sign out from Firebase
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error("Firebase signout error:", error);
+      }
+
+      // Navigate to login
+      navigate({ to: "/login" });
+    }
   };
 
   return (

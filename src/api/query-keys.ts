@@ -15,10 +15,16 @@ export const queryKeys = {
     appUsers: (id: string) => ["apps", "users", id] as const,
     listRoles: ["apps", "roles"] as const,
   },
+
+  inboxKeys: {
+    conversationList: ["inbox", "conversation-list"] as const,
+    conversationHistory: (conversationId: string) =>
+      ["inbox", "conversation-history", conversationId] as const,
+  },
 } as const;
 
 export const mutationKeys = {
-  authMutationKeys: {
+  authKeys: {
     login: ["auth", "login"] as const,
     register: ["auth", "register"] as const,
     logout: ["auth", "logout"] as const,
@@ -27,5 +33,11 @@ export const mutationKeys = {
     refreshToken: ["auth", "refreshToken"] as const,
     verify: ["auth", "verify"] as const,
     userInfo: ["auth", "userInfo"] as const,
+  },
+
+  inboxKeys: {
+    updateConversationStatus: ["inbox", "update-conversation-status"] as const,
+    sendMessage: ["inbox", "send-message"] as const,
+    sendCSATTemplate: ["inbox", "send-csat-template"] as const,
   },
 } as const;

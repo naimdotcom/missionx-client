@@ -22,8 +22,23 @@ export const useAuthStore = create<AuthState>()(
       setAuth: (accessToken, refreshToken) =>
         set({ accessToken, refreshToken, isAuthenticated: !!accessToken }),
 
-      logout: () =>
-        set({ accessToken: null, refreshToken: null, isAuthenticated: false }),
+      logout: () => {
+        // Clear state
+        set({
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false,
+          userProfile: null,
+        });
+
+        // Clear all storage manually to ensure cleanup
+        localStorage.removeItem("auth-storage");
+        // localStorage.removeItem("ui-storage");
+
+        // Note: theme storage is intentionally kept for better UX
+        // Remove the line below if you want to also clear theme preference
+        // localStorage.removeItem("vite-ui-theme");
+      },
 
       setUserProfile: (profile) => set({ userProfile: profile }),
     }),

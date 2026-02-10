@@ -13,7 +13,7 @@ export const useLogin = () => {
       const response = await authService.login(payload);
       return response;
     },
-    mutationKey: mutationKeys.authMutationKeys.login,
+    mutationKey: mutationKeys.authKeys.login,
   });
 };
 
@@ -23,7 +23,7 @@ export const useRegister = () => {
       const response = await authService.register(payload);
       return response;
     },
-    mutationKey: mutationKeys.authMutationKeys.register,
+    mutationKey: mutationKeys.authKeys.register,
   });
 };
 
@@ -33,7 +33,7 @@ export function useGoogleLogin() {
       const response = await authService.googleLogin(payload);
       return response;
     },
-    mutationKey: mutationKeys.authMutationKeys.google,
+    mutationKey: mutationKeys.authKeys.google,
   });
 }
 
@@ -54,7 +54,7 @@ export function useRefreshToken() {
       const response = await authService.refreshToken(payload);
       return response;
     },
-    mutationKey: mutationKeys.authMutationKeys.refreshToken,
+    mutationKey: mutationKeys.authKeys.refreshToken,
   });
 }
 
@@ -64,6 +64,6 @@ export function useLogout() {
       const response = await authService.logout();
       return response;
     },
-    mutationKey: mutationKeys.authMutationKeys.logout,
+    mutationKey: mutationKeys.authKeys.logout,
   });
 }

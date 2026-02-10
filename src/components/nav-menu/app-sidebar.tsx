@@ -7,10 +7,9 @@ import {
   SidebarHeader,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/stores/auth-store";
-import { useNavigate } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
 import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -20,8 +19,9 @@ import { NavMain } from "./nav-main";
 // This is sample data.
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { userProfile } = useAuthStore();
+  const location = useLocation();
   const navigation = useNavigate();
+  const { userProfile } = useAuthStore();
 
   const fullName = `${userProfile?.profile?.first_name || ""} ${
     userProfile?.profile?.last_name || ""
@@ -29,7 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="border-b py-1.5">
+      <SidebarHeader className="border-b py-1.5 p-[5px]">
         <SidebarMenuItem className="flex gap-2">
           <div className="border-2 rounded-full flex items-center justify-center">
             <Avatar className="size-7">
@@ -62,13 +62,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarFooter>
         <SidebarMenuItem>
-          <SidebarMenuButton onClick={() => navigation({ to: "/settings" })}>
+          <SidebarMenuButton
+            isActive={location.pathname === "/settings"}
+            onClick={() => navigation({ to: "/settings" })}
+          >
             <Settings className="size-4" /> Settings
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarFooter>
-
-      <SidebarRail />
     </Sidebar>
   );
 }

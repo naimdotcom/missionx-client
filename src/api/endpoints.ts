@@ -35,6 +35,18 @@ export const API_ENDPOINTS = {
     APP_ROLE_CRUD: (id: string) => `/api/v1/apps/${id}/roles`, // Assign, Update, Delete roles for an app
   },
 
+  //INBOX
+  INBOX: {
+    CONVERSATION_LIST: "/api/v1/inbox",
+    CONVERSATION_HISTORY: (id: string) => `/api/v1/inbox/${id}`,
+    UPDATE_CONVERSATION_STATUS: (id: string) => `/api/v1/inbox/${id}/status`,
+    SEND_MESSAGE: "/api/v1/messaging/send",
+    SEND_CSAT_TEMPLATE: "/api/v1/messaging/send-feedback-template",
+  },
+
+  //CHANNELS
+  CHANNELS: {},
+
   // Upload
   UPLOAD: {
     FILE: "/upload/file",
