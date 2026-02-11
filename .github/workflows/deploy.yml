@@ -3,7 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches: [dev-hemel]
-    url: https://brainchat.cloud # Update with your actual domain
+    url: https://studio.brainchat.cloud # Update with your actual domain
 
 # Hard-coding the lowercase name here is the safest "short" solution
 env:
