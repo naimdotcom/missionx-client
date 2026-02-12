@@ -47,6 +47,7 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
               <User size={18} />
               <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
+
             <TabsTrigger
               value="appearance"
               className="w-full justify-start gap-2 data-[state=active]:bg-muted hover:bg-muted/50 transition-all px-4 py-2"
@@ -54,6 +55,7 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
               <Palette size={18} />
               <span className="hidden sm:inline">Appearance</span>
             </TabsTrigger>
+
             <TabsTrigger
               value="cx-solutions"
               className="w-full justify-start gap-2 data-[state=active]:bg-muted hover:bg-muted/50 transition-all px-4 py-2"
@@ -61,6 +63,7 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
               <Bot size={18} />
               <span className="hidden sm:inline">CX Solutions</span>
             </TabsTrigger>
+
             <TabsTrigger
               value="notifications"
               className="w-full justify-start gap-2 data-[state=active]:bg-muted hover:bg-muted/50 transition-all px-4 py-2"
@@ -68,6 +71,7 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
               <Bell size={18} />
               <span className="hidden sm:inline">Notifications</span>
             </TabsTrigger>
+
             <TabsTrigger
               value="security"
               className="w-full justify-start gap-2 data-[state=active]:bg-muted hover:bg-muted/50 transition-all px-4 py-2"
@@ -75,6 +79,7 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
               <Shield size={18} />
               <span className="hidden sm:inline">Security</span>
             </TabsTrigger>
+
             <TabsTrigger
               value="advanced"
               className="w-full justify-start gap-2 data-[state=active]:bg-muted hover:bg-muted/50 transition-all px-4 py-2"
@@ -87,36 +92,36 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
 
         <div className="flex-1 lg:max-w-2xl">
           <TabsContent value="profile" className="m-0 space-y-6">
-            <div>
+            {/* <div>
               <h3 className="text-lg font-medium">Profile</h3>
               <p className="text-sm text-muted-foreground">
                 This is how others will see you on the site.
               </p>
             </div>
-            <Separator />
+            <Separator /> */}
             <ProfileForm />
           </TabsContent>
 
           <TabsContent value="appearance" className="m-0 space-y-6">
-            <div>
+            {/* <div>
               <h3 className="text-lg font-medium">Appearance</h3>
               <p className="text-sm text-muted-foreground">
                 Customize the appearance of the app. Automatically switch
                 between day and night themes.
               </p>
             </div>
-            <Separator />
+            <Separator /> */}
             <AppearanceForm />
           </TabsContent>
 
           <TabsContent value="cx-solutions" className="m-0 space-y-6">
-            <div>
+            {/* <div>
               <h3 className="text-lg font-medium">CX Solutions Settings</h3>
               <p className="text-sm text-muted-foreground">
                 Configure your customer experience automation and AI settings.
               </p>
             </div>
-            <Separator />
+            <Separator /> */}
             <CXSettingsForm />
           </TabsContent>
 

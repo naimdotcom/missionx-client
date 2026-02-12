@@ -32,3 +32,13 @@ export interface UserProfileFull {
     updated_at?: string;
   };
 }
+
+export interface UpdateUserProfilePayload {
+  first_name?: string;
+  last_name?: string;
+  gender?: string;
+  avatar_url?: string;
+  bio?: string;
+  timezone?: string;
+  preferences?: {};
+}

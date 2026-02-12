@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
 
   // Users
   USERS: {
+    UPDATE_PROFILE: "/api/v1/users/profile",
     FULL_PROFILE: "/api/v1/users/profile/me",
   },
 
@@ -49,8 +50,8 @@ export const API_ENDPOINTS = {
 
   // Upload
   UPLOAD: {
-    FILE: "/upload/file",
-    IMAGE: "/upload/image",
+    FILE: "/api/v1/upload/file",
+    IMAGE: "/api/v1/upload/image",
   },
 } as const;
 

@@ -72,6 +72,7 @@ export class APIError extends Error {
 export interface RequestOptions {
   signal?: AbortSignal;
   headers?: Record<string, string>;
+  onUploadProgress?: (progressEvent: any) => void;
 }
 
 export interface PaginationParams {

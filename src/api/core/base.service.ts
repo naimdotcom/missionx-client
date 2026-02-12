@@ -33,6 +33,7 @@ export abstract class BaseAPIService {
     return {
       signal: options?.signal,
       headers: options?.headers,
+      onUploadProgress: options?.onUploadProgress,
     };
   }
 
@@ -154,18 +155,14 @@ export abstract class BaseAPIService {
   protected async upload<T>(
     endpoint: string,
     formData: FormData,
-    options?: RequestOptions & {
-      onUploadProgress?: (progressEvent: {
-        loaded: number;
-        total?: number;
-      }) => void;
-    },
-  ): Promise<APIResponse<T>> {
-    const response = await this.axios.post<APIResponse<T>>(endpoint, formData, {
-      ...this.buildConfig(options),
+    options?: RequestOptions,
+  ): Promise<T> {
+    const config = this.buildConfig(options);
+    const response = await this.axios.post<T>(endpoint, formData, {
+      ...config,
       headers: {
-        ...options?.headers,
-        "Content-Type": "multipart/form-data",
+        ...config.headers,
+        "Content-Type": undefined, // Let Axios handle it for FormData
       },
       onUploadProgress: options?.onUploadProgress,
     });

@@ -1,6 +1,6 @@
 import { API_ENDPOINTS, BaseAPIService, RequestOptions } from "@/api";
 import { env } from "@/lib/env";
-import { UserProfileFull } from "./users.type";
+import { UpdateUserProfilePayload, UserProfileFull } from "./users.type";
 
 export class UsersService extends BaseAPIService {
   getUserProfileFull = (options?: RequestOptions) => {
@@ -9,6 +9,13 @@ export class UsersService extends BaseAPIService {
       undefined,
       options,
     );
+  };
+
+  updateUserProfile = (
+    payload: UpdateUserProfilePayload,
+    options?: RequestOptions,
+  ) => {
+    return this.put(API_ENDPOINTS.USERS.UPDATE_PROFILE, payload, options);
   };
 }
 
