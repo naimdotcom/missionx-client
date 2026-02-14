@@ -20,26 +20,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const navigation = useNavigate();
 
   return (
-    <Sidebar
-      {...props}
-      collapsible="icon"
-      className="border-r border-border/50 bg-sidebar"
-    >
+    <Sidebar {...props} collapsible="icon">
       <SidebarHeader>
         <NavHeader />
       </SidebarHeader>
 
-      <SidebarContent className="px-0 gap-0">
+      <SidebarContent>
         <NavMain items={MAIN_NAV_ITEMS.navMain} />
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="px-2 py-3">
         <SidebarMenuItem>
           <SidebarMenuButton
             isActive={location.pathname === "/settings"}
             onClick={() => navigation({ to: "/settings" })}
           >
-            <Settings className="size-4" /> Settings
+            <Settings />
+            <span className="text-[13px] font-medium">Settings</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarFooter>

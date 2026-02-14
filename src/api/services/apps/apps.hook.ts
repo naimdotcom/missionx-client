@@ -34,7 +34,7 @@ export const useCreateApp = () => {
 export const useListApps = (params: AppParams) => {
   return useQuery({
     queryFn: () => appsService.listApps(params),
-    queryKey: [queryKeys.appsQueryKeys.listApps, params],
+    queryKey: [...queryKeys.appsQueryKeys.listApps, params],
   });
 };
 
@@ -44,7 +44,7 @@ export const useListApps = (params: AppParams) => {
 export const useListMyApps = (params: MyAppParams) => {
   return useQuery({
     queryFn: () => appsService.listMyApps(params),
-    queryKey: [queryKeys.appsQueryKeys.listMyApps, params],
+    queryKey: [...queryKeys.appsQueryKeys.listMyApps, params],
   });
 };
 
@@ -79,16 +79,16 @@ export const useUpdateApp = () => {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: CreateAppPayload }) =>
       appsService.updateApp(id, payload),
-    onSuccess: () => {
-      // queryClient.invalidateQueries({
-      //   queryKey: queryKeys.appsQueryKeys.appDetails(id),
-      // });
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.appsQueryKeys.appDetails(id),
+      });
       queryClient.invalidateQueries({
         queryKey: queryKeys.appsQueryKeys.listApps,
       });
-      // queryClient.invalidateQueries({
-      //   queryKey: queryKeys.appsQueryKeys.listMyApps,
-      // });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.appsQueryKeys.listMyApps,
+      });
     },
   });
 };
