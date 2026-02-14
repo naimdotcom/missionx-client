@@ -13,11 +13,11 @@ export class UploadService extends BaseAPIService {
     const formData = new FormData();
     formData.append("file", payload.file);
     formData.append("app_id", payload.app_id);
-    if (payload.metadata) {
-      Object.entries(payload.metadata).forEach(([key, value]) => {
-        formData.append(`metadata[${key}]`, JSON.stringify(value));
-      });
-    }
+    // if (payload.metadata) {
+    //   Object.entries(payload.metadata).forEach(([key, value]) => {
+    //     formData.append(`metadata[${key}]`, JSON.stringify(value));
+    //   });
+    // }
 
     return this.upload(API_ENDPOINTS.UPLOAD.FILE, formData, options);
   };

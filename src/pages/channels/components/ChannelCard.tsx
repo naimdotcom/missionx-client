@@ -1,59 +1,17 @@
+import type { Channel } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  AlertCircle,
-  Loader2,
-  MessageSquare,
-  Plug,
-  RefreshCw,
-  Settings,
-  Trash2,
-  Unplug,
-  Users,
-} from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { Channel } from "../types";
+import { AlertCircle, MessageSquare, Trash2, Users } from "lucide-react";
 import { Badge } from "./Badge";
 import { ChannelIcon } from "./ChannelIcons";
+import { DeleteUrlChannelBtn } from "./DeleteDialog";
 
 interface ChannelCardProps {
   channel: Channel;
-  onConfigure: (channel: Channel) => void;
-  onDisconnect: (channel: Channel) => void;
-  onDelete: (channel: Channel) => void;
-  onReconnect: (channel: Channel) => void;
-  onRefresh: (channel: Channel) => void;
 }
 
-export function ChannelCard({
-  channel,
-  onConfigure,
-  onDisconnect,
-  onDelete,
-  onReconnect,
-  onRefresh,
-}: ChannelCardProps) {
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isReconnecting, setIsReconnecting] = useState(false);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsRefreshing(false);
-    toast.success(`${channel.name} synced successfully`);
-    onRefresh(channel);
-  };
-
-  const handleReconnect = async () => {
-    setIsReconnecting(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsReconnecting(false);
-    toast.success(`${channel.name} reconnected successfully`);
-    onReconnect(channel);
-  };
-
+export function ChannelCard({ channel }: ChannelCardProps) {
   return (
     <Card className="overflow-hidden h-72 flex flex-col justify-between group">
       <CardHeader>
@@ -91,15 +49,15 @@ export function ChannelCard({
               {[
                 {
                   label: "Messages",
-                  val: channel.messageCount.toLocaleString(),
+                  val: (channel.messageCount || 0).toLocaleString(),
                   Icon: MessageSquare,
                 },
                 {
                   label: "Followers",
                   val:
-                    channel.followers >= 1000
-                      ? `${(channel.followers / 1000).toFixed(1)}K`
-                      : channel.followers,
+                    (channel.followers || 0) >= 1000
+                      ? `${((channel.followers || 0) / 1000).toFixed(1)}K`
+                      : channel.followers || 0,
                   Icon: Users,
                 },
               ].map((stat) => (
@@ -120,88 +78,24 @@ export function ChannelCard({
 
             <Separator className="bg-muted-foreground/5" />
 
-            <div className="flex items-center justify-between pt-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="h-9 rounded-xl border-dashed hover:border-primary hover:text-primary transition-all px-4"
-              >
-                {isRefreshing ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <RefreshCw className="w-4 h-4 mr-2 group-hover:rotate-180 transition-transform duration-500" />
-                )}
-                Sync Now
-              </Button>
-
-              <div className="flex items-center gap-1.5">
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={() => onConfigure(channel)}
-                  className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
-                  title="Settings"
-                >
-                  <Settings className="w-4.5 h-4.5" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={() => onDisconnect(channel)}
-                  className="h-9 w-9 rounded-xl hover:bg-orange-500/10 hover:text-orange-500 transition-colors"
-                  title="Disconnect Channel"
-                >
-                  <Unplug className="w-4.5 h-4.5" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={() => onDelete(channel)}
-                  className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
-                  title="Permanently Delete"
-                >
-                  <Trash2 className="w-4.5 h-4.5" />
-                </Button>
-              </div>
+            <div className="flex items-center justify-end gap-1.5 pt-1">
+              <DeleteUrlChannelBtn channel={channel} />
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center text-center gap-2">
+          <div className="flex flex-col items-center justify-center text-center gap-4">
             <div className="p-4 rounded-full bg-destructive/10">
               <AlertCircle className="size-9 text-rose-500" />
             </div>
-
             <div className="space-y-1">
-              <p className="font-bold text-destructive">
-                Connection Interrupted
-              </p>
+              <p className="font-bold text-destructive">Connection Lost</p>
               <p className="text-xs text-muted-foreground px-4">
-                Your connection with this channel has expired.
+                This channel is disconnected. Please reconnect to continue.
               </p>
             </div>
-
-            <Button
-              size="sm"
-              className="w-full"
-              variant="destructive"
-              onClick={handleReconnect}
-              disabled={isReconnecting}
-            >
-              {isReconnecting && (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  Reconnecting...
-                </>
-              )}
-
-              {!isReconnecting && (
-                <>
-                  <Plug className="size-4" />
-                  Reconnect
-                </>
-              )}
+            <Button size="sm" variant="destructive" className="gap-2">
+              <Trash2 className="size-4" />
+              Remove Channel
             </Button>
           </div>
         )}

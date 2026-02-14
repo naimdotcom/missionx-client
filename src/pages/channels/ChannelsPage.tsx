@@ -1,3 +1,4 @@
+import { useChannels, type Channel } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -6,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuthStore } from "@/stores/auth-store";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -15,71 +17,26 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { ChannelCard } from "./components/ChannelCard";
 import { ChannelIcon, getChannelColor } from "./components/ChannelIcons";
-import { ConfigureDialog } from "./components/ConfigureDialog";
 import { ConnectDialog } from "./components/ConnectDialog";
-import { DeleteDialog } from "./components/DeleteDialog";
 import { StatCard } from "./components/StatCard";
-import { Channel } from "./types";
-
-const mockChannels: Channel[] = [
-  {
-    id: "1",
-    type: "facebook",
-    name: "MissionX Official",
-    pageId: "fb-123456",
-    status: "connected",
-    lastSync: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-    messageCount: 1247,
-    followers: 15420,
-    growth: 12.4,
-    autoReply: true,
-  },
-  {
-    id: "2",
-    type: "instagram",
-    name: "MissionX Store",
-    pageId: "ig-789012",
-    status: "connected",
-    lastSync: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-    messageCount: 892,
-    followers: 28350,
-    growth: 18.7,
-    autoReply: false,
-  },
-  {
-    id: "3",
-    type: "facebook",
-    name: "MissionX Support",
-    pageId: "fb-345678",
-    status: "disconnected",
-    messageCount: 0,
-    followers: 0,
-    growth: 0,
-    autoReply: false,
-  },
-];
 
 export default function ChannelsPage() {
-  const [channels, setChannels] = useState<Channel[]>(mockChannels);
+  const selectedApp = useAuthStore((state) => state.selectedApp);
+  const { data, isLoading } = useChannels(selectedApp?.id || "");
   const [activeTab, setActiveTab] = useState("all");
-  const [configureDialogOpen, setConfigureDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [connectDialogOpen, setConnectDialogOpen] = useState(false);
   const [selectedChannelType, setSelectedChannelType] = useState<
     "facebook" | "instagram" | null
   >(null);
-  const [channelToConfigure, setChannelToConfigure] = useState<Channel | null>(
-    null,
-  );
-  const [channelToDelete, setChannelToDelete] = useState<Channel | null>(null);
 
-  const filteredChannels = channels.filter((channel) => {
-    const matchesSearch = channel.name.toLowerCase();
+  // Ensure channels is always an array
+  const channels = Array.isArray(data) ? data : [];
+
+  const filteredChannels = channels.filter((channel: Channel) => {
     const matchesTab = activeTab === "all" || channel.type === activeTab;
-    return matchesSearch && matchesTab;
+    return matchesTab;
   });
 
   const stats = [
@@ -88,12 +45,12 @@ export default function ChannelsPage() {
       title: "Facebook Pages",
       desc: "Connected pages",
       color: getChannelColor("facebook"),
-      value: channels.filter((c) => c.type === "facebook").length,
+      value: channels.filter((c: Channel) => c.type === "facebook").length,
     },
     {
       icon: InstagramIcon,
       title: "Instagram Accounts",
-      value: channels.filter((c) => c.type === "instagram").length,
+      value: channels.filter((c: Channel) => c.type === "instagram").length,
       desc: "Connected accounts",
       color: getChannelColor("instagram"),
     },
@@ -101,7 +58,7 @@ export default function ChannelsPage() {
       icon: MessageSquare,
       title: "Total Messages",
       value: channels
-        .reduce((sum, c) => sum + c.messageCount, 0)
+        .reduce((sum: number, c: Channel) => sum + (c.messageCount || 0), 0)
         .toLocaleString(),
       desc: "All time messages",
       color: "text-primary",
@@ -109,83 +66,15 @@ export default function ChannelsPage() {
     {
       icon: Users,
       title: "Total Reach",
-      value: `${(channels.reduce((sum, c) => sum + c.followers, 0) / 1000).toFixed(1)}K`,
+      value: `${(channels.reduce((sum: number, c: Channel) => sum + (c.followers || 0), 0) / 1000).toFixed(1)}K`,
       desc: "Total followers",
       color: "text-primary",
     },
   ];
 
-  const handleConfigure = (channel: Channel) => {
-    setChannelToConfigure(channel);
-    setConfigureDialogOpen(true);
-  };
-
-  const handleDisconnect = (channel: Channel) => {
-    setChannels((prev) =>
-      prev.map((c) =>
-        c.id === channel.id ? { ...c, status: "disconnected" } : c,
-      ),
-    );
-    toast.success(`${channel.name} has been disconnected`);
-  };
-
-  const handleDelete = (channel: Channel) => {
-    setChannelToDelete(channel);
-    setDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = (channel: Channel) => {
-    setChannels((prev) => prev.filter((c) => c.id !== channel.id));
-    toast.success(`${channel.name} has been deleted`);
-  };
-
-  const handleReconnect = (channel: Channel) => {
-    setChannels((prev) =>
-      prev.map((c) =>
-        c.id === channel.id
-          ? {
-              ...c,
-              status: "connected",
-              lastSync: new Date().toISOString(),
-              messageCount: 1247,
-              followers: 15420,
-              growth: 12.4,
-            }
-          : c,
-      ),
-    );
-  };
-
-  const handleRefresh = (channel: Channel) => {
-    setChannels((prev) =>
-      prev.map((c) =>
-        c.id === channel.id ? { ...c, lastSync: new Date().toISOString() } : c,
-      ),
-    );
-  };
-
   const openConnectDialog = (type: "facebook" | "instagram") => {
     setSelectedChannelType(type);
     setConnectDialogOpen(true);
-  };
-
-  const handleConnect = (name: string, pageId: string) => {
-    if (selectedChannelType) {
-      const newChannel: Channel = {
-        id: Date.now().toString(),
-        type: selectedChannelType,
-        name: name,
-        pageId: pageId,
-        status: "connected",
-        lastSync: new Date().toISOString(),
-        messageCount: 0,
-        followers: 0,
-        growth: 0,
-        autoReply: false,
-      };
-      setChannels((prev) => [...prev, newChannel]);
-      toast.success(`${name} connected successfully`);
-    }
   };
 
   return (
@@ -229,7 +118,11 @@ export default function ChannelsPage() {
           </TabsList>
 
           <TabsContent value={activeTab}>
-            {filteredChannels.length > 0 ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-muted-foreground">Loading channels...</div>
+              </div>
+            ) : filteredChannels.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 h-full overflow-y-auto pr-2 gap-6">
                 {filteredChannels.map((channel) => (
                   <div
@@ -237,14 +130,7 @@ export default function ChannelsPage() {
                     style={{ animationDelay: "50ms" }}
                     className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
                   >
-                    <ChannelCard
-                      channel={channel}
-                      onConfigure={handleConfigure}
-                      onDisconnect={handleDisconnect}
-                      onDelete={handleDelete}
-                      onReconnect={handleReconnect}
-                      onRefresh={handleRefresh}
-                    />
+                    <ChannelCard channel={channel} />
                   </div>
                 ))}
               </div>
@@ -265,22 +151,11 @@ export default function ChannelsPage() {
         </Tabs>
       </div>
 
-      <ConfigureDialog
-        open={configureDialogOpen}
-        onOpenChange={setConfigureDialogOpen}
-        channel={channelToConfigure}
-      />
-      <DeleteDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        channel={channelToDelete}
-        onConfirm={confirmDelete}
-      />
       <ConnectDialog
         open={connectDialogOpen}
         onOpenChange={setConnectDialogOpen}
         channelType={selectedChannelType}
-        onConnect={handleConnect}
+        appId={selectedApp?.id || ""}
       />
     </div>
   );

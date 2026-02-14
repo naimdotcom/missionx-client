@@ -1,5 +1,7 @@
 // Query key factory for TanStack Query
 
+import { UrlType } from ".";
+
 export const queryKeys = {
   authKeys: {
     verifyToken: ["verify", "auth"] as const,
@@ -21,6 +23,15 @@ export const queryKeys = {
     conversationHistory: (conversationId: string) =>
       ["inbox", "conversation-history", conversationId] as const,
   },
+
+  channelsKeys: {
+    all: ["channels"] as const,
+    allChannels: (appId: string) => ["channels", "all", appId] as const,
+    channelConnect: (type: UrlType) => ["channels", type, "connect"] as const,
+    metaCallback: ["channels", "meta", "callback"] as const,
+    metaSubscriptionStatus: (accountId: string) =>
+      ["channels", "meta", "subscription-status", accountId] as const,
+  },
 } as const;
 
 export const mutationKeys = {
@@ -39,5 +50,14 @@ export const mutationKeys = {
     updateConversationStatus: ["inbox", "update-conversation-status"] as const,
     sendMessage: ["inbox", "send-message"] as const,
     sendCSATTemplate: ["inbox", "send-csat-template"] as const,
+  },
+
+  channelsKeys: {
+    metaConnect: ["channels", "meta", "connect"] as const,
+    metaDisconnect: ["channels", "meta", "disconnect"] as const,
+    metaDelete: ["channels", "meta", "delete"] as const,
+    instagramConnect: ["channels", "instagram", "connect"] as const,
+    instagramDisconnect: ["channels", "instagram", "disconnect"] as const,
+    instagramDelete: ["channels", "instagram", "delete"] as const,
   },
 } as const;

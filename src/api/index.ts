@@ -9,3 +9,6 @@ export * from "./query-keys";
 export * from "./services/auth/auth.hooks";
 export * from "./services/auth/auth.service";
 export * from "./services/auth/auth.types";
+
+// Channels Domain
+export * from "./services/channels";
