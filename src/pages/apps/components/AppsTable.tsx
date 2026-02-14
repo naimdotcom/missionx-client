@@ -31,7 +31,7 @@ type AppSearch = {
 export function AppsTable() {
   const searchParams = useSearch({ from: "/_private/apps" }) as AppSearch;
 
-  const name = searchParams.name || "";
+  const name = searchParams.name;
   const page = searchParams.page || 1;
   const perPage = searchParams.perPage || 10;
 

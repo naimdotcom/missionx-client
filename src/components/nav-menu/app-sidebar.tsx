@@ -1,5 +1,6 @@
 "use client";
 
+import { useListApps } from "@/api/services/apps/apps.hook";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +23,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation();
   const navigation = useNavigate();
   const { userProfile } = useAuthStore();
+  const {} = useListApps({ page: "1", page_size: "10" });
 
   const fullName = `${userProfile?.profile?.first_name || ""} ${
     userProfile?.profile?.last_name || ""

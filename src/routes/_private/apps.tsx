@@ -1,4 +1,4 @@
-import { AppsPage } from "@/features/apps";
+import AppsPage from "@/pages/apps/AppsPage";
 import { createFileRoute } from "@tanstack/react-router";
 
 type AppSearchParams = {

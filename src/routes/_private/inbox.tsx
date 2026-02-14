@@ -1,4 +1,4 @@
-import InboxPage from "@/features/inbox/InboxPage";
+import InboxPage from "@/pages/inbox/InboxPage";
 import { createFileRoute } from "@tanstack/react-router";
 
 type InboxSearch = {

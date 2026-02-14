@@ -1,10 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { SimplifiedReplier } from "@/features/inbox/components/replier";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Inbox, Info, PanelRight } from "lucide-react";
 import { mockMessages, mockTickets } from "../const";
 import { MessageBubble } from "./message-bubble";
+import { SimplifiedReplier } from "./replier/components/SimplifiedReplier";
 
 type ConversationAreaProps = {
   className?: string;

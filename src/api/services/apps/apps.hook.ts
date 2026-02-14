@@ -33,8 +33,8 @@ export const useCreateApp = () => {
  */
 export const useListApps = (params: AppParams) => {
   return useQuery({
-    queryKey: [...queryKeys.appsQueryKeys.listApps, params],
     queryFn: () => appsService.listApps(params),
+    queryKey: [queryKeys.appsQueryKeys.listApps, params],
   });
 };
 
@@ -43,8 +43,8 @@ export const useListApps = (params: AppParams) => {
  */
 export const useListMyApps = (params: MyAppParams) => {
   return useQuery({
-    queryKey: [...queryKeys.appsQueryKeys.listMyApps, params],
     queryFn: () => appsService.listMyApps(params),
+    queryKey: [queryKeys.appsQueryKeys.listMyApps, params],
   });
 };
 
@@ -53,9 +53,9 @@ export const useListMyApps = (params: MyAppParams) => {
  */
 export const useListAppUsers = (id: string, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.appsQueryKeys.appUsers(id),
-    queryFn: () => appsService.listAppUsers(id),
     enabled: !!id && enabled,
+    queryFn: () => appsService.listAppUsers(id),
+    queryKey: queryKeys.appsQueryKeys.appUsers(id),
   });
 };
 
@@ -64,9 +64,9 @@ export const useListAppUsers = (id: string, enabled = true) => {
  */
 export const useGetAppDetails = (id: string, enabled = true) => {
   return useQuery({
-    queryKey: queryKeys.appsQueryKeys.appDetails(id),
-    queryFn: () => appsService.getAppDetails(id),
     enabled: !!id && enabled,
+    queryFn: () => appsService.getAppDetails(id),
+    queryKey: queryKeys.appsQueryKeys.appDetails(id),
   });
 };
 
