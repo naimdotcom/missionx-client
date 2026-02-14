@@ -1,3 +1,4 @@
+import { App } from "@/api/services/apps/apps.type";
 import { UserProfileFull } from "@/api/services/users/users.type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -10,11 +11,14 @@ interface AuthState {
   userProfile: UserProfileFull | null;
   setUserProfile: (profile: UserProfileFull | null) => void;
   setAuth: (accessToken: string, refreshToken: string) => void;
+  selectedApp: App | null;
+  setSelectedApp: (app: App) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
+      selectedApp: null,
       userProfile: null,
       accessToken: null,
       refreshToken: null,
@@ -41,6 +45,8 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setUserProfile: (profile) => set({ userProfile: profile }),
+
+      setSelectedApp: (app) => set({ selectedApp: app }),
     }),
     { name: "auth-storage" },
   ),

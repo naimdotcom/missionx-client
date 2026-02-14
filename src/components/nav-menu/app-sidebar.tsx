@@ -1,6 +1,3 @@
-"use client";
-
-import { useListApps } from "@/api/services/apps/apps.hook";
 import {
   Sidebar,
   SidebarContent,
@@ -9,12 +6,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useAuthStore } from "@/stores/auth-store";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { Settings } from "lucide-react";
 import * as React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { MAIN_NAV_ITEMS } from "./const";
+import NavHeader from "./nav-header";
 import { NavMain } from "./nav-main";
 
 // This is sample data.
@@ -22,43 +18,18 @@ import { NavMain } from "./nav-main";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation();
   const navigation = useNavigate();
-  const { userProfile } = useAuthStore();
-  const {} = useListApps({ page: "1", page_size: "10" });
-
-  const fullName = `${userProfile?.profile?.first_name || ""} ${
-    userProfile?.profile?.last_name || ""
-  }`.trim();
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="border-b py-1.5 p-[5px]">
-        <SidebarMenuItem className="flex gap-2">
-          <div className="border-2 rounded-full flex items-center justify-center">
-            <Avatar className="size-7">
-              <AvatarImage
-                src={userProfile?.profile?.avatar_url}
-                alt={fullName}
-              />
-              <AvatarFallback>
-                {userProfile?.profile?.first_name?.charAt(0).toUpperCase() ||
-                  "U"}
-                {userProfile?.profile?.last_name?.charAt(0).toUpperCase() ||
-                  "N"}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-          <div className="flex items-center">
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{fullName}</span>
-              <span className="truncate text-xs">
-                {userProfile?.user.email}
-              </span>
-            </div>
-          </div>
-        </SidebarMenuItem>
+    <Sidebar
+      {...props}
+      collapsible="icon"
+      className="border-r border-border/50 bg-sidebar"
+    >
+      <SidebarHeader>
+        <NavHeader />
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-0 gap-0">
         <NavMain items={MAIN_NAV_ITEMS.navMain} />
       </SidebarContent>
 
