@@ -159,13 +159,13 @@ function MetaLoginBtn() {
 
       if (event.data.type === "FACEBOOK_AUTH_SUCCESS") {
         const { accessToken, refreshToken } = event.data;
-        
+
         // Store tokens
         setAuth(accessToken, refreshToken);
-        
+
         // Show success message
         toast.success("Successfully logged in with Facebook!");
-        
+
         // Navigate to inbox
         navigate({ to: "/inbox" });
       } else if (event.data.type === "FACEBOOK_AUTH_ERROR") {
@@ -175,7 +175,7 @@ function MetaLoginBtn() {
     };
 
     window.addEventListener("message", handleMessage);
-    
+
     return () => {
       window.removeEventListener("message", handleMessage);
     };
@@ -186,6 +186,7 @@ function MetaLoginBtn() {
     const url = new URL(API_ENDPOINTS.AUTH.META_LOGIN, base).toString();
     window.open(url, "meta_login", "width=600,height=700");
   };
+
   return (
     <Button
       size="lg"
