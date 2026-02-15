@@ -48,7 +48,7 @@ export function ConnectDialog(props: ConnectDialogProps) {
               </Button>
             </TooltipTrigger>
 
-            {props.appId && (
+            {!props.appId && (
               <TooltipContent>
                 <p>Please select a app to connect channels</p>
               </TooltipContent>
