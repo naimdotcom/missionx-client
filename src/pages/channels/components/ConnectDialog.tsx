@@ -1,4 +1,4 @@
-import { useChannelConnectUrl } from "@/api/services/channels";
+import { UrlType, useChannelConnectUrl } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,20 +8,97 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ShieldCheck } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Plus, ShieldCheck } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { FacebookIcon, InstagramIcon } from "./ChannelIcons";
+import { ChannelIcon, FacebookIcon, InstagramIcon } from "./ChannelIcons";
 
 interface ConnectDialogProps {
-  open: boolean;
   appId: string;
-  onOpenChange: (open: boolean) => void;
-  channelType: "facebook" | "instagram" | null;
 }
 
 export function ConnectDialog(props: ConnectDialogProps) {
-  const channelType = props.channelType === "facebook" ? "meta" : "instagram";
-  const channelConnectQuery = useChannelConnectUrl(props.appId, channelType);
+  const [selectedChannelType, setSelectedChannelType] =
+    useState<UrlType | null>(null);
+
+  return (
+    <div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant={"secondary"}
+                disabled={!props.appId}
+                className="w-full"
+              >
+                <Plus className="size-4" />
+                Add New Channel
+              </Button>
+            </TooltipTrigger>
+
+            {props.appId && (
+              <TooltipContent>
+                <p>Please select a app to connect channels</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={() => setSelectedChannelType("meta")}
+            className="flex items-center gap-2"
+          >
+            <ChannelIcon type="facebook" variant="boxed" />
+            <span className="font-bold">Facebook Page</span>
+          </DropdownMenuItem>
+
+          <DropdownMenuItem
+            onClick={() => setSelectedChannelType("instagram")}
+            className="flex items-center gap-2"
+          >
+            <ChannelIcon type="instagram" variant="boxed" />
+            <span className="font-bold">Instagram Account</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {selectedChannelType && (
+        <ConnectChannelDialog
+          appId={props.appId}
+          channelType={selectedChannelType}
+          open={selectedChannelType !== null}
+          onOpenChange={() => setSelectedChannelType(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+type ConnectChannelDialogProps = {
+  open: boolean;
+  appId: string;
+  channelType: UrlType;
+  onOpenChange: (open: boolean) => void;
+};
+function ConnectChannelDialog(props: ConnectChannelDialogProps) {
+  console.log("App ID", props.appId);
+  console.log("Channel Type", props.channelType);
+
+  const channelConnectQuery = useChannelConnectUrl(
+    props.appId,
+    props.channelType,
+  );
 
   const handleConnect = async () => {
     if (!props.appId) {
@@ -35,8 +112,7 @@ export function ConnectDialog(props: ConnectDialogProps) {
     }
   };
 
-  const isFacebook = props.channelType === "facebook";
-
+  const isFacebook = props.channelType === "meta";
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogContent className="w-[95vw] sm:max-w-[480px] rounded-[2rem] p-0 border-0 overflow-hidden shadow-2xl bg-background">

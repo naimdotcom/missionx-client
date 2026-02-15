@@ -1,24 +1,16 @@
 import { useChannels, type Channel } from "@/api/services/channels";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   FacebookIcon,
   InstagramIcon,
   MessageSquare,
-  Plus,
   Search,
   Users,
 } from "lucide-react";
 import { useState } from "react";
 import { ChannelCard } from "./components/ChannelCard";
-import { ChannelIcon, getChannelColor } from "./components/ChannelIcons";
+import { getChannelColor } from "./components/ChannelIcons";
 import { ConnectDialog } from "./components/ConnectDialog";
 import { StatCard } from "./components/StatCard";
 
@@ -26,10 +18,6 @@ export default function ChannelsPage() {
   const selectedApp = useAuthStore((state) => state.selectedApp);
   const { data, isLoading } = useChannels(selectedApp?.id || "");
   const [activeTab, setActiveTab] = useState("all");
-  const [connectDialogOpen, setConnectDialogOpen] = useState(false);
-  const [selectedChannelType, setSelectedChannelType] = useState<
-    "facebook" | "instagram" | null
-  >(null);
 
   // Ensure channels is always an array
   const channels = Array.isArray(data) ? data : [];
@@ -72,11 +60,6 @@ export default function ChannelsPage() {
     },
   ];
 
-  const openConnectDialog = (type: "facebook" | "instagram") => {
-    setSelectedChannelType(type);
-    setConnectDialogOpen(true);
-  };
-
   return (
     <div className="grid grid-rows-[auto_1fr] h-full gap-2 overflow-hidden">
       <div className="border-b px-4 md:px-6 py-1.5 shrink-0 flex items-center justify-between">
@@ -87,7 +70,7 @@ export default function ChannelsPage() {
           </p>
         </div>
 
-        <AddChannelButton onOpenConnectDialog={openConnectDialog} />
+        <ConnectDialog appId={selectedApp?.id || ""} />
       </div>
 
       <div className="px-4 py-2 flex flex-col h-full gap-4 overflow-auto">
@@ -150,46 +133,6 @@ export default function ChannelsPage() {
           </TabsContent>
         </Tabs>
       </div>
-
-      <ConnectDialog
-        open={connectDialogOpen}
-        onOpenChange={setConnectDialogOpen}
-        channelType={selectedChannelType}
-        appId={selectedApp?.id || ""}
-      />
     </div>
-  );
-}
-
-type AddChannelButtonProps = {
-  onOpenConnectDialog: (type: "facebook" | "instagram") => void;
-};
-function AddChannelButton({ onOpenConnectDialog }: AddChannelButtonProps) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant={"secondary"}>
-          <Plus className="size-4" />
-          Add New Channel
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => onOpenConnectDialog("facebook")}
-          className="flex items-center gap-2"
-        >
-          <ChannelIcon type="facebook" variant="boxed" />
-          <span className="font-bold">Facebook Page</span>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onClick={() => onOpenConnectDialog("instagram")}
-          className="flex items-center gap-2"
-        >
-          <ChannelIcon type="instagram" variant="boxed" />
-          <span className="font-bold">Instagram Account</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }
