@@ -169,7 +169,7 @@ function MetaLoginBtn() {
         // Navigate to inbox
         navigate({ to: "/inbox" });
       } else if (event.data.type === "FACEBOOK_AUTH_ERROR") {
-        const { error, errorDescription } = event.data;
+        const { errorDescription } = event.data;
         toast.error(errorDescription || "Facebook login failed");
       }
     };
