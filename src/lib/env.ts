@@ -1,6 +1,7 @@
 export const env = {
   authUrl: import.meta.env.VITE_AUTH_URL,
   channelUrl: import.meta.env.VITE_CHANNEL_URL,
+  metaAppId: import.meta.env.VITE_META_APP_ID,
   appUrl: import.meta.env.VITE_APP_URL,
   apiTimeout: import.meta.env.VITE_API_TIMEOUT
     ? parseInt(import.meta.env.VITE_API_TIMEOUT, 10)
