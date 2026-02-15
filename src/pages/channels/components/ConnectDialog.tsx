@@ -34,45 +34,51 @@ export function ConnectDialog(props: ConnectDialogProps) {
 
   return (
     <div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant={"secondary"}
-                disabled={!props.appId}
-                className="w-full"
-              >
-                <Plus className="size-4" />
-                Add New Channel
-              </Button>
-            </TooltipTrigger>
+      {!props.appId && (
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              variant={"secondary"}
+              disabled={!props.appId}
+              className="w-full"
+            >
+              <Plus className="size-4" />
+              Add New Channel
+            </Button>
+          </TooltipTrigger>
 
-            {!props.appId && (
-              <TooltipContent>
-                <p>Please select a app to connect channels</p>
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={() => setSelectedChannelType("meta")}
-            className="flex items-center gap-2"
-          >
-            <ChannelIcon type="facebook" variant="boxed" />
-            <span className="font-bold">Facebook Page</span>
-          </DropdownMenuItem>
+          <TooltipContent>
+            <p>Please select a app to connect channels</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+      {props.appId && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant={"secondary"} className="w-full">
+              <Plus className="size-4" />
+              Add New Channel
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => setSelectedChannelType("meta")}
+              className="flex items-center gap-2"
+            >
+              <ChannelIcon type="facebook" variant="boxed" />
+              <span className="font-bold">Facebook Page</span>
+            </DropdownMenuItem>
 
-          <DropdownMenuItem
-            onClick={() => setSelectedChannelType("instagram")}
-            className="flex items-center gap-2"
-          >
-            <ChannelIcon type="instagram" variant="boxed" />
-            <span className="font-bold">Instagram Account</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+            <DropdownMenuItem
+              onClick={() => setSelectedChannelType("instagram")}
+              className="flex items-center gap-2"
+            >
+              <ChannelIcon type="instagram" variant="boxed" />
+              <span className="font-bold">Instagram Account</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
       {selectedChannelType && (
         <ConnectChannelDialog
           appId={props.appId}
