@@ -1,7 +1,7 @@
 import { API_ENDPOINTS, useGoogleLogin } from "@/api";
 import { Spinner } from "@/components/ui/spinner";
 import { env } from "@/lib/env";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
 import { useEffect } from "react";
@@ -149,37 +149,30 @@ function MetaLoginBtn() {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
 
-  // Listen for messages from popup window
+  const searchParams = useSearch({ from: "/_public/login" });
+
+  console.log(searchParams);
+
   useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Verify origin for security
-      if (event.origin !== window.location.origin) {
-        return;
-      }
+    const accessToken = searchParams?.accessToken;
+    const refreshToken = searchParams?.refreshToken;
 
-      if (event.data.type === "FACEBOOK_AUTH_SUCCESS") {
-        const { accessToken, refreshToken } = event.data;
-
-        // Store tokens
+    if (accessToken && refreshToken) {
+      try {
         setAuth(accessToken, refreshToken);
-
-        // Show success message
-        toast.success("Successfully logged in with Facebook!");
-
-        // Navigate to inbox
+        toast.success("Login successful with Meta");
         navigate({ to: "/inbox" });
-      } else if (event.data.type === "FACEBOOK_AUTH_ERROR") {
-        const { errorDescription } = event.data;
-        toast.error(errorDescription || "Facebook login failed");
+
+        // Close the popup if opened by parent window
+        if (window.opener) {
+          window.close();
+        }
+      } catch (error: any) {
+        console.error("Meta login error:", error);
+        toast.error(error.message || "Failed to process Meta login");
       }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [navigate, setAuth]);
+    }
+  }, [searchParams, navigate, setAuth]);
 
   const handleMetaLogin = () => {
     const base = env.authUrl;
