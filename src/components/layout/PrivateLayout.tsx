@@ -1,4 +1,4 @@
-import { useVerifyToken } from "@/api";
+import { useRefreshToken, useVerifyToken } from "@/api";
 import { useUserProfileFull } from "@/api/services/users/users.hooks";
 import { AppSidebar } from "@/components/nav-menu/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -7,47 +7,80 @@ import { env } from "@/lib/env";
 import { useAuthStore } from "@/stores/auth-store";
 import { Outlet } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
-import { useEffect, useMemo } from "react";
+import { useEffect, useRef } from "react";
 import TopBar from "../top-bar";
 
 function PrivateLayout() {
-  // const refreshTokenMutation = useRefreshToken();
-  const { setUserProfile, refreshToken } = useAuthStore();
-
+  const { setUserProfile, refreshToken, setAuth } = useAuthStore();
   const openAllRoutes = env.isOpenAllRoutes === "true";
+  const hasTriggeredRefresh = useRef(false);
+
+  // Step 1: Verify current access token
   const verifyTokenQuery = useVerifyToken(!openAllRoutes);
 
-  const isValidToken = useMemo(() => {
-    if (
-      verifyTokenQuery.isSuccess &&
-      verifyTokenQuery.data?.status === "valid"
-    ) {
-      return true;
-    } else return false;
-  }, [verifyTokenQuery.data?.status, verifyTokenQuery.isSuccess]);
+  const isValidToken = verifyTokenQuery.data?.status === "valid";
 
-  // verifyTokenQuery.isSuccess, verifyTokenQuery.data?.status
-  const userQuery = useUserProfileFull(isValidToken);
+  // Step 2: Refresh token if verification failed
+  const refreshTokenMutation = useRefreshToken();
 
-  //If the token is not valid and there is a refresh token, then call the refresh token API to get a new access token
+  // Handle refresh token success - update auth store with new tokens
   useEffect(() => {
-    if (!isValidToken && refreshToken) {
-      // refreshTokenMutation.mutate({ refresh_token: refreshToken });
-    }
-  }, [isValidToken, refreshToken]);
-  // First verify if the token is valid. If valid then call the yser profile API
-  useEffect(() => {
-    if (userQuery.isSuccess && verifyTokenQuery.isSuccess) {
-      setUserProfile(userQuery.data);
+    if (refreshTokenMutation.isSuccess && refreshTokenMutation.data) {
+      const { token, refreshToken: newRefreshToken } =
+        refreshTokenMutation.data;
+      if (token) {
+        setAuth(token, newRefreshToken || refreshToken || "");
+        hasTriggeredRefresh.current = false; // Reset for potential future refreshes
+      }
     }
   }, [
-    userQuery.isSuccess,
-    verifyTokenQuery.isSuccess,
-    userQuery.data,
-    setUserProfile,
+    refreshTokenMutation.isSuccess,
+    refreshTokenMutation.data,
+    setAuth,
+    refreshToken,
   ]);
 
-  if (verifyTokenQuery.isLoading) {
+  // Handle refresh token error
+  useEffect(() => {
+    if (refreshTokenMutation.isError) {
+      hasTriggeredRefresh.current = false;
+    }
+  }, [refreshTokenMutation.isError]);
+
+  // Trigger refresh token when verification fails (only once)
+  useEffect(() => {
+    if (
+      verifyTokenQuery.isSuccess &&
+      !isValidToken &&
+      refreshToken &&
+      !hasTriggeredRefresh.current &&
+      !refreshTokenMutation.isPending
+    ) {
+      hasTriggeredRefresh.current = true;
+      refreshTokenMutation.mutate({ refresh_token: refreshToken });
+    }
+  }, [
+    verifyTokenQuery.isSuccess,
+    isValidToken,
+    refreshToken,
+    refreshTokenMutation,
+  ]);
+
+  // Determine if we should fetch user profile
+  const canFetchUserProfile = isValidToken || refreshTokenMutation.isSuccess;
+
+  // Step 3: Fetch user profile only when token is valid
+  const userQuery = useUserProfileFull(canFetchUserProfile);
+
+  // Store user profile when query succeeds
+  useEffect(() => {
+    if (userQuery.isSuccess && userQuery.data) {
+      setUserProfile(userQuery.data);
+    }
+  }, [userQuery.isSuccess, userQuery.data, setUserProfile]);
+
+  // Show loading state during initial verification or token refresh
+  if (verifyTokenQuery.isLoading || refreshTokenMutation.isPending) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
         <Spinner />

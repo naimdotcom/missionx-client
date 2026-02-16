@@ -1,0 +1,33 @@
+# Build outputs
+dist
+build
+.next
+.tanstack
+
+# Dependencies
+node_modules
+bun.lockb
+
+# Generated files
+*.gen.ts
+routeTree.gen.ts
+
+# Config files that shouldn't be formatted
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Cache
+.cache
+.vscode
+.idea

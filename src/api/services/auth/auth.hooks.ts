@@ -69,6 +69,6 @@ export function useLogout() {
 export function useMetaLogin() {
   return useQuery({
     queryKey: queryKeys.authKeys.meta,
-    queryFn:  () => authService.metaLogin(),
+    queryFn: () => authService.metaLogin(),
   });
 }

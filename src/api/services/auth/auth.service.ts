@@ -56,7 +56,7 @@ export class AuthService extends BaseAPIService {
   metaLogin = (options?: RequestOptions) => {
     return this.post<MetaLoginResponse>(
       API_ENDPOINTS.AUTH.META_LOGIN,
-      {customer_id:0},
+      { customer_id: 0 },
       options,
     );
   };
