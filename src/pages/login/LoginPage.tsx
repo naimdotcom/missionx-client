@@ -1,6 +1,5 @@
-import { API_ENDPOINTS, useGoogleLogin } from "@/api";
+import { useGoogleLogin, useMetaLogin } from "@/api";
 import { Spinner } from "@/components/ui/spinner";
-import { env } from "@/lib/env";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
@@ -148,10 +147,9 @@ function GoogleLoginBtn() {
 function MetaLoginBtn() {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
+  const {data,isSuccess,isPending} = useMetaLogin();
 
   const searchParams = useSearch({ from: "/_public/login" });
-
-  console.log(searchParams);
 
   useEffect(() => {
     const accessToken = searchParams?.accessToken;
@@ -175,9 +173,9 @@ function MetaLoginBtn() {
   }, [searchParams, navigate, setAuth]);
 
   const handleMetaLogin = () => {
-    const base = env.authUrl;
-    const url = new URL(API_ENDPOINTS.AUTH.META_LOGIN, base).toString();
-    window.open(url, "meta_login", "width=600,height=700");
+   if(isSuccess) {
+    window.open(data.authorization_url, "_blank", "width=500,height=600");
+   }
   };
 
   return (
@@ -187,7 +185,14 @@ function MetaLoginBtn() {
       onClick={handleMetaLogin}
       className=" font-semibold shadow-md"
     >
-      <span className="flex items-center justify-center gap-2 sm:gap-3">
+      {isPending && (
+        <div className="flex items-center justify-center gap-1">
+          <Spinner />
+        </div>
+      )}
+
+
+   {!isPending &&   <span className="flex items-center justify-center gap-2 sm:gap-3">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -200,7 +205,7 @@ function MetaLoginBtn() {
         </svg>
         <span className="hidden sm:inline">Continue with Meta</span>
         <span className="sm:hidden">Meta</span>
-      </span>
+      </span>}
     </Button>
   );
 }

@@ -4,6 +4,7 @@ import { UrlType } from ".";
 
 export const queryKeys = {
   authKeys: {
+    meta: ["auth", "meta"] as const,
     verifyToken: ["verify", "auth"] as const,
   },
   usersQueryKeys: {

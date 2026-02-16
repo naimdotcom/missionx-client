@@ -50,11 +50,9 @@ export function useVerifyToken(enable: boolean) {
 
 export function useRefreshToken() {
   return useMutation({
-    mutationFn: async (payload: RefreshTokenRequest) => {
-      const response = await authService.refreshToken(payload);
-      return response;
-    },
     mutationKey: mutationKeys.authKeys.refreshToken,
+    mutationFn: (payload: RefreshTokenRequest) =>
+      authService.refreshToken(payload),
   });
 }
 
@@ -65,5 +63,12 @@ export function useLogout() {
       return response;
     },
     mutationKey: mutationKeys.authKeys.logout,
+  });
+}
+
+export function useMetaLogin() {
+  return useQuery({
+    queryKey: queryKeys.authKeys.meta,
+    queryFn:  () => authService.metaLogin(),
   });
 }

@@ -25,6 +25,11 @@ export interface LoginResponse {
   session_id?: string | number;
 }
 
+export interface MetaLoginResponse {
+  authorization_url: string;
+  state: string;
+}
+
 export type VerifyToken = {
   status?: string;
   payload: {

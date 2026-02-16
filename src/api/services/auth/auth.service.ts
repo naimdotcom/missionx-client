@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from "../../endpoints";
 import type {
   LoginRequest,
   LoginResponse,
+  MetaLoginResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
   RegisterRequest,
@@ -50,6 +51,14 @@ export class AuthService extends BaseAPIService {
 
   verifyToken = (options?: RequestOptions) => {
     return this.get<VerifyToken>(API_ENDPOINTS.AUTH.VERIFY, undefined, options);
+  };
+
+  metaLogin = (options?: RequestOptions) => {
+    return this.post<MetaLoginResponse>(
+      API_ENDPOINTS.AUTH.META_LOGIN,
+      {customer_id:0},
+      options,
+    );
   };
 }
 

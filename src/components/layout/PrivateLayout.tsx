@@ -7,15 +7,35 @@ import { env } from "@/lib/env";
 import { useAuthStore } from "@/stores/auth-store";
 import { Outlet } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import TopBar from "../top-bar";
 
 function PrivateLayout() {
-  const openAllRoutes = env.isOpenAllRoutes === "true";
-  const { setUserProfile } = useAuthStore();
-  const verifyTokenQuery = useVerifyToken(openAllRoutes ? false : true);
-  const userQuery = useUserProfileFull(verifyTokenQuery.isSuccess);
+  // const refreshTokenMutation = useRefreshToken();
+  const { setUserProfile, refreshToken } = useAuthStore();
 
+  const openAllRoutes = env.isOpenAllRoutes === "true";
+  const verifyTokenQuery = useVerifyToken(!openAllRoutes);
+
+  const isValidToken = useMemo(() => {
+    if (
+      verifyTokenQuery.isSuccess &&
+      verifyTokenQuery.data?.status === "valid"
+    ) {
+      return true;
+    } else return false;
+  }, [verifyTokenQuery.data?.status, verifyTokenQuery.isSuccess]);
+
+  // verifyTokenQuery.isSuccess, verifyTokenQuery.data?.status
+  const userQuery = useUserProfileFull(isValidToken);
+
+  //If the token is not valid and there is a refresh token, then call the refresh token API to get a new access token
+  useEffect(() => {
+    if (!isValidToken && refreshToken) {
+      // refreshTokenMutation.mutate({ refresh_token: refreshToken });
+    }
+  }, [isValidToken, refreshToken]);
+  // First verify if the token is valid. If valid then call the yser profile API
   useEffect(() => {
     if (userQuery.isSuccess && verifyTokenQuery.isSuccess) {
       setUserProfile(userQuery.data);
