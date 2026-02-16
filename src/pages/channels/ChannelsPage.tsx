@@ -1,14 +1,13 @@
 import { useChannels, type Channel } from "@/api/services/channels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstChannel";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   FacebookIcon,
   InstagramIcon,
   MessageSquare,
-  Search,
   Users,
 } from "lucide-react";
-import { useState } from "react";
 import { ChannelCard } from "./components/ChannelCard";
 import { getChannelColor } from "./components/ChannelIcons";
 import { ConnectDialog } from "./components/ConnectDialog";
@@ -17,15 +16,9 @@ import { StatCard } from "./components/StatCard";
 export default function ChannelsPage() {
   const selectedApp = useAuthStore((state) => state.selectedApp);
   const { data, isLoading } = useChannels(selectedApp?.id || "");
-  const [activeTab, setActiveTab] = useState("all");
 
   // Ensure channels is always an array
   const channels = Array.isArray(data) ? data : [];
-
-  const filteredChannels = channels.filter((channel: Channel) => {
-    const matchesTab = activeTab === "all" || channel.type === activeTab;
-    return matchesTab;
-  });
 
   const stats = [
     {
@@ -60,6 +53,18 @@ export default function ChannelsPage() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="h-full w-full flex justify-center items-center">
+        <p className="text-muted-foreground">Loading channels...</p>
+      </div>
+    );
+  }
+
+  if (channels.length === 0 && selectedApp?.id) {
+    return <ConnectFirstChannel appId={selectedApp?.id} />;
+  }
+
   return (
     <div className="grid grid-rows-[auto_1fr] h-full gap-2 overflow-hidden">
       <div className="border-b px-4 md:px-6 py-1.5 shrink-0 flex items-center justify-between">
@@ -87,7 +92,7 @@ export default function ChannelsPage() {
           ))}
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs>
           <TabsList>
             {["all", "facebook", "instagram"].map((t) => (
               <TabsTrigger
@@ -100,36 +105,18 @@ export default function ChannelsPage() {
             ))}
           </TabsList>
 
-          <TabsContent value={activeTab}>
-            {isLoading ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-muted-foreground">Loading channels...</div>
-              </div>
-            ) : filteredChannels.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 h-full overflow-y-auto pr-2 gap-6">
-                {filteredChannels.map((channel) => (
-                  <div
-                    key={channel.id}
-                    style={{ animationDelay: "50ms" }}
-                    className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
-                  >
-                    <ChannelCard channel={channel} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-center space-y-6 animate-in fade-in duration-700">
-                <div className="w-24 h-24 rounded-full bg-muted/40 flex items-center justify-center relative">
-                  <Search className="w-10 h-10 text-muted-foreground/40" />
-                  <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-primary/20 animate-ping" />
+          <TabsContent value="all">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 h-full overflow-y-auto pr-2 gap-6">
+              {channels.map((channel) => (
+                <div
+                  key={channel.id}
+                  style={{ animationDelay: "50ms" }}
+                  className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+                >
+                  <ChannelCard channel={channel} />
                 </div>
-                <div className="max-w-xs space-y-2">
-                  <h3 className="text-xl font-black tracking-tight">
-                    No channels discovered
-                  </h3>
-                </div>
-              </div>
-            )}
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
       </div>

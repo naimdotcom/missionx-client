@@ -81,12 +81,14 @@ export function TextField({
 interface TextareaFieldProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   field: any;
+  description?: string;
   containerClassName?: string;
 }
 
 export function TextareaField({
   field,
   label,
+  description,
   className,
   containerClassName,
   ...props
@@ -112,6 +114,9 @@ export function TextareaField({
           className,
         )}
       />
+      {description && (
+        <p className="text-xs text-muted-foreground">{description}</p>
+      )}
       <FieldInfo field={field} />
     </div>
   );
