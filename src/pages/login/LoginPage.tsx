@@ -1,9 +1,8 @@
 import { useGoogleLogin, useMetaLogin } from "@/api";
 import { Spinner } from "@/components/ui/spinner";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
-import { useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -14,7 +13,6 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { auth, googleProvider } from "~/lib/firebase";
-import { useAuthStore } from "~/stores/auth-store";
 
 function LoginPage() {
   return (
@@ -81,7 +79,6 @@ export default LoginPage;
 
 function GoogleLoginBtn() {
   const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
   const googleAuthMutation = useGoogleLogin();
 
   const handleGoogleLogin = async () => {
@@ -92,8 +89,7 @@ function GoogleLoginBtn() {
       googleAuthMutation.mutate(
         { firebase_token: idToken },
         {
-          onSuccess: (data) => {
-            setAuth(data.access_token, data.refresh_token);
+          onSuccess: () => {
             toast.success("Login successful with Google");
             navigate({ to: "/inbox" });
           },
@@ -145,35 +141,13 @@ function GoogleLoginBtn() {
 }
 
 function MetaLoginBtn() {
-  const navigate = useNavigate();
-  const { setAuth } = useAuthStore();
   const { data, isSuccess, isPending } = useMetaLogin();
-  const searchParams = useSearch({ from: "/_public/login" });
-
-  useEffect(() => {
-    const accessToken = searchParams?.accessToken;
-    const refreshToken = searchParams?.refreshToken;
-
-    if (accessToken && refreshToken) {
-      try {
-        setAuth(accessToken, refreshToken);
-        toast.success("Login successful with Meta");
-        navigate({ to: "/inbox" });
-
-        // Close the popup if opened by parent window
-        if (window.opener) {
-          window.close();
-        }
-      } catch (error: any) {
-        console.error("Meta login error:", error);
-        toast.error(error.message || "Failed to process Meta login");
-      }
-    }
-  }, [searchParams, navigate, setAuth]);
 
   const handleMetaLogin = () => {
     if (isSuccess) {
       window.open(data.authorization_url, "_blank", "width=500,height=600");
+    } else {
+      toast.error("Failed to initiate Meta login. Please try again.");
     }
   };
 

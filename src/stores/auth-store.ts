@@ -6,11 +6,8 @@ import { persist } from "zustand/middleware";
 interface AuthState {
   logout: () => void;
   isAuthenticated: boolean;
-  accessToken: string | null;
-  refreshToken: string | null;
   userProfile: UserProfileFull | null;
   setUserProfile: (profile: UserProfileFull | null) => void;
-  setAuth: (accessToken: string, refreshToken: string) => void;
   selectedApp: App | null;
   setSelectedApp: (app: App) => void;
 }
@@ -20,20 +17,11 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       selectedApp: null,
       userProfile: null,
-      accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
-      setAuth: (accessToken, refreshToken) =>
-        set({ accessToken, refreshToken, isAuthenticated: !!accessToken }),
 
       logout: () => {
         // Clear state
-        set({
-          accessToken: null,
-          refreshToken: null,
-          isAuthenticated: false,
-          userProfile: null,
-        });
+        set({ isAuthenticated: false, userProfile: null });
 
         // Clear all storage manually to ensure cleanup
         localStorage.removeItem("auth-storage");

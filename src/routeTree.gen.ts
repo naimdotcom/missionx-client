@@ -13,6 +13,7 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PrivateRouteImport } from './routes/_private'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
+import { Route as PublicOAuthCallbackRouteImport } from './routes/_public/OAuthCallback'
 import { Route as PrivateSettingsRouteImport } from './routes/_private/settings'
 import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
 import { Route as PrivateChannelsRouteImport } from './routes/_private/channels'
@@ -35,6 +36,11 @@ const IndexRoute = IndexRouteImport.update({
 const PublicLoginRoute = PublicLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicOAuthCallbackRoute = PublicOAuthCallbackRouteImport.update({
+  id: '/OAuthCallback',
+  path: '/OAuthCallback',
   getParentRoute: () => PublicRoute,
 } as any)
 const PrivateSettingsRoute = PrivateSettingsRouteImport.update({
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/channels': typeof PrivateChannelsRoute
   '/inbox': typeof PrivateInboxRoute
   '/settings': typeof PrivateSettingsRouteWithChildren
+  '/OAuthCallback': typeof PublicOAuthCallbackRoute
   '/login': typeof PublicLoginRoute
   '/settings/$slug': typeof PrivateSettingsSlugRoute
 }
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/channels': typeof PrivateChannelsRoute
   '/inbox': typeof PrivateInboxRoute
   '/settings': typeof PrivateSettingsRouteWithChildren
+  '/OAuthCallback': typeof PublicOAuthCallbackRoute
   '/login': typeof PublicLoginRoute
   '/settings/$slug': typeof PrivateSettingsSlugRoute
 }
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   '/_private/channels': typeof PrivateChannelsRoute
   '/_private/inbox': typeof PrivateInboxRoute
   '/_private/settings': typeof PrivateSettingsRouteWithChildren
+  '/_public/OAuthCallback': typeof PublicOAuthCallbackRoute
   '/_public/login': typeof PublicLoginRoute
   '/_private/settings/$slug': typeof PrivateSettingsSlugRoute
 }
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/channels'
     | '/inbox'
     | '/settings'
+    | '/OAuthCallback'
     | '/login'
     | '/settings/$slug'
   fileRoutesByTo: FileRoutesByTo
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/channels'
     | '/inbox'
     | '/settings'
+    | '/OAuthCallback'
     | '/login'
     | '/settings/$slug'
   id:
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/_private/channels'
     | '/_private/inbox'
     | '/_private/settings'
+    | '/_public/OAuthCallback'
     | '/_public/login'
     | '/_private/settings/$slug'
   fileRoutesById: FileRoutesById
@@ -159,6 +171,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof PublicLoginRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/OAuthCallback': {
+      id: '/_public/OAuthCallback'
+      path: '/OAuthCallback'
+      fullPath: '/OAuthCallback'
+      preLoaderRoute: typeof PublicOAuthCallbackRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_private/settings': {
@@ -229,10 +248,12 @@ const PrivateRouteWithChildren =
   PrivateRoute._addFileChildren(PrivateRouteChildren)
 
 interface PublicRouteChildren {
+  PublicOAuthCallbackRoute: typeof PublicOAuthCallbackRoute
   PublicLoginRoute: typeof PublicLoginRoute
 }
 
 const PublicRouteChildren: PublicRouteChildren = {
+  PublicOAuthCallbackRoute: PublicOAuthCallbackRoute,
   PublicLoginRoute: PublicLoginRoute,
 }
 
