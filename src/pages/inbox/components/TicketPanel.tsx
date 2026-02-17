@@ -22,11 +22,17 @@ function TicketsPanel({
   const { selectedApp } = useAuthStore();
   const { status } = useSearch({ from: "/_private/inbox" });
 
-  const ticketsQuery = useConversationTickets({ app_id: selectedApp?.id! });
+  const ticketsQuery = useConversationTickets({
+    app_id: selectedApp?.id || "",
+    status: status === "active" ? "ONGOING" : "DONE",
+  });
 
   const handleTicketStatus = (status: "active" | "closed") => {
     navigate({ to: "/inbox", search: { status } });
   };
+
+  const hasAvailableTickets =
+    Number(ticketsQuery.data?.conversations.length) > 0;
 
   if (ticketsQuery.isLoading) {
     return (
@@ -65,10 +71,10 @@ function TicketsPanel({
         </TabsList>
       </Tabs>
 
-      {status === "active" && (
-        <ScrollArea className="h-full min-h-0 w-full overflow-auto">
-          <div>
-            {ticketsQuery?.data?.conversations?.map((ticket) => (
+      <ScrollArea className="h-full min-h-0 w-full overflow-auto">
+        <div>
+          {hasAvailableTickets &&
+            ticketsQuery?.data?.conversations?.map((ticket) => (
               <TicketCard
                 ticket={ticket}
                 key={ticket.id}
@@ -82,16 +88,17 @@ function TicketsPanel({
                 }}
               />
             ))}
-          </div>
-        </ScrollArea>
-      )}
 
-      {status === "closed" && (
-        <div className="flex flex-col items-center justify-center flex-1 text-muted-foreground">
-          <CheckCircle2 className="w-8 h-8 mb-2 opacity-20" />
-          <p className="text-sm">No closed tickets</p>
+          {!hasAvailableTickets && (
+            <div className="flex flex-col h-96 items-center justify-center flex-1 text-muted-foreground">
+              <Inbox className="w-8 h-8 mb-2 opacity-20" />
+              <p className="text-sm">
+                No {status === "active" ? "active" : "closed"} tickets
+              </p>
+            </div>
+          )}
         </div>
-      )}
+      </ScrollArea>
     </div>
   );
 }

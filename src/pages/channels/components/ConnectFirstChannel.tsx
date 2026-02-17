@@ -1,4 +1,4 @@
-import { UrlType, useChannelConnectUrl } from "@/api/services/channels";
+import { useChannelConnectUrl } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,31 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
 import { Activity, Facebook, Instagram, Zap } from "lucide-react";
-import { useState } from "react";
 
 interface ConnectFirstChannelProps {
   appId: string;
 }
 
 export function ConnectFirstChannel({ appId }: ConnectFirstChannelProps) {
-  const [selectedType, setSelectedType] = useState<UrlType | null>(null);
-
-  const { data: connectUrl, isLoading } = useChannelConnectUrl(
-    appId,
-    selectedType as UrlType,
-  );
-
-  const handleConnect = (type: UrlType) => {
-    setSelectedType(type);
-  };
-
-  // Open OAuth popup when URL is ready
-  if (connectUrl?.authorization_url && selectedType) {
-    window.open(connectUrl.authorization_url, "_blank", "width=600,height=700");
-    setSelectedType(null);
-  }
+  const facebookUrl = useChannelConnectUrl(appId, "meta");
+  const instagramUrl = useChannelConnectUrl(appId, "instagram");
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500/5 via-background to-purple-500/10 p-4">
@@ -65,16 +49,15 @@ export function ConnectFirstChannel({ appId }: ConnectFirstChannelProps) {
                   <Facebook className="w-8 h-8 text-blue-600" />
                 </div>
                 <Button
-                  onClick={() => handleConnect("meta")}
-                  disabled={isLoading && selectedType === "meta"}
+                  onClick={() => {
+                    if (facebookUrl.isSuccess) {
+                      window.location.href = facebookUrl.data.authorization_url;
+                    }
+                  }}
                   size="sm"
                   className="bg-blue-600 hover:bg-blue-700"
                 >
-                  {isLoading && selectedType === "meta" ? (
-                    <Spinner />
-                  ) : (
-                    "Connect"
-                  )}
+                  Connect
                 </Button>
               </div>
               <div>
@@ -110,16 +93,16 @@ export function ConnectFirstChannel({ appId }: ConnectFirstChannelProps) {
                   <Instagram className="w-8 h-8 text-purple-600" />
                 </div>
                 <Button
-                  onClick={() => handleConnect("instagram")}
-                  disabled={isLoading && selectedType === "instagram"}
                   size="sm"
+                  onClick={() => {
+                    if (instagramUrl.isSuccess) {
+                      window.location.href =
+                        instagramUrl.data.authorization_url;
+                    }
+                  }}
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
                 >
-                  {isLoading && selectedType === "instagram" ? (
-                    <Spinner />
-                  ) : (
-                    "Connect"
-                  )}
+                  Connect
                 </Button>
               </div>
               <div>

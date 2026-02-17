@@ -5,6 +5,7 @@ import { ConversationTicketsParams } from "./inbox.type";
 
 export function useConversationTickets(params: ConversationTicketsParams) {
   return useQuery({
+    staleTime: 100, // 1 minute
     enabled: !!params?.app_id,
     queryKey: [...queryKeys.inboxKeys.conversationList, params],
     queryFn: async () => {
