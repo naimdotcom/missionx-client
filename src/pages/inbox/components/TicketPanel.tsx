@@ -34,14 +34,6 @@ function TicketsPanel({
   const hasAvailableTickets =
     Number(ticketsQuery.data?.conversations.length) > 0;
 
-  if (ticketsQuery.isLoading) {
-    return (
-      <div className={cn("flex items-center justify-center h-full", className)}>
-        <Skeleton />
-      </div>
-    );
-  }
-
   return (
     <div
       className={cn(
@@ -71,34 +63,44 @@ function TicketsPanel({
         </TabsList>
       </Tabs>
 
-      <ScrollArea className="h-full min-h-0 w-full overflow-auto">
-        <div>
-          {hasAvailableTickets &&
-            ticketsQuery?.data?.conversations?.map((ticket) => (
-              <TicketCard
-                ticket={ticket}
-                key={ticket.id}
-                isSelected={ticket.id === selectedTicket}
-                onClick={() => {
-                  if (selectedTicket === ticket.id) {
-                    setSelectedTicket?.(undefined);
-                  } else {
-                    setSelectedTicket?.(ticket.id);
-                  }
-                }}
-              />
-            ))}
+      {!ticketsQuery.isPending && (
+        <ScrollArea className="h-full min-h-0 w-full overflow-auto">
+          <div>
+            {hasAvailableTickets &&
+              ticketsQuery?.data?.conversations?.map((ticket) => (
+                <TicketCard
+                  ticket={ticket}
+                  key={ticket.id}
+                  isSelected={ticket.id === selectedTicket}
+                  onClick={() => {
+                    if (selectedTicket === ticket.id) {
+                      setSelectedTicket?.(undefined);
+                    } else {
+                      setSelectedTicket?.(ticket.id);
+                    }
+                  }}
+                />
+              ))}
 
-          {!hasAvailableTickets && (
-            <div className="flex flex-col h-96 items-center justify-center flex-1 text-muted-foreground">
-              <Inbox className="w-8 h-8 mb-2 opacity-20" />
-              <p className="text-sm">
-                No {status === "active" ? "active" : "closed"} tickets
-              </p>
-            </div>
-          )}
+            {!hasAvailableTickets && (
+              <div className="flex flex-col h-96 items-center justify-center flex-1 text-muted-foreground">
+                <Inbox className="w-8 h-8 mb-2 opacity-20" />
+                <p className="text-sm">
+                  No {status === "active" ? "active" : "closed"} tickets
+                </p>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+      )}
+
+      {ticketsQuery.isPending && (
+        <div className="flex flex-col gap-1">
+          {Array.from({ length: 20 }).map((_, index) => (
+            <Skeleton key={index} className="h-16 w-full rounded-md" />
+          ))}
         </div>
-      </ScrollArea>
+      )}
     </div>
   );
 }

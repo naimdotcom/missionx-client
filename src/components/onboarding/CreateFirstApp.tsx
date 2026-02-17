@@ -1,7 +1,14 @@
 import { useCreateApp } from "@/api/services/apps/apps.hook";
 import { useAuthStore } from "@/stores/auth-store";
 import { useForm } from "@tanstack/react-form";
-import { Rocket, Sparkles } from "lucide-react";
+import {
+  CheckCircle2,
+  LayoutGrid,
+  MessagesSquare,
+  Rocket,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 import { toast } from "sonner";
 import { TextareaField, TextField } from "../form";
 import { Button } from "../ui/button";
@@ -45,135 +52,166 @@ export function CreateFirstApp() {
   });
 
   return (
-    <div className="flex gap-10 overflow-auto min-h-screen w-full items-center justify-center p-5">
-      {/* Welcome Header */}
-      {/* <div className="text-center space-y-4">
-        <div className="relative inline-flex">
-          <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
-          <div className="relative bg-primary/10 p-6 rounded-full">
-            <Rocket className="w-16 h-16 text-primary" />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            Welcome to MissionX! 🚀
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-md mx-auto">
-            Let's get started by creating your first app. This will be your
-            workspace for managing customer conversations.
-          </p>
-        </div>
-      </div> */}
+    <div className="flex min-h-screen w-full flex-col bg-background lg:flex-row">
+      {/* Left Panel - Value Proposition */}
+      <div className="relative flex w-full flex-col justify-between overflow-hidden bg-primary/5 p-8 lg:w-1/2 lg:p-12 xl:p-16">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary)/0.05)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary)/0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-      {/* Form Card */}
-      <Card className="border-2 shadow-xl">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <CardTitle className="text-2xl">Welcome to MissionX! 🚀</CardTitle>
-          </div>
-          <CardDescription>
-            Let's get started by creating your first app. This will be your
-            workspace for managing customer conversations.
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
-            }}
-            className="space-y-6"
-          >
-            <div className="space-y-4">
-              <form.Field name="name">
-                {(field) => (
-                  <TextField
-                    field={field}
-                    label="App Name"
-                    placeholder="e.g., Customer Support Hub"
-                    required
-                    description="Choose a name that represents your business or team"
-                  />
-                )}
-              </form.Field>
-
-              <form.Field name="description">
-                {(field) => (
-                  <TextareaField
-                    field={field}
-                    label="Description"
-                    placeholder="e.g., Central hub for managing customer inquiries across Facebook and Instagram"
-                    description="A brief description of what this app is for (optional)"
-                    rows={3}
-                  />
-                )}
-              </form.Field>
-
-              <form.Field name="short_id">
-                {(field) => (
-                  <TextField
-                    field={field}
-                    label="Short ID"
-                    placeholder="e.g., cs-hub"
-                    description="A unique identifier for your app (optional, lowercase letters and hyphens)"
-                  />
-                )}
-              </form.Field>
+        <div className="relative z-10 space-y-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg">
+                <Rocket className="h-6 w-6" />
+              </div>
+              <span className="text-xl font-bold tracking-tight">MissionX</span>
             </div>
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
+              Launch your workspace
+            </h1>
+            <p className="max-w-md text-lg text-muted-foreground">
+              Create your first app to organize conversations, manage support
+              channels, and collaborate with your team.
+            </p>
+          </div>
 
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="submit"
-                size="lg"
-                className="flex-1 h-12 text-base font-semibold"
-                disabled={createApp.isPending}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-background p-2 shadow-sm ring-1 ring-border">
+                <LayoutGrid className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-semibold">Centralized Workspace</h3>
+                <p className="text-sm text-muted-foreground">
+                  One place for all your customer interactions and support
+                  tickets.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-background p-2 shadow-sm ring-1 ring-border">
+                <MessagesSquare className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-semibold">Unified Messaging</h3>
+                <p className="text-sm text-muted-foreground">
+                  Connect Facebook, Instagram, and more channels effortlessly.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-background p-2 shadow-sm ring-1 ring-border">
+                <Zap className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-semibold">Instant Setup</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get up and running in seconds. No complex configuration
+                  needed.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-12 hidden lg:block">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <span>Secure & Scalable Infrastructure</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Form */}
+      <div className="flex w-full flex-col justify-center p-4 lg:w-1/2 lg:p-12 xl:p-16">
+        <div className="mx-auto w-full max-w-lg">
+          <Card className="border-0 shadow-none sm:border sm:shadow-sm">
+            <CardHeader className="space-y-1 pb-6 text-center sm:text-left">
+              <CardTitle className="text-2xl font-bold">
+                Design your workspace
+              </CardTitle>
+              <CardDescription className="text-base">
+                Let&apos;s start by giving your new app a name and identity.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  form.handleSubmit();
+                }}
+                className="space-y-6"
               >
-                {createApp.isPending ? (
-                  <span className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Creating...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <Rocket className="w-5 h-5" />
-                    Create App & Continue
-                  </span>
-                )}
-              </Button>
-            </div>
-          </form>
+                <div className="space-y-4">
+                  <form.Field name="name">
+                    {(field) => (
+                      <TextField
+                        field={field}
+                        label="App Name"
+                        placeholder="e.g., Acme Support"
+                        required
+                        description="Visible to your team and customers"
+                      />
+                    )}
+                  </form.Field>
 
-          {/* Info Section */}
-          <div className="rounded-lg bg-primary/5 border border-primary/10 p-4">
-            <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
-              What happens next?
-            </h4>
-            <ul className="text-sm text-muted-foreground space-y-1.5">
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <span>Your app will be created instantly</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <span>
-                  You'll be guided to connect your first channel (Facebook or
-                  Instagram)
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <span>
-                  Start managing customer conversations from your dashboard
-                </span>
-              </li>
-            </ul>
+                  <form.Field name="short_id">
+                    {(field) => (
+                      <TextField
+                        field={field}
+                        label="Workspace ID"
+                        placeholder="e.g., acme-support"
+                        description="Unique identifier for URLs (optional)"
+                      />
+                    )}
+                  </form.Field>
+
+                  <form.Field name="description">
+                    {(field) => (
+                      <TextareaField
+                        field={field}
+                        label="Description"
+                        placeholder="Briefly describe what this workspace is for..."
+                        description="Helps your team understand the purpose"
+                        rows={3}
+                      />
+                    )}
+                  </form.Field>
+                </div>
+
+                <div className="pt-2">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full text-base font-semibold shadow-lg transition-all hover:shadow-xl"
+                    disabled={createApp.isPending}
+                  >
+                    {createApp.isPending ? (
+                      <span className="flex items-center gap-2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                        Creating Workspace...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        Create App & Continue
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          <div className="mt-8 text-center text-sm text-muted-foreground lg:hidden">
+            <div className="flex items-center justify-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <span>Secure & Scalable Infrastructure</span>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

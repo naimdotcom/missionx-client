@@ -1,10 +1,12 @@
 import { useChannels, type Channel } from "@/api/services/channels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstChannel";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   FacebookIcon,
   InstagramIcon,
+  LoaderIcon,
   MessageSquare,
   Users,
 } from "lucide-react";
@@ -55,8 +57,13 @@ export default function ChannelsPage() {
 
   if (isLoading) {
     return (
-      <div className="h-full w-full flex justify-center items-center">
-        <p className="text-muted-foreground">Loading channels...</p>
+      <div className="h-full w-full flex flex-col justify-center items-center">
+        <LoaderIcon
+          role="status"
+          aria-label="Loading"
+          className={cn("size-4 animate-spin")}
+        />
+        Please wait while we fetch your channels...
       </div>
     );
   }

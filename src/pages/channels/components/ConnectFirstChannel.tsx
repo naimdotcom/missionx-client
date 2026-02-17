@@ -2,12 +2,19 @@ import { useChannelConnectUrl } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Activity, Facebook, Instagram, Zap } from "lucide-react";
+import {
+  BarChart3,
+  CheckCircle2,
+  Facebook,
+  Instagram,
+  MessageSquare,
+  Users,
+  Zap,
+} from "lucide-react";
 
 interface ConnectFirstChannelProps {
   appId: string;
@@ -18,140 +25,145 @@ export function ConnectFirstChannel({ appId }: ConnectFirstChannelProps) {
   const instagramUrl = useChannelConnectUrl(appId, "instagram");
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-500/5 via-background to-purple-500/10 p-4">
-      <div className="w-full max-w-3xl space-y-6">
-        {/* Welcome Header */}
-        <div className="text-center space-y-4">
-          <div className="relative inline-flex">
-            <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
-            <div className="relative bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-6 rounded-full">
-              <Activity className="w-16 h-16 text-blue-600" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Almost There! 🎯
+    <div className="flex min-h-screen w-full flex-col bg-background lg:flex-row">
+      {/* Left Panel - Value Proposition */}
+      <div className="relative flex w-full flex-col justify-between overflow-hidden bg-primary/5 p-8 lg:w-1/2 lg:p-12 xl:p-16">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary)/0.05)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary)/0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+
+        <div className="relative z-10 space-y-8">
+          <div className="space-y-4">
+            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl">
+              Connect to your audience
             </h1>
-            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-              Let's connect your first social media channel to start managing
-              conversations
+            <p className="max-w-md text-lg text-muted-foreground">
+              Bring all your customer conversations into one unified inbox.
+              Connect your first channel to get started.
             </p>
           </div>
-        </div>
 
-        {/* Channel Options */}
-        <div className="grid md:grid-cols-2 gap-4">
-          {/* Facebook Card */}
-          <Card className="border-2 hover:border-blue-500/50 transition-all">
-            <CardHeader className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="bg-blue-500/10 p-3 rounded-lg">
-                  <Facebook className="w-8 h-8 text-blue-600" />
-                </div>
-                <Button
-                  onClick={() => {
-                    if (facebookUrl.isSuccess) {
-                      window.location.href = facebookUrl.data.authorization_url;
-                    }
-                  }}
-                  size="sm"
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Connect
-                </Button>
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-background p-2 shadow-sm ring-1 ring-border">
+                <MessageSquare className="h-6 w-6 text-primary" />
               </div>
-              <div>
-                <CardTitle className="text-xl">Facebook Pages</CardTitle>
-                <CardDescription className="text-sm mt-1">
-                  Connect your Facebook business page
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <Zap className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-                  <span>Respond to messages and comments</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Zap className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-                  <span>Manage page interactions</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Zap className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
-                  <span>Track engagement metrics</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* Instagram Card */}
-          <Card className="border-2 hover:border-purple-500/50 transition-all">
-            <CardHeader className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 p-3 rounded-lg">
-                  <Instagram className="w-8 h-8 text-purple-600" />
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    if (instagramUrl.isSuccess) {
-                      window.location.href =
-                        instagramUrl.data.authorization_url;
-                    }
-                  }}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                >
-                  Connect
-                </Button>
-              </div>
-              <div>
-                <CardTitle className="text-xl">Instagram Business</CardTitle>
-                <CardDescription className="text-sm mt-1">
-                  Connect your Instagram business account
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <Zap className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" />
-                  <span>Reply to direct messages</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Zap className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" />
-                  <span>Manage comment threads</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Zap className="w-4 h-4 text-purple-600 mt-0.5 shrink-0" />
-                  <span>Monitor story mentions</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Info Card */}
-        <Card className="border-2 border-primary/20 bg-primary/5">
-          <CardContent className="pt-6">
-            <div className="flex gap-4">
-              <div className="shrink-0">
-                <div className="bg-primary/10 p-3 rounded-lg">
-                  <Zap className="w-6 h-6 text-primary" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h4 className="font-semibold">Why connect a channel?</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Channels are your gateway to customer conversations. By
-                  connecting Facebook or Instagram, you'll be able to receive,
-                  manage, and respond to all messages in one unified inbox. You
-                  can always add more channels later from the Channels page.
+              <div className="space-y-1">
+                <h3 className="font-semibold">Unified Inbox</h3>
+                <p className="text-sm text-muted-foreground">
+                  Reply to Facebook and Instagram messages from a single
+                  dashboard.
                 </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-background p-2 shadow-sm ring-1 ring-border">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-semibold">Team Collaboration</h3>
+                <p className="text-sm text-muted-foreground">
+                  Assign conversations, add internal notes, and work together.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-background p-2 shadow-sm ring-1 ring-border">
+                <BarChart3 className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-semibold">Analytics & Insights</h3>
+                <p className="text-sm text-muted-foreground">
+                  Track response times, volume, and customer satisfaction.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative z-10 mt-12 hidden lg:block">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <span>Secure connection via official Meta APIs</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Actions */}
+      <div className="flex w-full flex-col justify-center p-8 lg:w-1/2 lg:p-12 xl:p-16">
+        <div className="mx-auto w-full max-w-md space-y-8">
+          <div className="space-y-2 text-center lg:text-left">
+            <h2 className="text-2xl font-bold tracking-tight">
+              Select a channel
+            </h2>
+            <p className="text-muted-foreground">
+              Choose a platform to connect. You can add more later.
+            </p>
+          </div>
+
+          <div className="grid gap-4">
+            <Card
+              className="group cursor-pointer border-2 transition-all hover:border-blue-500/50 hover:bg-blue-50/50 hover:shadow-md"
+              onClick={() => {
+                if (facebookUrl.isSuccess) {
+                  window.location.href = facebookUrl.data.authorization_url;
+                }
+              }}
+            >
+              <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-6">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                  <Facebook className="h-6 w-6" />
+                </div>
+                <div className="space-y-1">
+                  <CardTitle className="text-base">Facebook Page</CardTitle>
+                  <CardDescription>
+                    Connect for Messenger & Comments
+                  </CardDescription>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="ml-auto shrink-0"
+                  size="icon"
+                >
+                  <Zap className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+            </Card>
+
+            <Card
+              className="group cursor-pointer border-2 transition-all hover:border-pink-500/50 hover:bg-pink-50/50 hover:shadow-md"
+              onClick={() => {
+                if (instagramUrl.isSuccess) {
+                  window.location.href = instagramUrl.data.authorization_url;
+                }
+              }}
+            >
+              <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-6">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-pink-100 text-pink-600 transition-colors group-hover:bg-pink-600 group-hover:text-white">
+                  <Instagram className="h-6 w-6" />
+                </div>
+                <div className="space-y-1">
+                  <CardTitle className="text-base">
+                    Instagram Business
+                  </CardTitle>
+                  <CardDescription>Connect for DMs & Comments</CardDescription>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="ml-auto shrink-0"
+                  size="icon"
+                >
+                  <Zap className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+            </Card>
+          </div>
+
+          <div className="text-center text-sm text-muted-foreground lg:hidden">
+            <div className="flex items-center justify-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <span>Secure connection via official Meta APIs</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
