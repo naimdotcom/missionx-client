@@ -6,10 +6,11 @@ import { persist } from "zustand/middleware";
 interface AuthState {
   logout: () => void;
   isAuthenticated: boolean;
-  userProfile: UserProfileFull | null;
-  setUserProfile: (profile: UserProfileFull | null) => void;
   selectedApp: App | null;
   setSelectedApp: (app: App) => void;
+  userProfile: UserProfileFull | null;
+  setIsAuthenticated: (value: boolean) => void;
+  setUserProfile: (profile: UserProfileFull | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -18,6 +19,8 @@ export const useAuthStore = create<AuthState>()(
       selectedApp: null,
       userProfile: null,
       isAuthenticated: false,
+
+      setIsAuthenticated: (value) => set({ isAuthenticated: value }),
 
       logout: () => {
         // Clear state

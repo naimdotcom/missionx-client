@@ -1,5 +1,6 @@
 import { useGoogleLogin, useMetaLogin } from "@/api";
 import { Spinner } from "@/components/ui/spinner";
+import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
@@ -79,6 +80,7 @@ export default LoginPage;
 
 function GoogleLoginBtn() {
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuthStore();
   const googleAuthMutation = useGoogleLogin();
 
   const handleGoogleLogin = async () => {
@@ -89,15 +91,16 @@ function GoogleLoginBtn() {
       googleAuthMutation.mutate(
         { firebase_token: idToken },
         {
-          onSuccess: () => {
+          onSuccess: (data) => {
             toast.success("Login successful with Google");
+            if (data.access_token && data.refresh_token) {
+              setIsAuthenticated(true);
+            }
             navigate({ to: "/inbox" });
           },
           onError: (err) => {
             if (axios.isAxiosError(err)) {
-              toast.error(
-                err.response?.data?.detail || "Google authentication failed",
-              );
+              toast.error(err.response?.data?.detail);
             }
           },
         },
@@ -107,6 +110,7 @@ function GoogleLoginBtn() {
       toast.error(error.message || "Could not complete Google Sign-In");
     }
   };
+
   return (
     <Button
       size="lg"
