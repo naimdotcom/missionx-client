@@ -4,7 +4,6 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
-import Cookies from "js-cookie";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -83,10 +82,6 @@ function GoogleLoginBtn() {
   const navigate = useNavigate();
   const { setIsAuthenticated } = useAuthStore();
   const googleAuthMutation = useGoogleLogin();
-
-  const token = Cookies.get("access_token");
-
-  console.log(token);
 
   const handleGoogleLogin = async () => {
     try {
