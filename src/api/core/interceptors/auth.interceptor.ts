@@ -1,6 +1,5 @@
 // Authentication interceptor - injects Bearer token and handles 401 responses
 
-import { PUBLIC_ROUTES } from "@/api";
 import type { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "~/stores/auth-store";
 
@@ -10,16 +9,16 @@ import { useAuthStore } from "~/stores/auth-store";
 export const authRequestInterceptor = (
   config: InternalAxiosRequestConfig,
 ): InternalAxiosRequestConfig => {
-  const { accessToken } = useAuthStore.getState();
+  // const { accessToken } = useAuthStore.getState();
 
-  // Skip token injection for public routes
-  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
-    config.url?.includes(route),
-  );
+  // // Skip token injection for public routes
+  // const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+  //   config.url?.includes(route),
+  // );
 
-  if (!isPublicRoute && accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
+  // if (!isPublicRoute && accessToken) {
+  //   config.headers.Authorization = `Bearer ${accessToken}`;
+  // }
 
   return config;
 };
