@@ -1,14 +1,22 @@
 import { API_ENDPOINTS, RequestOptions } from "@/api";
 import { BaseAPIService } from "@/api/core/base.service";
 import { env } from "@/lib/env";
+import { ConversationTickets, ConversationTicketsParams } from "./inbox.type";
 
 export class InboxService extends BaseAPIService {
   constructor(baseURL: string) {
     super(baseURL);
   }
 
-  conversationList = (options?: RequestOptions) =>
-    this.get(API_ENDPOINTS.INBOX.CONVERSATION_LIST, undefined, options);
+  conversationList = (
+    params: ConversationTicketsParams,
+    options?: RequestOptions,
+  ) =>
+    this.get<ConversationTickets>(
+      API_ENDPOINTS.INBOX.CONVERSATION_LIST,
+      params,
+      options,
+    );
 
   conversationHistory = (conversationId: string, options?: RequestOptions) =>
     this.get(

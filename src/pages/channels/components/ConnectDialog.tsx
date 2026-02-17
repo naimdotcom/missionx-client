@@ -38,7 +38,7 @@ export function ConnectDialog(props: ConnectDialogProps) {
         <Tooltip>
           <TooltipTrigger>
             <Button
-              variant={"secondary"}
+              variant="default"
               disabled={!props.appId}
               className="w-full"
             >
@@ -55,7 +55,7 @@ export function ConnectDialog(props: ConnectDialogProps) {
       {props.appId && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant={"secondary"} className="w-full">
+            <Button variant={"default"} className="w-full">
               <Plus className="size-4" />
               Add New Channel
             </Button>

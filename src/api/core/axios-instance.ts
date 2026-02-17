@@ -26,6 +26,7 @@ const createAxiosInstance = (): AxiosInstance => {
   const instance = axios.create({
     baseURL: BASE_URL,
     timeout: TIMEOUT,
+    withCredentials: true, // Include cookies for auth
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -80,6 +81,7 @@ export const createScopedAxiosInstance = (
   const instance = axios.create({
     baseURL: config?.baseURL || BASE_URL,
     timeout: config?.timeout || TIMEOUT,
+    withCredentials: true, // Include cookies for auth
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",

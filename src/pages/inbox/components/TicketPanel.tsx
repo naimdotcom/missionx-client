@@ -1,15 +1,17 @@
+import { useConversationTickets } from "@/api/services/inbox/inbox.hook";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { CheckCircle2, Inbox } from "lucide-react";
-import { mockTickets } from "../const";
 import { TicketCard } from "./ticket-card";
 
 type TicketsPanelProps = {
   className?: string;
-  selectedTicket?: number;
-  setSelectedTicket: (ticketId?: number) => void;
+  selectedTicket?: string;
+  setSelectedTicket: (ticketId?: string) => void;
 };
 function TicketsPanel({
   selectedTicket,
@@ -17,11 +19,22 @@ function TicketsPanel({
   className,
 }: TicketsPanelProps) {
   const navigate = useNavigate();
+  const { selectedApp } = useAuthStore();
   const { status } = useSearch({ from: "/_private/inbox" });
+
+  const ticketsQuery = useConversationTickets({ app_id: selectedApp?.id! });
 
   const handleTicketStatus = (status: "active" | "closed") => {
     navigate({ to: "/inbox", search: { status } });
   };
+
+  if (ticketsQuery.isLoading) {
+    return (
+      <div className={cn("flex items-center justify-center h-full", className)}>
+        <Skeleton />
+      </div>
+    );
+  }
 
   return (
     <div
@@ -55,7 +68,7 @@ function TicketsPanel({
       {status === "active" && (
         <ScrollArea className="h-full min-h-0 w-full overflow-auto">
           <div>
-            {mockTickets.map((ticket) => (
+            {ticketsQuery?.data?.conversations?.map((ticket) => (
               <TicketCard
                 ticket={ticket}
                 key={ticket.id}

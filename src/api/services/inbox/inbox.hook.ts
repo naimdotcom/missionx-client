@@ -1,12 +1,14 @@
 import { mutationKeys, queryKeys } from "@/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { inboxService } from "./inbox.service";
+import { ConversationTicketsParams } from "./inbox.type";
 
-export function useConversationList() {
+export function useConversationTickets(params: ConversationTicketsParams) {
   return useQuery({
-    queryKey: queryKeys.inboxKeys.conversationList,
+    enabled: !!params?.app_id,
+    queryKey: [...queryKeys.inboxKeys.conversationList, params],
     queryFn: async () => {
-      const response = await inboxService.conversationList();
+      const response = await inboxService.conversationList(params);
       return response;
     },
   });

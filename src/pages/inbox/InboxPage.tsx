@@ -47,7 +47,7 @@ function InboxPage() {
           navigate({ search: (prev) => ({ ...prev, case: undefined }) })
         }
         onShowDetails={() => setShowDetails(true)}
-        selectedTicket={selectedCase || undefined}
+        selectedTicket={Number(selectedCase) || undefined}
         onShowSidebar={() => setShowSidebar((prev) => !prev)}
         className={cn(
           "min-w-0",
