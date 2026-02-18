@@ -1,55 +1,59 @@
-import { useAuthStore } from "@/stores/auth-store";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useSearch } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { toast } from "sonner";
 
 export function OAuthCallbackPage() {
-  const navigate = useNavigate();
-  const { setIsAuthenticated } = useAuthStore();
   const { success } = useSearch({ from: "/_public/oauth-callback" });
 
   useEffect(() => {
-    if (success === true) {
-      setIsAuthenticated(true);
-      navigate({ to: "/inbox" });
-      toast.success("Login successful!");
-      window.close();
-      window.location.reload();
-    } else {
-      toast.error("Login failed!");
-    }
-  }, [success, navigate, setIsAuthenticated]);
+    try {
+      if (success === true) {
+        // Check if this is a popup window
+        if (window.opener && window.opener !== window) {
+          // Send success message to parent window
+          window.opener.postMessage(
+            {
+              type: "oauth_success",
+              success: true,
+            },
+            window.location.origin,
+          );
 
-  useEffect(() => {
-    // try {
-    //   if (window.opener && window.opener !== window) {
-    //     window.opener.postMessage(
-    //       {
-    //         type: "oauth_success",
-    //         message:
-    //           "Authentication successful. Tokens stored in browser cookies.",
-    //       },
-    //       window.location.origin,
-    //     );
-    //     toast.success("Login successful!");
-    //     // Wait for message to be received, then close popup
-    //     setTimeout(() => {
-    //       window.close();
-    //     }, 100);
-    //   } else {
-    //     // If not a popup, reload page to refresh auth state
-    //     // Browser will automatically send cookies with the reload request
-    //     toast.success("Login successful!");
-    //     navigate({ to: "/inbox" });
-    //   }
-    // } catch (error: any) {
-    //   console.error("OAuth callback error:", error);
-    //   toast.error(
-    //     "Authentication successful but redirect failed. Reloading...",
-    //   );
-    //   window.location.reload();
-    // }
-  }, [navigate]);
+          // Close popup after a short delay to ensure message is sent
+          setTimeout(() => {
+            window.close();
+          }, 100);
+        } else {
+          // If not a popup (direct navigation), redirect to inbox
+          window.location.href = "/inbox";
+        }
+      } else {
+        // Handle failure case
+        if (window.opener && window.opener !== window) {
+          window.opener.postMessage(
+            {
+              type: "oauth_error",
+              success: false,
+            },
+            window.location.origin,
+          );
+          setTimeout(() => {
+            window.close();
+          }, 100);
+        } else {
+          // Redirect back to login
+          window.location.href = "/login";
+        }
+      }
+    } catch (error) {
+      console.error("OAuth callback error:", error);
+      // Try to close popup or redirect
+      if (window.opener) {
+        window.close();
+      } else {
+        window.location.href = "/login";
+      }
+    }
+  }, [success]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">

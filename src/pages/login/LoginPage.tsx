@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import {
@@ -16,6 +17,36 @@ import {
 import { auth, googleProvider } from "~/lib/firebase";
 
 function LoginPage() {
+  const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuthStore();
+
+  // Listen for OAuth callback messages from popup
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Verify origin for security
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+
+      // Handle OAuth success message
+      if (event.data.type === "oauth_success" && event.data.success === true) {
+        toast.success("Login successful!");
+        setIsAuthenticated(true);
+        navigate({ to: "/inbox" });
+      } else if (event.data.type === "oauth_error") {
+        toast.error("Login failed. Please try again.");
+      }
+    };
+
+    // Add message listener
+    window.addEventListener("message", handleMessage);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [navigate, setIsAuthenticated]);
+
   return (
     <div className="flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-lg border-0">
