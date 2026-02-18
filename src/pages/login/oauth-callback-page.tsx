@@ -1,20 +1,23 @@
+import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
 export function OAuthCallbackPage() {
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuthStore();
   const { success } = useSearch({ from: "/_public/oauth-callback" });
 
   useEffect(() => {
     if (success === true) {
-      window.close();
+      setIsAuthenticated(true);
       navigate({ to: "/inbox" });
       toast.success("Login successful!");
+      window.close();
     } else {
       toast.error("Login failed!");
     }
-  }, [success, navigate]);
+  }, [success, navigate, setIsAuthenticated]);
 
   useEffect(() => {
     // try {
