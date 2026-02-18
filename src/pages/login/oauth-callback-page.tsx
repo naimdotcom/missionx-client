@@ -14,6 +14,7 @@ export function OAuthCallbackPage() {
       navigate({ to: "/inbox" });
       toast.success("Login successful!");
       window.close();
+      window.location.reload();
     } else {
       toast.error("Login failed!");
     }
