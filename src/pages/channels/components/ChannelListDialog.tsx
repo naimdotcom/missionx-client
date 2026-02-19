@@ -112,15 +112,10 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
       return;
     }
 
-    const width = 600;
-    const height = 700;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-
     popupRef.current = window.open(
       url,
       "channel_connect",
-      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`,
+      `width=600,height=700`,
     );
 
     startPopupPolling();
@@ -188,9 +183,14 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
         </Card>
       </DialogTrigger>
 
-      <DialogContent className="w-[95vw] sm:max-w-[560px] p-0 gap-0 overflow-hidden rounded-2xl">
+      <DialogContent className="w-[95vw] max-w-[560px] p-0 gap-0 overflow-hidden rounded-2xl">
         {/* Header */}
-        <div className={cn("px-6 py-5 text-white", config.headerBg)}>
+        <div
+          className={cn(
+            "px-4 py-4 text-white sm:px-6 sm:py-5",
+            config.headerBg,
+          )}
+        >
           <DialogHeader>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
@@ -274,8 +274,8 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
         </div>
 
         {/* Footer — Connect / Refresh button */}
-        <div className="border-t bg-muted/30 px-6 py-4">
-          <div className="flex items-center justify-between gap-3">
+        <div className="border-t bg-muted/30 px-4 py-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-muted-foreground">
               {accounts.length > 0
                 ? "Don't see your page? Reconnect below."
@@ -285,7 +285,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
               size="sm"
               variant={accounts.length > 0 ? "outline" : "default"}
               className={cn(
-                "shrink-0 gap-2",
+                "w-full shrink-0 gap-2 sm:w-auto",
                 accounts.length === 0 && config.buttonActiveBg,
               )}
               disabled={channelConnectUrl.isPending || !appId}
@@ -330,11 +330,11 @@ function ChannelAccountRow({
   const isAlreadyConnected = !!account.app_id && account.app_id === appId;
 
   return (
-    <div className="flex items-center gap-3 px-6 py-3 hover:bg-muted/40 transition-colors">
+    <div className="flex items-center gap-3 px-4 py-3 hover:bg-muted/40 transition-colors">
       {/* Icon */}
       <div
         className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
           config.iconRowBg,
           config.iconRowText,
         )}
@@ -345,10 +345,10 @@ function ChannelAccountRow({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{name}</p>
-        <div className="flex items-center gap-2 mt-0.5">
+        <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
           {account.platform_page_id && (
-            <span className="text-[11px] text-muted-foreground font-mono truncate">
-              ID: {account.platform_page_id}
+            <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[120px]">
+              {account.platform_page_id}
             </span>
           )}
           {account.is_verified && (

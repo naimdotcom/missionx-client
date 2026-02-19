@@ -5,6 +5,7 @@ import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstCha
 import { useAuthStore } from "@/stores/auth-store";
 import { useSearch } from "@tanstack/react-router";
 import {
+  CheckCircle2,
   FacebookIcon,
   InstagramIcon,
   LoaderIcon,
@@ -17,25 +18,47 @@ import { getChannelColor } from "./components/ChannelIcons";
 import { ConnectDialog } from "./components/ConnectDialog";
 import { StatCard } from "./components/StatCard";
 
+// Minimal screen rendered inside the OAuth popup before it self-closes.
+function PopupSuccessScreen() {
+  useEffect(() => {
+    // Signal the opener and close as soon as this component mounts.
+    if (window.opener) {
+      (
+        window.opener as Window & { __channelConnectSuccess?: boolean }
+      ).__channelConnectSuccess = true;
+    }
+    window.close();
+  }, []);
+
+  return (
+    <div className="flex h-screen w-screen flex-col items-center justify-center gap-4 bg-background">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
+        <CheckCircle2 className="h-7 w-7 text-green-600" />
+      </div>
+      <div className="text-center">
+        <p className="text-base font-semibold">Connected!</p>
+        <p className="text-sm text-muted-foreground">Closing window…</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ChannelsPage() {
   const selectedApp = useAuthStore((state) => state.selectedApp);
   const { data, isLoading, refetch } = useAppChannels(selectedApp?.id || "");
   const { success } = useSearch({ from: "/_private/channels" });
 
+  // Detect popup context synchronously — render minimal screen, skip full app.
+  const isPopup = typeof window !== "undefined" && !!window.opener;
+
   useEffect(() => {
-    if (!success) return;
-    // If this page is loaded inside a popup (OAuth redirect), signal success to
-    // the opener window before closing so the poll can trigger a refetch + toast.
-    if (window.opener) {
-      (
-        window.opener as Window & { __channelConnectSuccess?: boolean }
-      ).__channelConnectSuccess = true;
-      window.close();
-      return;
-    }
+    if (!success || isPopup) return;
     // Main window received success=true (e.g. same-tab redirect) — just refetch.
     refetch();
-  }, [success, refetch]);
+  }, [success, isPopup, refetch]);
+
+  // If we're inside the OAuth popup, skip the full app entirely.
+  if (isPopup && success) return <PopupSuccessScreen />;
 
   // Ensure channels is always an array
   const channels = Array.isArray(data) ? data : [];
