@@ -69,9 +69,18 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
         if (!popupRef.current || popupRef.current.closed) {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
           popupRef.current = null;
+
+          // Popup closed itself after setting the success flag on this window
+          const w = window as Window & { __channelConnectSuccess?: boolean };
+          if (w.__channelConnectSuccess) {
+            delete w.__channelConnectSuccess;
+            toast.success("Channel connected successfully!");
+            channelsQuery.refetch();
+          }
           return;
         }
 
+        // Fallback: detect success URL while popup is still open (same-origin)
         const popupUrl = popupRef.current.location.href;
         if (popupUrl && popupUrl.includes("success=true")) {
           popupRef.current.close();

@@ -23,7 +23,18 @@ export default function ChannelsPage() {
   const { success } = useSearch({ from: "/_private/channels" });
 
   useEffect(() => {
-    if (success) refetch();
+    if (!success) return;
+    // If this page is loaded inside a popup (OAuth redirect), signal success to
+    // the opener window before closing so the poll can trigger a refetch + toast.
+    if (window.opener) {
+      (
+        window.opener as Window & { __channelConnectSuccess?: boolean }
+      ).__channelConnectSuccess = true;
+      window.close();
+      return;
+    }
+    // Main window received success=true (e.g. same-tab redirect) — just refetch.
+    refetch();
   }, [success, refetch]);
 
   // Ensure channels is always an array
