@@ -23,4 +23,25 @@ export type InstagramCallbackParams = any;
 export type InstagramCallbackResponse = any;
 export type InstagramDisconnectRequest = any;
 export type InstagramDisconnectResponse = any;
-export type ChannelsResponse = any;
+
+export type MetaAccountChannels = {
+  total?: number;
+  user_id?: string;
+  accounts?: MetaAccountChannel[];
+};
+
+export type MetaAccountChannel = {
+  id?: string;
+  platform?: string;
+  account_name?: string;
+  instagram_username?: string;
+  platform_page_id?: string;
+  app_id?: string | null; // Not connected to any app yet
+  is_active?: boolean;
+  is_verified?: boolean;
+};
+
+export type ChannelSubscribeAppRequest = {
+  channel_id: string;
+  app_id: string;
+};

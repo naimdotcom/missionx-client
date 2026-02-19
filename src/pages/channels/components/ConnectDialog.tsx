@@ -101,10 +101,10 @@ function ConnectChannelDialog(props: ConnectChannelDialogProps) {
   console.log("App ID", props.appId);
   console.log("Channel Type", props.channelType);
 
-  const channelConnectQuery = useChannelConnectUrl(
-    props.appId,
-    props.channelType,
-  );
+  const channelConnectQuery = useChannelConnectUrl({
+    type: props.channelType,
+    appId: props.appId,
+  });
 
   const handleConnect = async () => {
     if (!props.appId) {

@@ -2,8 +2,9 @@ import { API_ENDPOINTS, RequestOptions } from "@/api";
 import { BaseAPIService } from "@/api/core/base.service";
 import { env } from "@/lib/env";
 import type {
-  ChannelsResponse,
+  ChannelSubscribeAppRequest,
   ConnectChannelResponse,
+  MetaAccountChannels,
   MetaCallbackResponse,
   MetaSubscriptionStatusResponse,
   UrlChannelType,
@@ -14,35 +15,35 @@ export class ChannelsService extends BaseAPIService {
     super(baseURL);
   }
 
-  getMetaAccounts = (type: UrlChannelType, options?: RequestOptions) =>
-    this.get<ChannelsResponse>(
+  getMetaAccountChannels = (type: UrlChannelType, options?: RequestOptions) =>
+    this.get<MetaAccountChannels>(
       API_ENDPOINTS.CHANNELS.META_ACCOUNTS(type),
       undefined,
       options,
     );
 
   getMyChannels = (options?: RequestOptions) =>
-    this.get<ChannelsResponse>(
+    this.get<MetaAccountChannels>(
       API_ENDPOINTS.CHANNELS.MY_CHANNELS,
       undefined,
       options,
     );
 
   getAllChannels = (appId: string, options?: RequestOptions) =>
-    this.get<ChannelsResponse>(
+    this.get<MetaAccountChannels>(
       API_ENDPOINTS.CHANNELS.ALL(appId),
       undefined,
       options,
     );
 
   channelConnectUrl = (
-    appId: string,
-    type: UrlChannelType,
+    params: { appId?: string; type: UrlChannelType },
     options?: RequestOptions,
   ) => {
-    const queryParams = new URLSearchParams({ app_id: appId });
+    const queryParams = new URLSearchParams();
+    if (params.appId) queryParams.append("appId", params.appId);
     return this.post<ConnectChannelResponse>(
-      `${API_ENDPOINTS.CHANNELS.CHANNEL_CONNECT(type)}?${queryParams.toString()}`,
+      `${API_ENDPOINTS.CHANNELS.CHANNEL_CONNECT(params.type)}?${queryParams.toString()}`,
       undefined,
       options,
     );
@@ -71,6 +72,18 @@ export class ChannelsService extends BaseAPIService {
       undefined,
       options,
     );
+
+  channelSubscribeApp = (
+    payload: ChannelSubscribeAppRequest,
+    options?: RequestOptions,
+  ) =>
+    this.post(API_ENDPOINTS.CHANNELS.CHANNEL_SUBSCRIBE_APP, payload, options);
+
+  channelUnsubscribeApp = (
+    payload: ChannelSubscribeAppRequest,
+    options?: RequestOptions,
+  ) =>
+    this.post(API_ENDPOINTS.CHANNELS.CHANNEL_UNSUBSCRIBE_APP, payload, options);
 }
 
 // Export singleton instance

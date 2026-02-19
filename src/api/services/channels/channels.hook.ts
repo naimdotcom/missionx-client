@@ -1,14 +1,17 @@
 import { mutationKeys, queryKeys } from "@/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { channelsService } from "./channels.service";
-import type { UrlChannelType } from "./channels.types";
+import type {
+  ChannelSubscribeAppRequest,
+  UrlChannelType,
+} from "./channels.types";
 
 export function useMetaAccounts(type: UrlChannelType) {
   return useQuery({
     enabled: !!type,
     queryKey: queryKeys.channelsKeys.metaAccounts(type),
     queryFn: async () => {
-      const response = await channelsService.getMetaAccounts(type);
+      const response = await channelsService.getMetaAccountChannels(type);
       return response;
     },
   });
@@ -35,12 +38,15 @@ export function useAppChannels(appId: string) {
   });
 }
 
-export function useChannelConnectUrl(appId: string, type: UrlChannelType) {
+export function useChannelConnectUrl(params: {
+  appId?: string;
+  type: UrlChannelType;
+}) {
   return useQuery({
-    enabled: !!type && !!appId,
-    queryKey: queryKeys.channelsKeys.channelConnect(type),
+    enabled: !!params.type && !!params.appId,
+    queryKey: queryKeys.channelsKeys.channelConnect(params.type),
     queryFn: async () => {
-      const response = await channelsService.channelConnectUrl(appId, type);
+      const response = await channelsService.channelConnectUrl(params);
       return response;
     },
   });
@@ -97,6 +103,36 @@ export function useMetaSubscriptionStatus(accountId: string) {
     queryFn: async () => {
       const response = await channelsService.metaSubscriptionStatus(accountId);
       return response;
+    },
+  });
+}
+
+export function useChannelSubscribeApp() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: mutationKeys.channelsKeys.channelSubscribeApp,
+    mutationFn: (payload: ChannelSubscribeAppRequest) =>
+      channelsService.channelSubscribeApp(payload),
+    onSuccess: () => {
+      // Invalidate all channels queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.channelsKeys.all });
+    },
+  });
+}
+
+export function useChannelUnsubscribeApp() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: mutationKeys.channelsKeys.channelUnsubscribeApp,
+    mutationFn: async (payload: ChannelSubscribeAppRequest) => {
+      const response = await channelsService.channelUnsubscribeApp(payload);
+      return response;
+    },
+    onSuccess: () => {
+      // Invalidate all channels queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.channelsKeys.all });
     },
   });
 }

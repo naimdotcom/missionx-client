@@ -60,6 +60,8 @@ export const API_ENDPOINTS = {
       `/api/v1/channels/meta/accounts/${id}/subscription-status`,
 
     META_ACCOUNTS: (type: string) => `/api/v1/channels/${type}/accounts`,
+    CHANNEL_SUBSCRIBE_APP: "/api/v1/channels/subscribe",
+    CHANNEL_UNSUBSCRIBE_APP: "/api/v1/channels/unsubscribe",
   },
 
   // Upload

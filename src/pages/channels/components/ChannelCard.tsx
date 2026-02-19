@@ -1,8 +1,8 @@
-import type { Channel } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AlertCircle, MessageSquare, Trash2, Users } from "lucide-react";
+import { Channel } from "../types";
 import { Badge } from "./Badge";
 import { ChannelIcon } from "./ChannelIcons";
 import { DeleteUrlChannelBtn } from "./DeleteDialog";

@@ -1,4 +1,4 @@
-import { useAppChannels, type Channel } from "@/api/services/channels";
+import { useAppChannels } from "@/api/services/channels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstChannel";
@@ -35,12 +35,12 @@ export default function ChannelsPage() {
       title: "Facebook Pages",
       desc: "Connected pages",
       color: getChannelColor("facebook"),
-      value: channels.filter((c: Channel) => c.type === "facebook").length,
+      value: channels.filter((c: any) => c.type === "facebook").length,
     },
     {
       icon: InstagramIcon,
       title: "Instagram Accounts",
-      value: channels.filter((c: Channel) => c.type === "instagram").length,
+      value: channels.filter((c: any) => c.type === "instagram").length,
       desc: "Connected accounts",
       color: getChannelColor("instagram"),
     },
@@ -48,7 +48,7 @@ export default function ChannelsPage() {
       icon: MessageSquare,
       title: "Total Messages",
       value: channels
-        .reduce((sum: number, c: Channel) => sum + (c.messageCount || 0), 0)
+        .reduce((sum: number, c: any) => sum + (c.messageCount || 0), 0)
         .toLocaleString(),
       desc: "All time messages",
       color: "text-primary",
@@ -56,7 +56,7 @@ export default function ChannelsPage() {
     {
       icon: Users,
       title: "Total Reach",
-      value: `${(channels.reduce((sum: number, c: Channel) => sum + (c.followers || 0), 0) / 1000).toFixed(1)}K`,
+      value: `${(channels.reduce((sum: number, c: any) => sum + (c.followers || 0), 0) / 1000).toFixed(1)}K`,
       desc: "Total followers",
       color: "text-primary",
     },

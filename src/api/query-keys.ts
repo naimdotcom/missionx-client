@@ -65,5 +65,7 @@ export const mutationKeys = {
     instagramConnect: ["channels", "instagram", "connect"] as const,
     instagramDisconnect: ["channels", "instagram", "disconnect"] as const,
     instagramDelete: ["channels", "instagram", "delete"] as const,
+    channelSubscribeApp: ["channels", "subscribe-app"] as const,
+    channelUnsubscribeApp: ["channels", "unsubscribe-app"] as const,
   },
 } as const;
