@@ -14,9 +14,20 @@ export class ChannelsService extends BaseAPIService {
     super(baseURL);
   }
 
-  /**
-   * Get all channels for a specific app
-   */
+  getMetaAccounts = (type: UrlType, options?: RequestOptions) =>
+    this.get<ChannelsResponse>(
+      API_ENDPOINTS.CHANNELS.META_ACCOUNTS(type),
+      undefined,
+      options,
+    );
+
+  getMyChannels = (options?: RequestOptions) =>
+    this.get<ChannelsResponse>(
+      API_ENDPOINTS.CHANNELS.MY_CHANNELS,
+      undefined,
+      options,
+    );
+
   getAllChannels = (appId: string, options?: RequestOptions) =>
     this.get<ChannelsResponse>(
       API_ENDPOINTS.CHANNELS.ALL(appId),
@@ -24,13 +35,6 @@ export class ChannelsService extends BaseAPIService {
       options,
     );
 
-  /**
-   * Meta (Facebook) Channel Methods
-   */
-
-  /**
-   * Initiate Meta OAuth connection
-   */
   channelConnectUrl = (
     appId: string,
     type: UrlType,
@@ -44,9 +48,6 @@ export class ChannelsService extends BaseAPIService {
     );
   };
 
-  /**
-   * Handle Meta OAuth callback
-   */
   metaCallback = (type: UrlType, options?: RequestOptions) =>
     this.get<MetaCallbackResponse>(
       API_ENDPOINTS.CHANNELS.CHANNEL_CALLBACK(type),
@@ -54,9 +55,6 @@ export class ChannelsService extends BaseAPIService {
       options,
     );
 
-  /**
-   * Disconnect Meta channel
-   */
   metaDisconnect = (type: UrlType, options?: RequestOptions) =>
     this.post(
       `${API_ENDPOINTS.CHANNELS.CHANNEL_DISCONNECT(type)}`,
@@ -64,15 +62,9 @@ export class ChannelsService extends BaseAPIService {
       options,
     );
 
-  /**
-   * Delete Meta account
-   */
   metaDelete = (id: string, type: UrlType, options?: RequestOptions) =>
     this.delete(API_ENDPOINTS.CHANNELS.CHANNEL_DELETE(id, type), options);
 
-  /**
-   * Get Meta subscription status
-   */
   metaSubscriptionStatus = (id: string, options?: RequestOptions) =>
     this.get<MetaSubscriptionStatusResponse>(
       API_ENDPOINTS.CHANNELS.META_SUBSCRIPTION_STATUS(id),

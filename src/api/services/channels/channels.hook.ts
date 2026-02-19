@@ -3,10 +3,28 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { channelsService } from "./channels.service";
 import type { UrlType } from "./channels.types";
 
-/**
- * Hook to get all channels for a specific app
- */
-export function useChannels(appId: string) {
+export function useMetaAccounts(type: UrlType) {
+  return useQuery({
+    enabled: !!type,
+    queryKey: queryKeys.channelsKeys.metaAccounts(type),
+    queryFn: async () => {
+      const response = await channelsService.getMetaAccounts(type);
+      return response;
+    },
+  });
+}
+
+export function useMyChannels() {
+  return useQuery({
+    queryKey: queryKeys.channelsKeys.myChannels,
+    queryFn: async () => {
+      const response = await channelsService.getMyChannels();
+      return response;
+    },
+  });
+}
+
+export function useAppChannels(appId: string) {
   return useQuery({
     enabled: !!appId,
     queryKey: queryKeys.channelsKeys.allChannels(appId),

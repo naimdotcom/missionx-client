@@ -47,8 +47,8 @@ export const API_ENDPOINTS = {
 
   //CHANNELS
   CHANNELS: {
-    ALL: (id: string) => `/api/v1/channels/${id}`,
-
+    MY_CHANNELS: "/api/v1/channels/my",
+    ALL: (id?: string) => `/api/v1/channels/${id}`,
     CHANNEL_CONNECT: (type: string) =>
       `/api/v1/channels/${type}/oauth/initiate`,
     CHANNEL_CALLBACK: (type: string) =>
@@ -58,6 +58,8 @@ export const API_ENDPOINTS = {
       `/api/v1/channels/${type}/accounts/${id}`,
     META_SUBSCRIPTION_STATUS: (id: string) =>
       `/api/v1/channels/meta/accounts/${id}/subscription-status`,
+
+    META_ACCOUNTS: (type: string) => `/api/v1/channels/${type}/accounts`,
   },
 
   // Upload

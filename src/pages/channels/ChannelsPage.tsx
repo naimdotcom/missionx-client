@@ -1,8 +1,9 @@
-import { useChannels, type Channel } from "@/api/services/channels";
+import { useAppChannels, type Channel } from "@/api/services/channels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstChannel";
 import { useAuthStore } from "@/stores/auth-store";
+import { useSearch } from "@tanstack/react-router";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -10,14 +11,21 @@ import {
   MessageSquare,
   Users,
 } from "lucide-react";
+import { useEffect } from "react";
 import { ChannelCard } from "./components/ChannelCard";
 import { getChannelColor } from "./components/ChannelIcons";
+import ChannelListDialog from "./components/ChannelListDialog";
 import { ConnectDialog } from "./components/ConnectDialog";
 import { StatCard } from "./components/StatCard";
 
 export default function ChannelsPage() {
   const selectedApp = useAuthStore((state) => state.selectedApp);
-  const { data, isLoading } = useChannels(selectedApp?.id || "");
+  const { data, isLoading, refetch } = useAppChannels(selectedApp?.id || "");
+  const { success } = useSearch({ from: "/_private/channels" });
+
+  useEffect(() => {
+    if (success) refetch();
+  }, [success, refetch]);
 
   // Ensure channels is always an array
   const channels = Array.isArray(data) ? data : [];
@@ -69,7 +77,12 @@ export default function ChannelsPage() {
   }
 
   if (channels.length === 0 && selectedApp?.id) {
-    return <ConnectFirstChannel appId={selectedApp?.id} />;
+    return (
+      <div>
+        <ChannelListDialog />
+        <ConnectFirstChannel appId={selectedApp?.id} />;
+      </div>
+    );
   }
 
   return (
