@@ -112,7 +112,7 @@ export function ConnectFirstChannel({ appId }: ConnectFirstChannelProps) {
               className="group cursor-pointer border transition-all hover:border-blue-500/50 hover:bg-blue-50/50 hover:shadow-md active:scale-95"
               onClick={() => {
                 if (facebookUrl.isSuccess) {
-                  window.location.href = facebookUrl.data.authorization_url;
+                  window.location.href = facebookUrl.data.redirect_url;
                 }
               }}
             >
@@ -142,7 +142,7 @@ export function ConnectFirstChannel({ appId }: ConnectFirstChannelProps) {
               className="group cursor-pointer border transition-all hover:border-pink-500/50 hover:bg-pink-50/50 hover:shadow-md active:scale-95"
               onClick={() => {
                 if (instagramUrl.isSuccess) {
-                  window.location.href = instagramUrl.data.authorization_url;
+                  window.location.href = instagramUrl.data.redirect_url;
                 }
               }}
             >
