@@ -14,7 +14,6 @@ import {
 import { useEffect } from "react";
 import { ChannelCard } from "./components/ChannelCard";
 import { getChannelColor } from "./components/ChannelIcons";
-import ChannelListDialog from "./components/ChannelListDialog";
 import { ConnectDialog } from "./components/ConnectDialog";
 import { StatCard } from "./components/StatCard";
 
@@ -79,8 +78,7 @@ export default function ChannelsPage() {
   if (channels.length === 0 && selectedApp?.id) {
     return (
       <div>
-        <ChannelListDialog />
-        <ConnectFirstChannel appId={selectedApp?.id} />;
+        <ConnectFirstChannel />;
       </div>
     );
   }

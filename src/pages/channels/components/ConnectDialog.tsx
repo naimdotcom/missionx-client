@@ -1,4 +1,4 @@
-import { UrlType, useChannelConnectUrl } from "@/api/services/channels";
+import { UrlChannelType, useChannelConnectUrl } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -30,7 +30,7 @@ interface ConnectDialogProps {
 
 export function ConnectDialog(props: ConnectDialogProps) {
   const [selectedChannelType, setSelectedChannelType] =
-    useState<UrlType | null>(null);
+    useState<UrlChannelType | null>(null);
 
   return (
     <div>
@@ -94,7 +94,7 @@ export function ConnectDialog(props: ConnectDialogProps) {
 type ConnectChannelDialogProps = {
   open: boolean;
   appId: string;
-  channelType: UrlType;
+  channelType: UrlChannelType;
   onOpenChange: (open: boolean) => void;
 };
 function ConnectChannelDialog(props: ConnectChannelDialogProps) {

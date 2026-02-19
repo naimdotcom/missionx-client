@@ -1,9 +1,9 @@
 import { mutationKeys, queryKeys } from "@/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { channelsService } from "./channels.service";
-import type { UrlType } from "./channels.types";
+import type { UrlChannelType } from "./channels.types";
 
-export function useMetaAccounts(type: UrlType) {
+export function useMetaAccounts(type: UrlChannelType) {
   return useQuery({
     enabled: !!type,
     queryKey: queryKeys.channelsKeys.metaAccounts(type),
@@ -35,7 +35,7 @@ export function useAppChannels(appId: string) {
   });
 }
 
-export function useChannelConnectUrl(appId: string, type: UrlType) {
+export function useChannelConnectUrl(appId: string, type: UrlChannelType) {
   return useQuery({
     enabled: !!type && !!appId,
     queryKey: queryKeys.channelsKeys.channelConnect(type),
@@ -46,7 +46,7 @@ export function useChannelConnectUrl(appId: string, type: UrlType) {
   });
 }
 
-export function useMetaCallback(type: UrlType) {
+export function useMetaCallback(type: UrlChannelType) {
   return useQuery({
     enabled: !!type,
     queryKey: queryKeys.channelsKeys.metaCallback,
@@ -57,7 +57,7 @@ export function useMetaCallback(type: UrlType) {
   });
 }
 
-export function useMetaDisconnect(type: UrlType) {
+export function useMetaDisconnect(type: UrlChannelType) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -72,7 +72,7 @@ export function useMetaDisconnect(type: UrlType) {
   });
 }
 
-export function useMetaDelete(type: UrlType) {
+export function useMetaDelete(type: UrlChannelType) {
   const queryClient = useQueryClient();
 
   return useMutation({

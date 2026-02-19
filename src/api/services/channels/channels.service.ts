@@ -6,7 +6,7 @@ import type {
   ConnectChannelResponse,
   MetaCallbackResponse,
   MetaSubscriptionStatusResponse,
-  UrlType,
+  UrlChannelType,
 } from "./channels.types";
 
 export class ChannelsService extends BaseAPIService {
@@ -14,7 +14,7 @@ export class ChannelsService extends BaseAPIService {
     super(baseURL);
   }
 
-  getMetaAccounts = (type: UrlType, options?: RequestOptions) =>
+  getMetaAccounts = (type: UrlChannelType, options?: RequestOptions) =>
     this.get<ChannelsResponse>(
       API_ENDPOINTS.CHANNELS.META_ACCOUNTS(type),
       undefined,
@@ -37,7 +37,7 @@ export class ChannelsService extends BaseAPIService {
 
   channelConnectUrl = (
     appId: string,
-    type: UrlType,
+    type: UrlChannelType,
     options?: RequestOptions,
   ) => {
     const queryParams = new URLSearchParams({ app_id: appId });
@@ -48,21 +48,21 @@ export class ChannelsService extends BaseAPIService {
     );
   };
 
-  metaCallback = (type: UrlType, options?: RequestOptions) =>
+  metaCallback = (type: UrlChannelType, options?: RequestOptions) =>
     this.get<MetaCallbackResponse>(
       API_ENDPOINTS.CHANNELS.CHANNEL_CALLBACK(type),
       undefined,
       options,
     );
 
-  metaDisconnect = (type: UrlType, options?: RequestOptions) =>
+  metaDisconnect = (type: UrlChannelType, options?: RequestOptions) =>
     this.post(
       `${API_ENDPOINTS.CHANNELS.CHANNEL_DISCONNECT(type)}`,
       undefined,
       options,
     );
 
-  metaDelete = (id: string, type: UrlType, options?: RequestOptions) =>
+  metaDelete = (id: string, type: UrlChannelType, options?: RequestOptions) =>
     this.delete(API_ENDPOINTS.CHANNELS.CHANNEL_DELETE(id, type), options);
 
   metaSubscriptionStatus = (id: string, options?: RequestOptions) =>

@@ -8,7 +8,7 @@ export interface ConnectChannelResponse {
   authorization_url: string;
 }
 
-export type UrlType = "meta" | "instagram";
+export type UrlChannelType = "meta" | "instagram";
 
 export type MetaConnectResponse = ConnectChannelResponse;
 export type InstagramConnectResponse = ConnectChannelResponse;
