@@ -112,8 +112,8 @@ function ConnectChannelDialog(props: ConnectChannelDialogProps) {
       return;
     }
 
-    if (channelConnectQuery.data?.redirect_url) {
-      window.location.href = channelConnectQuery.data.redirect_url;
+    if (channelConnectQuery.data?.authorization_url) {
+      window.location.href = channelConnectQuery.data.authorization_url;
       return;
     }
   };

@@ -3,9 +3,9 @@ export type { Channel } from "@/pages/channels/types";
 
 // API Request/Response types (to be defined by backend contract)
 export interface ConnectChannelResponse {
-  redirect_url: string;
+  authorization_url: string;
   state: string;
-  collect_only: string;
+  collect: boolean;
 }
 
 export type UrlType = "meta" | "instagram";
