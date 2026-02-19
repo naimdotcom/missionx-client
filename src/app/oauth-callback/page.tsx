@@ -16,14 +16,19 @@ export default function OAuthCallbackPage() {
   useEffect(() => {
     // Get query parameters from URL
     const params = new URLSearchParams(window.location.search);
-    const success = params.get("success") === "true";
+    const status = params.get("status");
+    const legacySuccess = params.get("success") === "true";
     const message = params.get("message") || "OAuth completed";
     const error = params.get("error");
+
+    const isSuccess = status
+      ? status.toLowerCase() === "success"
+      : legacySuccess;
 
     // Prepare message for parent window
     const messageData = {
       type: "oauth-complete",
-      success: success && !error,
+      success: isSuccess && !error,
       message: error || message,
     };
 
