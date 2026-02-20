@@ -25,7 +25,7 @@ export default function ChannelsPage() {
   useEffect(() => {
     // --- SCENARIO 1: WE ARE INSIDE THE POPUP ---
     // Check if this window was opened by another window AND has the success param
-    const urlParams = new URLSearchParams(window.location.search);
+    // const urlParams = new URLSearchParams(window.location.search);
     const isSuccess = success === "true#_=_";
 
     console.log("SearchParams:", window.location.search);
@@ -63,7 +63,7 @@ export default function ChannelsPage() {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []); // Run once on mount
+  }, [success]); // Run once on mount
 
   const channels = Array.isArray(data) ? data : [];
 
