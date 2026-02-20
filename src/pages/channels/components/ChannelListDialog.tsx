@@ -62,7 +62,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
       return;
     }
 
-    window.open(url, "OAuth", `width=600,height=700`);
+    window.open(url, "_blank", "width=500,height=600");
   };
 
   const handleSubscribe = (channel: MetaAccountChannel) => {
