@@ -80,8 +80,10 @@ export default function ChannelsPage() {
             window.close();
           }, 100);
         } else {
+          console.log("Not Popusp");
+
           // If not a popup (direct navigation), redirect to inbox
-          window.location.href = "/channels";
+          // window.location.href = "/channels";
         }
       } else {
         // Handle failure case
@@ -95,7 +97,8 @@ export default function ChannelsPage() {
           }, 100);
         } else {
           // Redirect back to login
-          window.location.href = "/channels";
+          // window.location.href = "/channels";
+          console.log("Faield");
         }
       }
     } catch (error) {
@@ -104,7 +107,9 @@ export default function ChannelsPage() {
       if (window.opener) {
         window.close();
       } else {
-        window.location.href = "/channels";
+        console.log("Reject");
+
+        // window.location.href = "/channels";
       }
     }
   }, [success]);
