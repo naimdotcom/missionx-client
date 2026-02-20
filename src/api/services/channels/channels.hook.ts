@@ -6,9 +6,9 @@ import type {
   UrlChannelType,
 } from "./channels.types";
 
-export function useMetaAccounts(type: UrlChannelType) {
+export function useMetaAccounts(type: UrlChannelType, enable: boolean) {
   return useQuery({
-    enabled: !!type,
+    enabled: !!type && !!enable,
     queryKey: queryKeys.channelsKeys.metaAccounts(type),
     queryFn: async () => {
       const response = await channelsService.getMetaAccountChannels(type);

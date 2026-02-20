@@ -31,7 +31,7 @@ export type MetaAccountChannels = {
 };
 
 export type MetaAccountChannel = {
-  id?: string;
+  id: string;
   platform?: string;
   account_name?: string;
   instagram_username?: string;

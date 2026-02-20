@@ -32,7 +32,7 @@ import {
   RefreshCw,
   Zap,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CHANNEL_TYPE_CONFIG, OAUTH_CHANNEL_NAME } from "./const";
 
@@ -47,14 +47,14 @@ type ChannelListDialogProps = {
 function ChannelListDialog({ type }: ChannelListDialogProps) {
   const config = CHANNEL_TYPE_CONFIG[type];
   const Icon = config.icon;
-
+  const [enableApi, setEnableApi] = useState(false);
   const selectedApp = useAuthStore((state) => state.selectedApp);
   const appId = selectedApp?.id || "";
 
-  const channelsQuery = useMetaAccounts(type);
+  const metaAccountsQuery = useMetaAccounts(type, enableApi);
   const channelConnectUrl = useChannelConnectUrl({ type, appId });
   const subscribeMutation = useChannelSubscribeApp();
-  const accounts = channelsQuery.data?.accounts || [];
+  const accounts = metaAccountsQuery.data?.accounts || [];
 
   // Listen for OAuth success from the popup via BroadcastChannel
   const bcRef = useRef<BroadcastChannel | null>(null);
@@ -65,10 +65,9 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
 
     bc.onmessage = (event) => {
       if (event.data?.type === "oauth_success") {
-        toast.success("Channel connected successfully!");
-        channelsQuery.refetch();
+        metaAccountsQuery.refetch();
       } else if (event.data?.type === "oauth_error") {
-        toast.error("Channel connection failed. Please try again.");
+        console.log(event.data);
       }
     };
 
@@ -76,7 +75,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
       bc.close();
       bcRef.current = null;
     };
-  }, [channelsQuery]);
+  }, [metaAccountsQuery]);
 
   const handleOpenConnectPopup = () => {
     const url = channelConnectUrl.data?.authorization_url;
@@ -85,35 +84,14 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
       return;
     }
 
-    window.open(url, "_blank", "width=500,height=600");
-  };
-
-  const handleSubscribe = (channel: MetaAccountChannel) => {
-    if (!channel.id || !appId) {
-      toast.error("Missing channel or app information.");
-      return;
-    }
-
-    subscribeMutation.mutate(
-      { channel_id: channel.id, app_id: appId },
-      {
-        onSuccess: () => {
-          toast.success(
-            `${channel.account_name || channel.instagram_username || "Channel"} connected to your app!`,
-          );
-          channelsQuery.refetch();
-        },
-        onError: () => {
-          toast.error("Failed to connect channel. Please try again.");
-        },
-      },
-    );
+    window.open(url, "_blank", "width=600,height=600");
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Card
+          onClick={() => setEnableApi(!enableApi)}
           className={cn(
             config.cardHoverBorder,
             config.cardHoverBg,
@@ -141,10 +119,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
               </CardDescription>
             </div>
             <div className="ml-auto shrink-0 h-8 w-8 md:h-9 md:w-9 flex items-center justify-center">
-              {channelsQuery.isPending && <Spinner />}
-              {channelsQuery.isSuccess && (
-                <Zap className="h-4 w-4 text-yellow-500" />
-              )}
+              <Zap className="h-4 w-4 text-yellow-500" />
             </div>
           </CardHeader>
         </Card>
@@ -179,7 +154,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
 
         {/* Channel List */}
         <div className="flex flex-col">
-          {channelsQuery.isPending && (
+          {metaAccountsQuery.isPending && (
             <div className="flex flex-col items-center justify-center gap-3 py-16">
               <Spinner className="h-6 w-6 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
@@ -188,7 +163,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
             </div>
           )}
 
-          {channelsQuery.isError && (
+          {metaAccountsQuery.isError && (
             <div className="flex flex-col items-center justify-center gap-3 py-16 px-6">
               <div className="rounded-full bg-destructive/10 p-3">
                 <RefreshCw className="h-5 w-5 text-destructive" />
@@ -199,7 +174,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => channelsQuery.refetch()}
+                onClick={() => metaAccountsQuery.refetch()}
               >
                 <RefreshCw className="mr-2 h-3 w-3" />
                 Retry
@@ -207,7 +182,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
             </div>
           )}
 
-          {channelsQuery.isSuccess && accounts.length === 0 && (
+          {metaAccountsQuery.isSuccess && accounts.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-3 py-16 px-6">
               <div className={cn("rounded-full p-3", config.emptyIconBg)}>
                 <LinkIcon className={cn("h-5 w-5", config.emptyIconText)} />
@@ -222,7 +197,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
             </div>
           )}
 
-          {channelsQuery.isSuccess && accounts.length > 0 && (
+          {metaAccountsQuery.isSuccess && accounts.length > 0 && (
             <ScrollArea className="max-h-[360px]">
               <div className="divide-y">
                 {accounts.map((account) => (
@@ -232,7 +207,12 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
                     config={config}
                     appId={appId}
                     isSubscribing={subscribeMutation.isPending}
-                    onConnect={() => handleSubscribe(account)}
+                    onConnect={() =>
+                      subscribeMutation.mutate({
+                        channel_id: account.id,
+                        app_id: appId,
+                      })
+                    }
                   />
                 ))}
               </div>
