@@ -32,7 +32,6 @@ import {
   RefreshCw,
   Zap,
 } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { CHANNEL_TYPE_CONFIG } from "./const";
 
@@ -54,56 +53,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
   const channelsQuery = useMetaAccounts(type);
   const channelConnectUrl = useChannelConnectUrl({ type, appId });
   const subscribeMutation = useChannelSubscribeApp();
-
-  const popupRef = useRef<Window | null>(null);
-  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
   const accounts = channelsQuery.data?.accounts || [];
-
-  // Poll the popup for the success redirect
-  const startPopupPolling = useCallback(() => {
-    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-
-    pollIntervalRef.current = setInterval(() => {
-      try {
-        if (!popupRef.current || popupRef.current.closed) {
-          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          popupRef.current = null;
-
-          // Popup closed itself after setting the success flag on this window
-          const w = window as Window & { __channelConnectSuccess?: boolean };
-          if (w.__channelConnectSuccess) {
-            delete w.__channelConnectSuccess;
-            toast.success("Channel connected successfully!");
-            channelsQuery.refetch();
-          }
-          return;
-        }
-
-        // Fallback: detect success URL while popup is still open (same-origin)
-        const popupUrl = popupRef.current.location.href;
-        if (popupUrl && popupUrl.includes("success=true")) {
-          popupRef.current.close();
-          popupRef.current = null;
-          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          toast.success("Channel connected successfully!");
-          channelsQuery.refetch();
-        }
-      } catch {
-        // Cross-origin — popup is still on external domain, keep polling
-      }
-    }, 500);
-  }, [channelsQuery]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-      if (popupRef.current && !popupRef.current.closed) {
-        popupRef.current.close();
-      }
-    };
-  }, []);
 
   const handleOpenConnectPopup = () => {
     const url = channelConnectUrl.data?.authorization_url;
@@ -112,13 +62,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
       return;
     }
 
-    popupRef.current = window.open(
-      url,
-      "channel_connect",
-      `width=600,height=700`,
-    );
-
-    startPopupPolling();
+    window.open(url, "OAuth", `width=600,height=700`);
   };
 
   const handleSubscribe = (channel: MetaAccountChannel) => {
