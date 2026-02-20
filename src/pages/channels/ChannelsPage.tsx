@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstChannel";
 import { useAuthStore } from "@/stores/auth-store";
+import { useSearch } from "@tanstack/react-router";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -19,15 +20,17 @@ import { StatCard } from "./components/StatCard";
 export default function ChannelsPage() {
   const selectedApp = useAuthStore((state) => state.selectedApp);
   const { data, isLoading, refetch } = useAppChannels(selectedApp?.id || "");
-  // const { success } = useSearch({ from: "/_private/channels" });
+  const { success } = useSearch({ from: "/_private/channels" });
 
   useEffect(() => {
     // --- SCENARIO 1: WE ARE INSIDE THE POPUP ---
     // Check if this window was opened by another window AND has the success param
     const urlParams = new URLSearchParams(window.location.search);
-    const isSuccess = urlParams.get("success") === "true#_=_";
+    const isSuccess = success === "true#_=_";
 
-    console.log(urlParams);
+    console.log("SearchParams:", window.location.search);
+    console.log("Full Location:", window.location);
+    console.log("Query Params", success);
 
     if (window.opener && isSuccess) {
       // 1. Tell the parent window we succeeded
