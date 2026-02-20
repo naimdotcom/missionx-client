@@ -30,7 +30,7 @@ export function useMyChannels() {
 export function useAppChannels(appId: string) {
   return useQuery({
     enabled: !!appId,
-    queryKey: queryKeys.channelsKeys.allChannels(appId),
+    queryKey: [...queryKeys.channelsKeys.allChannels(appId), appId],
     queryFn: async () => {
       const response = await channelsService.getAllChannels(appId);
       return response;

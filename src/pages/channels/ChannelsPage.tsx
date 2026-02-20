@@ -2,21 +2,15 @@ import { useAppChannels } from "@/api/services/channels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstChannel";
-import { OAUTH_CHANNEL_NAME } from "@/pages/channels/components/const";
+
 import { useAuthStore } from "@/stores/auth-store";
 import { useSearch } from "@tanstack/react-router";
-import {
-  FacebookIcon,
-  InstagramIcon,
-  LoaderIcon,
-  MessageSquare,
-  Users,
-} from "lucide-react";
+import { LoaderIcon } from "lucide-react";
 import { useEffect } from "react";
 import { ChannelCard } from "./components/ChannelCard";
-import { getChannelColor } from "./components/ChannelIcons";
 import { ConnectDialog } from "./components/ConnectDialog";
 import { StatCard } from "./components/StatCard";
+import { CHANNEL_STAT, OAUTH_CHANNEL_NAME } from "./const";
 
 export default function ChannelsPage() {
   const selectedApp = useAuthStore((state) => state.selectedApp);
@@ -71,39 +65,6 @@ export default function ChannelsPage() {
 
   const channels = Array.isArray(data) ? data : [];
 
-  const stats = [
-    {
-      icon: FacebookIcon,
-      title: "Facebook Pages",
-      desc: "Connected pages",
-      color: getChannelColor("facebook"),
-      value: channels.filter((c: any) => c.type === "facebook").length,
-    },
-    {
-      icon: InstagramIcon,
-      title: "Instagram Accounts",
-      value: channels.filter((c: any) => c.type === "instagram").length,
-      desc: "Connected accounts",
-      color: getChannelColor("instagram"),
-    },
-    {
-      icon: MessageSquare,
-      title: "Total Messages",
-      value: channels
-        .reduce((sum: number, c: any) => sum + (c.messageCount || 0), 0)
-        .toLocaleString(),
-      desc: "All time messages",
-      color: "text-primary",
-    },
-    {
-      icon: Users,
-      title: "Total Reach",
-      value: `${(channels.reduce((sum: number, c: any) => sum + (c.followers || 0), 0) / 1000).toFixed(1)}K`,
-      desc: "Total followers",
-      color: "text-primary",
-    },
-  ];
-
   if (isLoading) {
     return (
       <div className="h-full w-full flex flex-col justify-center items-center">
@@ -140,7 +101,7 @@ export default function ChannelsPage() {
 
       <div className="px-4 py-2 flex flex-col h-full gap-4 overflow-auto">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
-          {stats.map((stat, i) => (
+          {CHANNEL_STAT.map((stat, i) => (
             <StatCard
               key={i}
               icon={stat.icon}

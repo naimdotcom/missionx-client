@@ -1,6 +1,14 @@
 import { UrlChannelType } from "@/api";
-import { Facebook, Instagram } from "lucide-react";
+import {
+  Facebook,
+  FacebookIcon,
+  Instagram,
+  InstagramIcon,
+  MessageSquare,
+  Users,
+} from "lucide-react";
 import { ElementType } from "react";
+import { getChannelColor } from "./components/ChannelIcons";
 
 /** Shared BroadcastChannel name for OAuth popup ↔ parent communication */
 export const OAUTH_CHANNEL_NAME = "missionx-oauth-channel";
@@ -67,3 +75,34 @@ export const CHANNEL_TYPE_CONFIG: Record<
     rowHover: "hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300",
   },
 };
+
+export const CHANNEL_STAT = [
+  {
+    icon: FacebookIcon,
+    title: "Facebook Pages",
+    desc: "Connected pages",
+    color: getChannelColor("facebook"),
+    value: "5",
+  },
+  {
+    icon: InstagramIcon,
+    title: "Instagram Accounts",
+    value: "3",
+    desc: "Connected accounts",
+    color: getChannelColor("instagram"),
+  },
+  {
+    icon: MessageSquare,
+    title: "Total Messages",
+    value: "4",
+    desc: "All time messages",
+    color: "text-primary",
+  },
+  {
+    icon: Users,
+    title: "Total Reach",
+    value: "12.5K",
+    desc: "Total followers",
+    color: "text-primary",
+  },
+];

@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { CHANNEL_TYPE_CONFIG, OAUTH_CHANNEL_NAME } from "./const";
+import { CHANNEL_TYPE_CONFIG, OAUTH_CHANNEL_NAME } from "../const";
 
 // ─── Channel constants ────────────────────────────────────────────
 
