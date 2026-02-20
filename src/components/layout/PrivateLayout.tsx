@@ -1,4 +1,4 @@
-import { useVerifyToken } from "@/api";
+import { useRefreshToken, useVerifyToken } from "@/api";
 import { useListMyApps } from "@/api/services/apps/apps.hook";
 import { useUserProfileFull } from "@/api/services/users/users.hooks";
 import { AppSidebar } from "@/components/nav-menu/app-sidebar";
@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { Outlet } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { CreateFirstApp } from "../onboarding/CreateFirstApp";
 import TopBar from "../top-bar";
 
@@ -17,8 +18,24 @@ function PrivateLayout() {
   const openAllRoutes = env.isOpenAllRoutes === "true";
 
   // Step 1: Verify current access token
+  const refreshTokenMutation = useRefreshToken();
   const verifyTokenQuery = useVerifyToken(!openAllRoutes);
   const isValidToken = verifyTokenQuery.data?.status === "valid";
+
+  useEffect(() => {
+    if (!isValidToken) {
+      refreshTokenMutation.mutate(undefined, {
+        onSuccess: () => {
+          verifyTokenQuery.refetch(); // Re-verify token after successful refresh
+          // Token refreshed successfully, no further action needed here
+        },
+        onError: () => {
+          toast.error("Session expired. Please log in again.");
+        },
+      });
+    }
+  }, [isValidToken]);
+
   const userQuery = useUserProfileFull(isValidToken);
 
   useEffect(() => {

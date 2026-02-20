@@ -8,7 +8,6 @@ import type {
   LoginRequest,
   LoginResponse,
   MetaLoginResponse,
-  RefreshTokenRequest,
   RefreshTokenResponse,
   RegisterRequest,
   VerifyToken,
@@ -36,10 +35,10 @@ export class AuthService extends BaseAPIService {
   /**
    * Refresh access token
    */
-  refreshToken = (request: RefreshTokenRequest, options?: RequestOptions) =>
+  refreshToken = (options?: RequestOptions) =>
     this.post<RefreshTokenResponse>(
       API_ENDPOINTS.AUTH.REFRESH,
-      request,
+      undefined,
       options,
     );
 
