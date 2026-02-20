@@ -80,8 +80,7 @@ export default function ChannelsPage() {
             window.close();
           }, 100);
         } else {
-          console.log("Not Popusp");
-
+          console.log("Not Popup - Redirecting to channels");
           // If not a popup (direct navigation), redirect to inbox
           // window.location.href = "/channels";
         }
