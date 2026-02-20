@@ -24,6 +24,9 @@ function PrivateLayout() {
 
   useEffect(() => {
     if (!isValidToken) {
+      console.log("Why you here", isValidToken);
+      console.log(verifyTokenQuery.data);
+
       refreshTokenMutation.mutate(undefined, {
         onSuccess: () => {
           verifyTokenQuery.refetch(); // Re-verify token after successful refresh
