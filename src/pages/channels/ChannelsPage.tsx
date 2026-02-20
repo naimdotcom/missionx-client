@@ -26,11 +26,10 @@ export default function ChannelsPage() {
     // --- SCENARIO 1: WE ARE INSIDE THE POPUP ---
     // Check if this window was opened by another window AND has the success param
     // const urlParams = new URLSearchParams(window.location.search);
-    const isSuccess = success === "true#_=_";
+    const isSuccess = success === true;
 
-    console.log("SearchParams:", window.location.search);
-    console.log("Full Location:", window.location);
-    console.log("Query Params", success);
+    console.log("Full Location:", String(success) === "true");
+    console.log("Query Params", success === true);
 
     if (window.opener && isSuccess) {
       // 1. Tell the parent window we succeeded
