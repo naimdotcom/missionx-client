@@ -2,6 +2,9 @@ import { UrlChannelType } from "@/api";
 import { Facebook, Instagram } from "lucide-react";
 import { ElementType } from "react";
 
+/** Shared BroadcastChannel name for OAuth popup ↔ parent communication */
+export const OAUTH_CHANNEL_NAME = "missionx-oauth-channel";
+
 export const CHANNEL_TYPE_CONFIG: Record<
   UrlChannelType,
   {

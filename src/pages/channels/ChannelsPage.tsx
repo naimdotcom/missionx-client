@@ -2,6 +2,7 @@ import { useAppChannels } from "@/api/services/channels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstChannel";
+import { OAUTH_CHANNEL_NAME } from "@/pages/channels/components/const";
 import { useAuthStore } from "@/stores/auth-store";
 import { useSearch } from "@tanstack/react-router";
 import {
@@ -22,93 +23,48 @@ export default function ChannelsPage() {
   const { data, isLoading } = useAppChannels(selectedApp?.id || "");
   const { success } = useSearch({ from: "/_private/channels" });
 
-  // useEffect(() => {
-  //   // --- SCENARIO 1: WE ARE INSIDE THE POPUP ---
-  //   // Check if this window was opened by another window AND has the success param
-  //   // const urlParams = new URLSearchParams(window.location.search);
-  //   const isSuccess = success === true;
-
-  //   console.log("Full Location:", String(success) === "true");
-  //   console.log("Query Params", success === true);
-
-  //   if (window.opener && isSuccess) {
-  //     // 1. Tell the parent window we succeeded
-  //     window.opener.postMessage(
-  //       { type: "CHANNEL_CONNECTED" },
-  //       window.location.origin,
-  //     );
-
-  //     // 2. Kill this popup window
-  //     window.close();
-
-  //     // 3. Return early so we don't attach listeners inside the popup
-  //     return;
-  //   }
-
-  //   // --- SCENARIO 2: WE ARE THE MAIN WINDOW ---
-  //   // Listen for the message coming from the popup
-  //   const handleMessage = (event: MessageEvent) => {
-  //     // Security check: only accept messages from our own domain
-  //     if (event.origin !== window.location.origin) return;
-
-  //     if (event.data?.type === "CHANNEL_CONNECTED") {
-  //       console.log("Success message received from popup!");
-  //       refetch(); // Refetch channels data when a channel is connected
-  //     }
-  //   };
-
-  //   window.addEventListener("message", handleMessage);
-
-  //   return () => {
-  //     window.removeEventListener("message", handleMessage);
-  //   };
-  // }, [success]); // Run once on mount
-
+  // Handle OAuth popup callback — only runs when ?success param is in the URL
   useEffect(() => {
-    try {
-      if (success === true) {
-        // Check if this is a popup window
-        if (window.opener && window.opener !== window) {
-          // Send success message to parent window
-          window.opener.postMessage(
-            { type: "oauth_success", success: true },
-            window.location.origin,
-          );
+    // Only handle OAuth callback when the success param is explicitly present
+    // (i.e., this page was loaded from a backend OAuth redirect)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has("success")) return;
 
-          // Close popup after a short delay to ensure message is sent
-          setTimeout(() => {
-            window.close();
-          }, 100);
-        } else {
-          console.log("Not Popup - Redirecting to channels");
-          // If not a popup (direct navigation), redirect to inbox
-          // window.location.href = "/channels";
-        }
+    try {
+      // Use BroadcastChannel to reliably communicate with the parent window.
+      // window.opener is lost during cross-origin OAuth flows (Facebook → backend → frontend),
+      // so we cannot rely on window.opener.postMessage.
+      const bc = new BroadcastChannel(OAUTH_CHANNEL_NAME);
+
+      if (success === true) {
+        bc.postMessage({ type: "oauth_success", success: true });
       } else {
-        // Handle failure case
-        if (window.opener && window.opener !== window) {
-          window.opener.postMessage(
-            { type: "oauth_error", success: false },
-            window.location.origin,
-          );
-          setTimeout(() => {
-            window.close();
-          }, 100);
-        } else {
-          // Redirect back to login
-          // window.location.href = "/channels";
-          console.log("Faield");
-        }
+        bc.postMessage({ type: "oauth_error", success: false });
       }
+
+      bc.close();
+
+      // Also try window.opener.postMessage as a fallback (works if opener is still available)
+      if (window.opener && window.opener !== window) {
+        window.opener.postMessage(
+          {
+            type: success ? "oauth_success" : "oauth_error",
+            success: !!success,
+          },
+          window.location.origin,
+        );
+      }
+
+      // Close this popup window
+      setTimeout(() => {
+        window.close();
+      }, 150);
     } catch (error) {
       console.error("OAuth callback error:", error);
-      // Try to close popup or redirect
-      if (window.opener) {
+      try {
         window.close();
-      } else {
-        console.log("Reject");
-
-        // window.location.href = "/channels";
+      } catch {
+        // If we can't close, just stay on the page — it's the channels page anyway
       }
     }
   }, [success]);

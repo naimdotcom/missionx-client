@@ -32,8 +32,9 @@ import {
   RefreshCw,
   Zap,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { CHANNEL_TYPE_CONFIG } from "./const";
+import { CHANNEL_TYPE_CONFIG, OAUTH_CHANNEL_NAME } from "./const";
 
 // ─── Channel constants ────────────────────────────────────────────
 
@@ -54,6 +55,28 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
   const channelConnectUrl = useChannelConnectUrl({ type, appId });
   const subscribeMutation = useChannelSubscribeApp();
   const accounts = channelsQuery.data?.accounts || [];
+
+  // Listen for OAuth success from the popup via BroadcastChannel
+  const bcRef = useRef<BroadcastChannel | null>(null);
+
+  useEffect(() => {
+    const bc = new BroadcastChannel(OAUTH_CHANNEL_NAME);
+    bcRef.current = bc;
+
+    bc.onmessage = (event) => {
+      if (event.data?.type === "oauth_success") {
+        toast.success("Channel connected successfully!");
+        channelsQuery.refetch();
+      } else if (event.data?.type === "oauth_error") {
+        toast.error("Channel connection failed. Please try again.");
+      }
+    };
+
+    return () => {
+      bc.close();
+      bcRef.current = null;
+    };
+  }, [channelsQuery]);
 
   const handleOpenConnectPopup = () => {
     const url = channelConnectUrl.data?.authorization_url;
