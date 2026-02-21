@@ -28,7 +28,7 @@ export const queryKeys = {
   channelsKeys: {
     myChannels: ["channels", "my"] as const,
     all: ["channels"] as const,
-    allChannels: (appId: string) => ["channels", "all", appId] as const,
+    appChannels: (appId?: string) => ["channels", "all", appId] as const,
     channelConnect: (type: UrlChannelType) =>
       ["channels", type, "connect"] as const,
     metaCallback: ["channels", "meta", "callback"] as const,

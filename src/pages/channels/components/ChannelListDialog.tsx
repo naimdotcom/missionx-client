@@ -1,5 +1,5 @@
 import {
-  type MetaAccountChannel,
+  type Channel,
   type UrlChannelType,
   useChannelConnectUrl,
   useChannelSubscribeApp,
@@ -257,7 +257,7 @@ function ChannelListDialog({ type }: ChannelListDialogProps) {
 // ─── Individual account row ───────────────────────────────────────
 
 type ChannelAccountRowProps = {
-  account: MetaAccountChannel;
+  account: Channel;
   config: (typeof CHANNEL_TYPE_CONFIG)[UrlChannelType];
   appId: string;
   isSubscribing: boolean;

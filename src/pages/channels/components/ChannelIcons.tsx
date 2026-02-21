@@ -1,3 +1,4 @@
+import { PlatformType } from "@/api";
 import { cn } from "@/lib/utils";
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
@@ -63,10 +64,8 @@ export const CHANNEL_CONFIG = {
   },
 } as const;
 
-export type ChannelType = keyof typeof CHANNEL_CONFIG;
-
 interface ChannelIconProps {
-  type: ChannelType | string;
+  type: PlatformType | string;
   className?: string;
   iconClassName?: string;
   variant?: "plain" | "boxed";
@@ -78,7 +77,7 @@ export function ChannelIcon({
   iconClassName,
   variant = "plain",
 }: ChannelIconProps) {
-  const normalizedType = type.toLowerCase() as ChannelType;
+  const normalizedType = type.toLowerCase() as PlatformType;
   const config = CHANNEL_CONFIG[normalizedType];
 
   if (!config) return null;
@@ -104,11 +103,11 @@ export function ChannelIcon({
 }
 
 export const getChannelIcon = (type: string) => {
-  const normalizedType = type.toLowerCase() as ChannelType;
+  const normalizedType = type.toLowerCase() as PlatformType;
   return CHANNEL_CONFIG[normalizedType]?.icon || null;
 };
 
 export const getChannelColor = (type: string) => {
-  const normalizedType = type.toLowerCase() as ChannelType;
+  const normalizedType = type.toLowerCase() as PlatformType;
   return CHANNEL_CONFIG[normalizedType]?.textColor || "text-primary";
 };

@@ -2,6 +2,7 @@ import { mutationKeys, queryKeys } from "@/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { channelsService } from "./channels.service";
 import type {
+  AppChannelsParams,
   ChannelSubscribeAppRequest,
   UrlChannelType,
 } from "./channels.types";
@@ -27,12 +28,12 @@ export function useMyChannels() {
   });
 }
 
-export function useAppChannels(appId: string) {
+export function useAppChannels(params: AppChannelsParams) {
   return useQuery({
-    enabled: !!appId,
-    queryKey: [...queryKeys.channelsKeys.allChannels(appId), appId],
+    enabled: !!params.appId,
+    queryKey: [...queryKeys.channelsKeys.appChannels(params.appId), params],
     queryFn: async () => {
-      const response = await channelsService.getAllChannels(appId);
+      const response = await channelsService.getAppChannels(params);
       return response;
     },
   });
@@ -63,30 +64,30 @@ export function useMetaCallback(type: UrlChannelType) {
   });
 }
 
+// export function useMetaDisconnect(type: UrlChannelType) {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationKey: mutationKeys.channelsKeys.metaDisconnect,
+//     mutationFn: () => channelsService.metaDisconnect(type),
+//     onSuccess: () => {
+//       // Invalidate all channels queries
+//       queryClient.invalidateQueries({
+//         queryKey: queryKeys.channelsKeys.all,
+//       });
+//     },
+//   });
+// }
+
 export function useMetaDisconnect(type: UrlChannelType) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: mutationKeys.channelsKeys.metaDisconnect,
-    mutationFn: () => channelsService.metaDisconnect(type),
-    onSuccess: () => {
-      // Invalidate all channels queries
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.channelsKeys.all,
-      });
-    },
-  });
-}
-
-export function useMetaDelete(type: UrlChannelType) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
     mutationFn: async (accountId: string) => {
-      const response = await channelsService.metaDelete(accountId, type);
+      const response = await channelsService.metaDisconnect(accountId, type);
       return response;
     },
-    mutationKey: mutationKeys.channelsKeys.metaDelete,
+    mutationKey: [...mutationKeys.channelsKeys.metaDisconnect, type],
     onSuccess: () => {
       // Invalidate all channels queries
       queryClient.invalidateQueries({

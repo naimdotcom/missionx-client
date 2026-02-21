@@ -2,6 +2,8 @@ import { API_ENDPOINTS, RequestOptions } from "@/api";
 import { BaseAPIService } from "@/api/core/base.service";
 import { env } from "@/lib/env";
 import type {
+  AppChannelResponse,
+  AppChannelsParams,
   ChannelSubscribeAppRequest,
   ConnectChannelResponse,
   MetaAccountChannels,
@@ -29,12 +31,15 @@ export class ChannelsService extends BaseAPIService {
       options,
     );
 
-  getAllChannels = (appId: string, options?: RequestOptions) =>
-    this.get<MetaAccountChannels>(
-      API_ENDPOINTS.CHANNELS.ALL(appId),
+  getAppChannels = (params: AppChannelsParams, options?: RequestOptions) => {
+    const queryParams = new URLSearchParams();
+    if (params.platform) queryParams.append("platform", params.platform);
+    return this.get<AppChannelResponse>(
+      `${API_ENDPOINTS.CHANNELS.APP_CHANNELS(params.appId)}?${queryParams.toString()}`,
       undefined,
       options,
     );
+  };
 
   channelConnectUrl = (
     params: { appId?: string; type: UrlChannelType },
@@ -56,15 +61,19 @@ export class ChannelsService extends BaseAPIService {
       options,
     );
 
-  metaDisconnect = (type: UrlChannelType, options?: RequestOptions) =>
-    this.post(
-      `${API_ENDPOINTS.CHANNELS.CHANNEL_DISCONNECT(type)}`,
-      undefined,
-      options,
-    );
+  // metaDisconnect = (type: UrlChannelType, options?: RequestOptions) =>
+  //   this.post(
+  //     `${API_ENDPOINTS.CHANNELS.CHANNEL_DISCONNECT(type)}`,
+  //     undefined,
+  //     options,
+  //   );
 
-  metaDelete = (id: string, type: UrlChannelType, options?: RequestOptions) =>
-    this.delete(API_ENDPOINTS.CHANNELS.CHANNEL_DELETE(id, type), options);
+  metaDisconnect = (
+    id: string,
+    type: UrlChannelType,
+    options?: RequestOptions,
+  ) =>
+    this.delete(API_ENDPOINTS.CHANNELS.CHANNEL_DISCONNECT(id, type), options);
 
   metaSubscriptionStatus = (id: string, options?: RequestOptions) =>
     this.get<MetaSubscriptionStatusResponse>(

@@ -23,7 +23,7 @@ export interface App {
   short_id?: string;
   manifest?: Record<string, any>;
   config?: Record<string, any>;
-  id?: string;
+  id: string;
   creator_id?: string;
   created_at?: string;
   updated_at?: string;

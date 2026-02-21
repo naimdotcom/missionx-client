@@ -1,5 +1,5 @@
 import type { Channel } from "@/api/services/channels";
-import { useMetaDelete } from "@/api/services/channels";
+import { useMetaDisconnect } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,20 +22,22 @@ interface DeleteUrlChannelBtnProps {
 export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [confirmName, setConfirmName] = useState("");
-  const metaDelete = useMetaDelete(
-    channel.type === "facebook" ? "meta" : "instagram",
+  const metaDelete = useMetaDisconnect(
+    channel.platform === "facebook" ? "meta" : "instagram",
   );
 
   const isDeleting = metaDelete.isPending;
 
   const handleDelete = async () => {
-    if (confirmName.trim().toLowerCase() !== channel.name.toLowerCase()) {
+    if (
+      confirmName.trim().toLowerCase() !== channel.account_name?.toLowerCase()
+    ) {
       return;
     }
 
     try {
       await metaDelete.mutateAsync(channel.id);
-      toast.success(`${channel.name} has been deleted`);
+      toast.success(`${channel.account_name} has been deleted`);
       setIsOpen(false);
       setConfirmName("");
     } catch (error) {
@@ -46,13 +48,12 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
   return (
     <>
       <Button
-        variant="secondary"
         size="icon"
+        variant="secondary"
         onClick={() => setIsOpen(true)}
-        className="h-9 w-9 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors"
-        title="Delete Channel"
+        className="h-9 w-9 rounded-xl bg-destructive/10 text-destructive"
       >
-        <Trash2 className="w-4.5 h-4.5" />
+        <Trash2 className="size-4" />
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -71,7 +72,7 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
                 <DialogDescription className="font-medium text-sm leading-relaxed text-center sm:text-left">
                   This will permanently disconnect{" "}
                   <span className="text-foreground font-bold">
-                    "{channel.name}"
+                    "{channel.account_name}"
                   </span>
                   . All synchronized data and automation for this channel will
                   be removed.
@@ -84,7 +85,7 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
               <p className="text-xs font-bold text-destructive leading-relaxed uppercase tracking-tight">
                 Critical: This action is irreversible. You will need to
                 re-authorize through{" "}
-                {channel.type === "facebook" ? "Facebook" : "Instagram"} to
+                {channel.platform === "facebook" ? "Facebook" : "Instagram"} to
                 reconnect.
               </p>
             </div>
@@ -94,7 +95,7 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
                 htmlFor="confirm-name"
                 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1"
               >
-                Confirm by typing "{channel.name}"
+                Confirm by typing "{channel.account_name}"
               </Label>
               <Input
                 id="confirm-name"
@@ -117,10 +118,10 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
               <Button
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={
-                  confirmName.trim().toLowerCase() !==
-                    channel.name.toLowerCase() || isDeleting
-                }
+                // disabled={
+                //   confirmName.trim().toLowerCase() !==
+                //     channel.account_name.toLowerCase() || isDeleting
+                // }
                 className="h-12 rounded-2xl font-bold px-8 shadow-xl shadow-destructive/20 transition-all active:scale-95 order-1 sm:order-2 flex-1"
               >
                 {isDeleting ? (

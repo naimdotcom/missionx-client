@@ -1,10 +1,15 @@
+import type { Channel, UrlChannelType } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { AlertCircle, MessageSquare, Trash2, Users } from "lucide-react";
-import { Channel } from "../types";
-import { Badge } from "./Badge";
-import { ChannelIcon } from "./ChannelIcons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
+import { Loader2, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
+import { CHANNEL_CONFIG, ChannelIcon } from "./ChannelIcons";
 import { DeleteUrlChannelBtn } from "./DeleteDialog";
 
 interface ChannelCardProps {
@@ -12,94 +17,143 @@ interface ChannelCardProps {
 }
 
 export function ChannelCard({ channel }: ChannelCardProps) {
+  const selectedApp = useAuthStore((s) => s.selectedApp);
+  const type: UrlChannelType =
+    channel.platform === "facebook" ? "meta" : "instagram";
+  const config = channel.platform ? CHANNEL_CONFIG[channel.platform] : null;
+
+  // const disconnect = useMetaDisconnect(type);
+  // const { refetch: syncChannel, isFetching: isSyncing } =
+  //   useMetaSubscriptionStatus(channel.id);
+
+  // const handleDisconnect = async () => {
+  //   try {
+  //     await disconnect.mutateAsync();
+  //     toast.success(`${channel.account_name} disconnected`);
+  //   } catch {
+  //     toast.error("Failed to disconnect channel");
+  //   }
+  // };
+
+  // const handleReconnect = async () => {
+  //   try {
+  //     const { channelsService } = await import("@/api/services/channels");
+  //     const res = await channelsService.channelConnectUrl({
+  //       type,
+  //       appId: selectedApp?.id,
+  //     });
+  //     if (res.authorization_url) window.location.href = res.authorization_url;
+  //   } catch {
+  //     toast.error("Failed to get reconnect URL");
+  //   }
+  // };
+
+  const handleSync = async () => {
+    try {
+      // await syncChannel();
+      toast.success("Channel synced");
+    } catch {
+      toast.error("Sync failed");
+    }
+  };
+
   return (
-    <Card className="overflow-hidden h-72 flex flex-col justify-between group">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-4">
+    <div className="group relative rounded-2xl border bg-card p-4 flex flex-col gap-4 transition-shadow hover:shadow-md">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        {channel.platform && (
           <ChannelIcon
-            type={channel.type}
             variant="boxed"
-            className="p-3 rounded-2xl group-hover:scale-110 duration-300"
-            iconClassName="w-6 h-6"
+            type={channel.platform}
+            className="p-2.5 rounded-xl group-hover:scale-105 transition-transform duration-300"
+            iconClassName="size-5"
           />
-
-          <div>
-            <div className="text-lg font-bold tracking-tight">
-              {channel.name}
-            </div>
-            {channel.status === "connected" && (
-              <Badge
-                variant="secondary"
-                className="capitalize bg-green-500/10 text-green-500"
-              >
-                {channel.status}
-              </Badge>
-            )}
-            {channel.status === "disconnected" && (
-              <Badge variant="destructive">{channel.status}</Badge>
-            )}
-          </div>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        {channel.status === "connected" ? (
-          <>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                {
-                  label: "Messages",
-                  val: (channel.messageCount || 0).toLocaleString(),
-                  Icon: MessageSquare,
-                },
-                {
-                  label: "Followers",
-                  val:
-                    (channel.followers || 0) >= 1000
-                      ? `${((channel.followers || 0) / 1000).toFixed(1)}K`
-                      : channel.followers || 0,
-                  Icon: Users,
-                },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="relative group/stat p-3 rounded-2xl bg-muted/30 border border-transparent transition-all hover:bg-muted/50 hover:border-muted-foreground/10"
-                >
-                  <stat.Icon className="w-4 h-4 mb-2 text-muted-foreground transition-colors group-hover/stat:text-primary" />
-                  <p className="text-lg font-bold tabular-nums tracking-tight leading-none mb-1">
-                    {stat.val}
-                  </p>
-                  <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
-                    {stat.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <Separator className="bg-muted-foreground/5" />
-
-            <div className="flex items-center justify-end gap-1.5 pt-1">
-              <DeleteUrlChannelBtn channel={channel} />
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center gap-4">
-            <div className="p-4 rounded-full bg-destructive/10">
-              <AlertCircle className="size-9 text-rose-500" />
-            </div>
-            <div className="space-y-1">
-              <p className="font-bold text-destructive">Connection Lost</p>
-              <p className="text-xs text-muted-foreground px-4">
-                This channel is disconnected. Please reconnect to continue.
-              </p>
-            </div>
-            <Button size="sm" variant="destructive" className="gap-2">
-              <Trash2 className="size-4" />
-              Remove Channel
-            </Button>
-          </div>
         )}
-      </CardContent>
-    </Card>
+
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-sm truncate leading-tight">
+            {channel.account_name}
+          </p>
+          {channel.instagram_username && (
+            <p className="text-xs text-muted-foreground truncate">
+              @{channel.instagram_username}
+            </p>
+          )}
+          {config && (
+            <p className={cn("text-xs font-medium mt-0.5", config.textColor)}>
+              {config.label}
+            </p>
+          )}
+        </div>
+
+        <span
+          className={cn(
+            "shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full",
+            channel.is_active
+              ? "bg-green-500/10 text-green-600 dark:text-green-400"
+              : "bg-destructive/10 text-destructive",
+          )}
+        >
+          {channel.is_active ? "Active" : "Expired"}
+        </span>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      {/* Actions */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <ActionBtn label="Sync" onClick={handleSync}>
+            <RefreshCw className="size-4" />
+          </ActionBtn>
+
+          {/* {channel.is_active ? (
+            <ActionBtn
+              label="Disconnect"
+              onClick={handleDisconnect}
+              loading={disconnect.isPending}
+            >
+              <Unplug className="size-4" />
+            </ActionBtn>
+          ) : (
+            <ActionBtn label="Reconnect" onClick={handleReconnect}>
+              <PlugZap className="size-4" />
+            </ActionBtn>
+          )} */}
+        </div>
+
+        <DeleteUrlChannelBtn channel={channel} />
+      </div>
+    </div>
+  );
+}
+
+function ActionBtn({
+  label,
+  children,
+  onClick,
+  loading,
+}: {
+  label: string;
+  loading?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  type?: "sync" | "disconnect" | "reconnect";
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={onClick}
+          disabled={loading}
+          className="size-9 rounded-xl"
+        >
+          {loading ? <Loader2 className="size-4 animate-spin" /> : children}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }

@@ -48,13 +48,13 @@ export const API_ENDPOINTS = {
   //CHANNELS
   CHANNELS: {
     MY_CHANNELS: "/api/v1/channels/my",
-    ALL: (id?: string) => `/api/v1/channels/${id}`,
+    APP_CHANNELS: (id?: string) => `/api/v1/channels/${id}`,
     CHANNEL_CONNECT: (type: string) =>
       `/api/v1/channels/${type}/oauth/initiate`,
     CHANNEL_CALLBACK: (type: string) =>
       `/api/v1/channels/${type}/oauth/callback`,
-    CHANNEL_DISCONNECT: (type: string) => `/api/v1/channels/${type}/disconnect`,
-    CHANNEL_DELETE: (id: string, type: string) =>
+    // CHANNEL_DISCONNECT: (type: string) => `/api/v1/channels/${type}/disconnect`,
+    CHANNEL_DISCONNECT: (id: string, type: string) =>
       `/api/v1/channels/${type}/accounts/${id}`,
     META_SUBSCRIPTION_STATUS: (id: string) =>
       `/api/v1/channels/meta/accounts/${id}/subscription-status`,

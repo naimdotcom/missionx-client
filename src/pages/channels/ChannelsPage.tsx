@@ -1,4 +1,8 @@
-import { useAppChannels } from "@/api/services/channels";
+import {
+  AppChannelsParams,
+  PlatformType,
+  useAppChannels,
+} from "@/api/services/channels";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstChannel";
@@ -6,7 +10,7 @@ import { ConnectFirstChannel } from "@/pages/channels/components/ConnectFirstCha
 import { useAuthStore } from "@/stores/auth-store";
 import { useSearch } from "@tanstack/react-router";
 import { LoaderIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChannelCard } from "./components/ChannelCard";
 import { ConnectDialog } from "./components/ConnectDialog";
 import { StatCard } from "./components/StatCard";
@@ -14,7 +18,10 @@ import { CHANNEL_STAT, OAUTH_CHANNEL_NAME } from "./const";
 
 export default function ChannelsPage() {
   const selectedApp = useAuthStore((state) => state.selectedApp);
-  const { data, isLoading } = useAppChannels(selectedApp?.id || "");
+  const [channelParams, setChannelParams] = useState<AppChannelsParams>({
+    appId: selectedApp?.id,
+  });
+  const { data, isLoading, isSuccess } = useAppChannels(channelParams);
   const { success } = useSearch({ from: "/_private/channels" });
 
   // Handle OAuth popup callback — only runs when ?success param is in the URL
@@ -63,7 +70,10 @@ export default function ChannelsPage() {
     }
   }, [success]);
 
-  const channels = Array.isArray(data) ? data : [];
+  const channels = useMemo(() => {
+    if (isSuccess) return data?.channels;
+    else return [];
+  }, [data, isSuccess]);
 
   if (isLoading) {
     return (
@@ -78,7 +88,7 @@ export default function ChannelsPage() {
     );
   }
 
-  if (channels.length === 0 && selectedApp?.id) {
+  if (channels?.length === 0 && selectedApp?.id) {
     return (
       <div>
         <ConnectFirstChannel />;
@@ -113,8 +123,16 @@ export default function ChannelsPage() {
           ))}
         </div>
 
-        <Tabs>
-          <TabsList>
+        <Tabs
+          value={channelParams.platform ?? "all"}
+          onValueChange={(v) =>
+            setChannelParams({
+              appId: selectedApp?.id,
+              platform: v === "all" ? undefined : (v as PlatformType),
+            })
+          }
+        >
+          <TabsList defaultValue={"all"}>
             {["all", "facebook", "instagram"].map((t) => (
               <TabsTrigger
                 key={t}
@@ -126,9 +144,9 @@ export default function ChannelsPage() {
             ))}
           </TabsList>
 
-          <TabsContent value="all">
+          <TabsContent value={channelParams.platform ?? "all"}>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 h-full overflow-y-auto pr-2 gap-6">
-              {channels.map((channel) => (
+              {channels?.map((channel) => (
                 <div
                   key={channel.id}
                   style={{ animationDelay: "50ms" }}
