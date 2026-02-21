@@ -23,9 +23,8 @@ function PrivateLayout() {
   const isValidToken = verifyTokenQuery.data?.status === "valid";
 
   useEffect(() => {
-    if (!isValidToken) {
+    if (!isValidToken && verifyTokenQuery.isSuccess) {
       console.log("Why you here", isValidToken);
-      console.log(verifyTokenQuery.data);
 
       refreshTokenMutation.mutate(undefined, {
         onSuccess: () => {
@@ -37,7 +36,7 @@ function PrivateLayout() {
         },
       });
     }
-  }, [isValidToken]);
+  }, [isValidToken, verifyTokenQuery.isSuccess]);
 
   const userQuery = useUserProfileFull(isValidToken);
 
@@ -61,7 +60,11 @@ function PrivateLayout() {
   }, [hasApps, selectedApp, firstApp, setSelectedApp]);
 
   // Show loading state during initial verification or token refresh
-  if (verifyTokenQuery.isLoading || myAppsQuery.isLoading) {
+  if (
+    verifyTokenQuery.isLoading ||
+    myAppsQuery.isLoading ||
+    refreshTokenMutation.isPending
+  ) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
         <Spinner />
