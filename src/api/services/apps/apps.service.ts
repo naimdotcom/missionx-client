@@ -13,7 +13,7 @@ import {
 
 export class AppsService extends BaseAPIService {
   createApp = (payload: CreateAppPayload, options?: RequestOptions) =>
-    this.post(API_ENDPOINTS.APPS.CREATE_APP, payload, options);
+    this.post<App>(API_ENDPOINTS.APPS.CREATE_APP, payload, options);
 
   listApps = (params: AppParams, options?: RequestOptions) =>
     this.get<Apps>(API_ENDPOINTS.APPS.LIST_APPS, params, options);

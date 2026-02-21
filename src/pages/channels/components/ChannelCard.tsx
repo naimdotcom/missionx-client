@@ -1,4 +1,4 @@
-import type { Channel, UrlChannelType } from "@/api/services/channels";
+import type { Channel } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -6,10 +6,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/stores/auth-store";
 import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { CHANNEL_CONFIG, ChannelIcon } from "./ChannelIcons";
+import { ChannelIcon } from "./ChannelIcons";
 import { DeleteUrlChannelBtn } from "./DeleteDialog";
 
 interface ChannelCardProps {
@@ -17,37 +16,6 @@ interface ChannelCardProps {
 }
 
 export function ChannelCard({ channel }: ChannelCardProps) {
-  const selectedApp = useAuthStore((s) => s.selectedApp);
-  const type: UrlChannelType =
-    channel.platform === "facebook" ? "meta" : "instagram";
-  const config = channel.platform ? CHANNEL_CONFIG[channel.platform] : null;
-
-  // const disconnect = useMetaDisconnect(type);
-  // const { refetch: syncChannel, isFetching: isSyncing } =
-  //   useMetaSubscriptionStatus(channel.id);
-
-  // const handleDisconnect = async () => {
-  //   try {
-  //     await disconnect.mutateAsync();
-  //     toast.success(`${channel.account_name} disconnected`);
-  //   } catch {
-  //     toast.error("Failed to disconnect channel");
-  //   }
-  // };
-
-  // const handleReconnect = async () => {
-  //   try {
-  //     const { channelsService } = await import("@/api/services/channels");
-  //     const res = await channelsService.channelConnectUrl({
-  //       type,
-  //       appId: selectedApp?.id,
-  //     });
-  //     if (res.authorization_url) window.location.href = res.authorization_url;
-  //   } catch {
-  //     toast.error("Failed to get reconnect URL");
-  //   }
-  // };
-
   const handleSync = async () => {
     try {
       // await syncChannel();
@@ -77,11 +45,6 @@ export function ChannelCard({ channel }: ChannelCardProps) {
           {channel.instagram_username && (
             <p className="text-xs text-muted-foreground truncate">
               @{channel.instagram_username}
-            </p>
-          )}
-          {config && (
-            <p className={cn("text-xs font-medium mt-0.5", config.textColor)}>
-              {config.label}
             </p>
           )}
         </div>
