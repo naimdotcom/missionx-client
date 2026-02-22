@@ -30,6 +30,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { OAUTH_CHANNEL_NAME } from "../const";
+import { useFacebookSdk } from "./useFacebookSdk";
 
 // ─── Config per platform ──────────────────────────────────────────
 
@@ -120,6 +121,28 @@ export function ConnectChannelDialog({
     } catch {
       toast.error("Failed to connect channel");
     }
+  };
+
+  useFacebookSdk();
+
+  const handleConnectFacebook = () => {
+    // This automatically opens the Facebook-managed popup!
+    window.FB.login(
+      (response) => {
+        if (response.authResponse) {
+          const accessToken = response.authResponse.accessToken;
+          console.log("Success! Access Token:", accessToken);
+          // Send token to backend
+          handleSubscribe(accessToken);
+        } else {
+          console.log("User cancelled login or did not fully authorize.");
+        }
+      },
+      {
+        scope:
+          "pages_show_list,pages_messaging,instagram_basic,instagram_manage_messages",
+      },
+    );
   };
 
   const handleOAuthPopup = () => {
@@ -227,31 +250,45 @@ export function ConnectChannelDialog({
 
         {/* Footer — OAuth connect button */}
         <div className="border-t bg-muted/30 px-4 py-3">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2">
             <p className="text-xs text-muted-foreground">
               {accounts.length > 0
                 ? "Don't see your page? Reconnect below."
                 : `Authorize ${config.platform} to see your accounts.`}
             </p>
-            <Button
-              size="sm"
-              variant={accounts.length > 0 ? "outline" : "default"}
-              className={cn(
-                "w-full shrink-0 gap-2 sm:w-auto",
-                accounts.length === 0 && config.buttonBg,
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                size="sm"
+                variant={accounts.length > 0 ? "outline" : "default"}
+                className={cn(
+                  "flex-1 shrink-0 gap-2",
+                  accounts.length === 0 && config.buttonBg,
+                )}
+                disabled={connectUrlQuery.isPending || !appId}
+                onClick={handleOAuthPopup}
+              >
+                {connectUrlQuery.isPending ? (
+                  <Spinner className="size-3" />
+                ) : (
+                  <ExternalLink className="size-3" />
+                )}
+                {accounts.length > 0
+                  ? "Reconnect Account"
+                  : `Connect ${config.platform}`}
+              </Button>
+              {type === "meta" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 gap-2"
+                  onClick={handleConnectFacebook}
+                  disabled={!appId}
+                >
+                  <Facebook className="size-3" />
+                  SDK Login
+                </Button>
               )}
-              disabled={connectUrlQuery.isPending || !appId}
-              onClick={handleOAuthPopup}
-            >
-              {connectUrlQuery.isPending ? (
-                <Spinner className="size-3" />
-              ) : (
-                <ExternalLink className="size-3" />
-              )}
-              {accounts.length > 0
-                ? "Reconnect Account"
-                : `Connect ${config.platform}`}
-            </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

@@ -15,16 +15,15 @@ import TopBar from "../top-bar";
 
 function PrivateLayout() {
   const { setUserProfile, selectedApp, setSelectedApp } = useAuthStore();
-  const openAllRoutes = env.isOpenAllRoutes === "true";
 
   // Step 1: Verify current access token
   const refreshTokenMutation = useRefreshToken();
-  const verifyTokenQuery = useVerifyToken(!openAllRoutes);
+  const verifyTokenQuery = useVerifyToken();
   const isValidToken = verifyTokenQuery.data?.status === "valid";
 
   useEffect(() => {
     if (!isValidToken && verifyTokenQuery.isSuccess) {
-      console.log("Why you here", isValidToken);
+      console.log("Token Validity Check", isValidToken);
 
       refreshTokenMutation.mutate(undefined, {
         onSuccess: () => {
@@ -73,7 +72,7 @@ function PrivateLayout() {
   }
 
   // Onboarding flow: No apps → Show create app screen
-  if (!hasApps) {
+  if (!hasApps && env.isOpenAllRoutes !== "true") {
     return <CreateFirstApp />;
   }
 

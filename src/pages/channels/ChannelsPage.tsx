@@ -1,7 +1,7 @@
 import { useAppChannels, type Channel } from "@/api/services/channels";
 import { useAuthStore } from "@/stores/auth-store";
 import { useSearch } from "@tanstack/react-router";
-import { Facebook, Instagram, Loader2 } from "lucide-react";
+import { Facebook, Instagram, Loader2, Radio } from "lucide-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { ChannelCard } from "./components/ChannelCard";
 import { ConnectChannelDialog } from "./components/ConnectChannelDialog";
@@ -67,26 +67,36 @@ export default function ChannelsPage() {
     );
   }
 
+  const totalChannels = (data?.channels ?? []).length;
+
   return (
     <div className="grid h-full grid-rows-[auto_1fr] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-6 py-3">
-        <div>
-          <h1 className="text-lg font-semibold">Channels</h1>
-          <p className="text-sm text-muted-foreground">
-            Connect and manage your Facebook & Instagram channels.
-          </p>
+      <div className="flex items-center justify-between border-b bg-card px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
+            <Radio className="size-4 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-base font-semibold leading-tight">Channels</h1>
+            <p className="text-xs text-muted-foreground">
+              {totalChannels > 0
+                ? `${totalChannels} channel${totalChannels !== 1 ? "s" : ""} connected`
+                : "Connect your Facebook & Instagram channels"}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Content — two platform sections */}
-      <div className="overflow-auto px-6 py-6 space-y-8">
+      {/* Content */}
+      <div className="space-y-8 overflow-auto px-6 py-6">
         <ChannelSection
           platform="facebook"
           label="Facebook Pages"
-          description="Connect your Facebook Pages to receive and reply to messages."
-          icon={<Facebook className="size-5 text-[#1877F2]" />}
+          description="Receive and reply to messages from your Facebook Pages."
+          icon={<Facebook className="size-4 text-[#1877F2]" />}
           iconBg="bg-[#1877F2]/10"
+          accentColor="text-[#1877F2]"
           channels={facebookChannels}
           appId={appId}
           onConnected={handleConnected}
@@ -95,9 +105,10 @@ export default function ChannelsPage() {
         <ChannelSection
           platform="instagram"
           label="Instagram Accounts"
-          description="Connect your Instagram Business accounts for DMs and comments."
-          icon={<Instagram className="size-5 text-[#E1306C]" />}
+          description="Handle DMs from your Instagram Business accounts."
+          icon={<Instagram className="size-4 text-[#E1306C]" />}
           iconBg="bg-[#E1306C]/10"
+          accentColor="text-[#E1306C]"
           channels={instagramChannels}
           appId={appId}
           onConnected={handleConnected}
@@ -115,6 +126,7 @@ interface ChannelSectionProps {
   description: string;
   icon: React.ReactNode;
   iconBg: string;
+  accentColor: string;
   channels: Channel[];
   appId: string;
   onConnected: () => void;
@@ -126,6 +138,7 @@ function ChannelSection({
   description,
   icon,
   iconBg,
+  accentColor,
   channels,
   appId,
   onConnected,
@@ -133,17 +146,26 @@ function ChannelSection({
   const urlType = platform === "facebook" ? "meta" : "instagram";
 
   return (
-    <section className="rounded-xl border bg-card">
-      {/* Section header */}
-      <div className="flex flex-col gap-4 border-b px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
+    <section className="space-y-3">
+      {/* Section heading row */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2.5">
           <div
-            className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${iconBg}`}
+            className={`flex size-7 shrink-0 items-center justify-center rounded-md ${iconBg}`}
           >
             {icon}
           </div>
           <div>
-            <h2 className="text-sm font-semibold">{label}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold">{label}</h2>
+              {channels.length > 0 && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${iconBg} ${accentColor}`}
+                >
+                  {channels.length}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">{description}</p>
           </div>
         </div>
@@ -155,25 +177,32 @@ function ChannelSection({
         />
       </div>
 
-      {/* Channel list or empty state */}
+      {/* Divider */}
+      <div className="h-px bg-border" />
+
+      {/* Channel grid or empty state */}
       {channels.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+        <div className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-dashed py-10 text-center">
           <div
-            className={`flex size-12 items-center justify-center rounded-full ${iconBg}`}
+            className={`flex size-10 items-center justify-center rounded-full ${iconBg}`}
           >
             {icon}
           </div>
-          <p className="text-sm font-medium text-muted-foreground">
-            No{" "}
-            {platform === "facebook" ? "Facebook pages" : "Instagram accounts"}{" "}
-            connected yet
-          </p>
-          <p className="text-xs text-muted-foreground/70">
-            Click "Connect Channel" above to get started
-          </p>
+          <div>
+            <p className="text-sm font-medium">
+              No{" "}
+              {platform === "facebook"
+                ? "Facebook pages"
+                : "Instagram accounts"}{" "}
+              connected
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Click "Connect Channel" to get started
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 p-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {channels.map((channel) => (
             <ChannelCard key={channel.id} channel={channel} />
           ))}

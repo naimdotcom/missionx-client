@@ -33,9 +33,8 @@ export function useGoogleLogin() {
   });
 }
 
-export function useVerifyToken(enable: boolean) {
+export function useVerifyToken() {
   return useQuery({
-    enabled: !!enable,
     queryKey: queryKeys.authKeys.verifyToken,
     queryFn: async () => {
       const response = await authService.verifyToken();

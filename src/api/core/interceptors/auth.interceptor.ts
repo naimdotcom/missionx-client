@@ -1,5 +1,6 @@
 // Authentication interceptor - injects Bearer token and handles 401 responses
 
+import { env } from "@/lib/env";
 import type { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "~/stores/auth-store";
 
@@ -40,7 +41,10 @@ export const authResponseInterceptor = async (
 export const authErrorInterceptor = async (error: unknown): Promise<never> => {
   // For now, just logout on 401
   // In production, attempt token refresh first
-  if ((error as any)?.response?.status === 401) {
+  if (
+    (error as any)?.response?.status === 401 &&
+    env.isOpenAllRoutes !== "true"
+  ) {
     const { logout } = useAuthStore.getState();
     logout();
 
