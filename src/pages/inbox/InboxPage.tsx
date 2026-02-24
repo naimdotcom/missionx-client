@@ -1,5 +1,6 @@
 // Simple inbox page with mock data
 
+import { ConversationTicket } from "@/api/services/inbox/inbox.type";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { Route } from "@/routes";
@@ -13,6 +14,9 @@ function InboxPage() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
   const navigate = useNavigate({ from: Route.fullPath });
+  const [selectedTicket, setSelectedTicket] = useState<
+    ConversationTicket | undefined
+  >(undefined);
   const { case: selectedCase } = useSearch({ from: "/_private/inbox" });
 
   const handleSendMessage = async (message: string, attachments?: File[]) => {
@@ -32,13 +36,8 @@ function InboxPage() {
           "border-r-0 md:border-r",
           selectedCase ? "hidden md:grid" : "w-full",
         )}
-        setSelectedTicket={(ticket) =>
-          navigate({
-            to: "/inbox",
-            search: (prev) => ({ ...prev, case: ticket }),
-          })
-        }
-        selectedTicket={selectedCase || undefined}
+        selectedTicket={selectedTicket?.id}
+        setSelectedTicket={(ticket) => setSelectedTicket(ticket)}
       />
 
       <ConversationArea
@@ -46,8 +45,8 @@ function InboxPage() {
         onBack={() =>
           navigate({ search: (prev) => ({ ...prev, case: undefined }) })
         }
+        selectedTicket={selectedTicket}
         onShowDetails={() => setShowDetails(true)}
-        selectedTicket={Number(selectedCase) || undefined}
         onShowSidebar={() => setShowSidebar((prev) => !prev)}
         className={cn(
           "min-w-0",

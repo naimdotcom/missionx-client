@@ -27,7 +27,7 @@ export const queryKeys = {
 
   channelsKeys: {
     myChannels: ["channels", "my"] as const,
-    all: ["channels"] as const,
+    all: ["channels", "all"] as const,
     appChannels: (appId?: string) => ["channels", "all", appId] as const,
     channelConnect: (type: UrlChannelType) =>
       ["channels", type, "connect"] as const,
@@ -59,7 +59,7 @@ export const mutationKeys = {
   },
 
   channelsKeys: {
-    metaConnect: ["channels", "meta", "connect"] as const,
+    channelSdkLogin: ["channels", "meta", "sdk-login"] as const,
     metaDisconnect: ["channels", "meta", "disconnect"] as const,
     metaDelete: ["channels", "meta", "delete"] as const,
     instagramConnect: ["channels", "instagram", "connect"] as const,

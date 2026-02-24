@@ -1,7 +1,7 @@
 import {
   type Channel,
   type UrlChannelType,
-  useChannelConnectUrl,
+  useChannelSdkLogin,
   useChannelSubscribeApp,
   useMetaAccounts,
 } from "@/api/services/channels";
@@ -27,9 +27,8 @@ import {
   Plus,
   RefreshCw,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { OAUTH_CHANNEL_NAME } from "../const";
 import { useFacebookSdk } from "./useFacebookSdk";
 
 // ─── Config per platform ──────────────────────────────────────────
@@ -63,13 +62,11 @@ const PLATFORM_CONFIG = {
 interface ConnectChannelDialogProps {
   type: UrlChannelType;
   appId: string;
-  onConnected: () => void;
 }
 
 export function ConnectChannelDialog({
   type,
   appId,
-  onConnected,
 }: ConnectChannelDialogProps) {
   const config = PLATFORM_CONFIG[type];
   const Icon = config.icon;
@@ -77,51 +74,10 @@ export function ConnectChannelDialog({
   const [open, setOpen] = useState(false);
 
   // Only fetch accounts when dialog is open
+  const chanelLoginMutation = useChannelSdkLogin();
   const accountsQuery = useMetaAccounts(type, open);
-  const connectUrlQuery = useChannelConnectUrl({ type, appId });
-  const subscribeMutation = useChannelSubscribeApp();
 
   const accounts = accountsQuery.data?.accounts ?? [];
-
-  // Listen for OAuth popup success → refetch accounts
-  const bcRef = useRef<BroadcastChannel | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const bc = new BroadcastChannel(OAUTH_CHANNEL_NAME);
-    bcRef.current = bc;
-
-    bc.onmessage = (event) => {
-      if (event.data?.type === "oauth_success") {
-        accountsQuery.refetch();
-        onConnected();
-      }
-    };
-
-    return () => {
-      bc.close();
-      bcRef.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  const handleSubscribe = async (channelId: string) => {
-    if (!appId) {
-      toast.error("Please select an app first");
-      return;
-    }
-    try {
-      await subscribeMutation.mutateAsync({
-        channel_id: channelId,
-        app_id: appId,
-      });
-      toast.success("Channel connected!");
-      onConnected();
-    } catch {
-      toast.error("Failed to connect channel");
-    }
-  };
 
   useFacebookSdk();
 
@@ -131,9 +87,13 @@ export function ConnectChannelDialog({
       (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
-          console.log("Success! Access Token:", accessToken);
-          // Send token to backend
-          handleSubscribe(accessToken);
+          chanelLoginMutation.mutate(
+            {
+              platform: "facebook",
+              access_token: accessToken,
+            },
+            { onSuccess: () => accountsQuery.refetch() },
+          );
         } else {
           console.log("User cancelled login or did not fully authorize.");
         }
@@ -143,15 +103,6 @@ export function ConnectChannelDialog({
           "pages_show_list,pages_messaging,instagram_basic,instagram_manage_messages",
       },
     );
-  };
-
-  const handleOAuthPopup = () => {
-    const url = connectUrlQuery.data?.authorization_url;
-    if (!url) {
-      toast.error("Connect URL not available. Please try again.");
-      return;
-    }
-    window.open(url, "_blank", "width=600,height=600");
   };
 
   return (
@@ -235,12 +186,10 @@ export function ConnectChannelDialog({
               <div className="divide-y">
                 {accounts.map((account) => (
                   <AccountRow
-                    key={account.id}
-                    account={account}
                     appId={appId}
                     config={config}
-                    isSubscribing={subscribeMutation.isPending}
-                    onConnect={() => handleSubscribe(account.id)}
+                    account={account}
+                    key={account.channel_id}
                   />
                 ))}
               </div>
@@ -250,45 +199,29 @@ export function ConnectChannelDialog({
 
         {/* Footer — OAuth connect button */}
         <div className="border-t bg-muted/30 px-4 py-3">
-          <div className="flex flex-col gap-2">
-            <p className="text-xs text-muted-foreground">
+          <div className="flex gap-2 items-center">
+            <p className="text-xs text-muted-foreground flex-1">
               {accounts.length > 0
                 ? "Don't see your page? Reconnect below."
                 : `Authorize ${config.platform} to see your accounts.`}
             </p>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button
-                size="sm"
-                variant={accounts.length > 0 ? "outline" : "default"}
-                className={cn(
-                  "flex-1 shrink-0 gap-2",
-                  accounts.length === 0 && config.buttonBg,
-                )}
-                disabled={connectUrlQuery.isPending || !appId}
-                onClick={handleOAuthPopup}
-              >
-                {connectUrlQuery.isPending ? (
-                  <Spinner className="size-3" />
-                ) : (
-                  <ExternalLink className="size-3" />
-                )}
-                {accounts.length > 0
-                  ? "Reconnect Account"
-                  : `Connect ${config.platform}`}
-              </Button>
-              {type === "meta" && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1 gap-2"
-                  onClick={handleConnectFacebook}
-                  disabled={!appId}
-                >
-                  <Facebook className="size-3" />
-                  SDK Login
-                </Button>
+
+            <Button
+              size="sm"
+              variant={accounts.length > 0 ? "outline" : "default"}
+              className={cn("gap-2", accounts.length === 0 && config.buttonBg)}
+              disabled={chanelLoginMutation.isPending || !appId}
+              onClick={handleConnectFacebook}
+            >
+              {chanelLoginMutation.isPending ? (
+                <Spinner className="size-3" />
+              ) : (
+                <ExternalLink className="size-3" />
               )}
-            </div>
+              {accounts.length > 0
+                ? "Reconnect Account"
+                : `Connect ${config.platform}`}
+            </Button>
           </div>
         </div>
       </DialogContent>
@@ -302,21 +235,30 @@ interface AccountRowProps {
   account: Channel;
   appId: string;
   config: (typeof PLATFORM_CONFIG)[UrlChannelType];
-  isSubscribing: boolean;
-  onConnect: () => void;
 }
 
-function AccountRow({
-  account,
-  appId,
-  config,
-  isSubscribing,
-  onConnect,
-}: AccountRowProps) {
+function AccountRow({ account, appId, config }: AccountRowProps) {
+  const subscribeMutation = useChannelSubscribeApp();
+  const handleSubscribe = async (channelId: string) => {
+    if (!appId) {
+      toast.error("Please select an app first");
+      return;
+    }
+    try {
+      await subscribeMutation.mutateAsync({
+        channel_id: channelId,
+        app_id: appId,
+      });
+      toast.success("Channel connected!");
+    } catch {
+      toast.error("Failed to connect channel");
+    }
+  };
+
   const Icon = config.icon;
   const name =
     account.account_name || account.instagram_username || "Unnamed Account";
-  const isConnected = !!account.app_id && account.app_id === appId;
+  const isConnected = account.is_subscribed;
 
   return (
     <div className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/40">
@@ -355,10 +297,10 @@ function AccountRow({
             "shrink-0 gap-1.5 text-xs font-semibold",
             config.rowHover,
           )}
-          disabled={isSubscribing || !appId}
-          onClick={onConnect}
+          disabled={subscribeMutation.isPending || !appId}
+          onClick={() => handleSubscribe(account.channel_id)}
         >
-          {isSubscribing ? (
+          {subscribeMutation.isPending ? (
             <Spinner className="size-3" />
           ) : (
             <LinkIcon className="size-3" />

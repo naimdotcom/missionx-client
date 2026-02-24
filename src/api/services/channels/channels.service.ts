@@ -5,10 +5,9 @@ import type {
   AppChannelResponse,
   AppChannelsParams,
   ChannelSubscribeAppRequest,
-  ConnectChannelResponse,
   MetaAccountChannels,
-  MetaCallbackResponse,
   MetaSubscriptionStatusResponse,
+  SDKLoginRequest,
   UrlChannelType,
 } from "./channels.types";
 
@@ -16,6 +15,13 @@ export class ChannelsService extends BaseAPIService {
   constructor(baseURL: string) {
     super(baseURL);
   }
+
+  channelSdkLogin = (payload: SDKLoginRequest, options?: RequestOptions) =>
+    this.post<MetaAccountChannels>(
+      API_ENDPOINTS.CHANNELS.CHANNEL_SDK_LOGIN,
+      payload,
+      options,
+    );
 
   getMetaAccountChannels = (type: UrlChannelType, options?: RequestOptions) =>
     this.get<MetaAccountChannels>(
@@ -41,25 +47,12 @@ export class ChannelsService extends BaseAPIService {
     );
   };
 
-  channelConnectUrl = (
-    params: { appId?: string; type: UrlChannelType },
-    options?: RequestOptions,
-  ) => {
-    const queryParams = new URLSearchParams();
-    if (params.appId) queryParams.append("appId", params.appId);
-    return this.post<ConnectChannelResponse>(
-      `${API_ENDPOINTS.CHANNELS.CHANNEL_CONNECT(params.type)}?${queryParams.toString()}`,
-      undefined,
-      options,
-    );
-  };
-
-  metaCallback = (type: UrlChannelType, options?: RequestOptions) =>
-    this.get<MetaCallbackResponse>(
-      API_ENDPOINTS.CHANNELS.CHANNEL_CALLBACK(type),
-      undefined,
-      options,
-    );
+  // metaCallback = (type: UrlChannelType, options?: RequestOptions) =>
+  //   this.get<MetaCallbackResponse>(
+  //     API_ENDPOINTS.CHANNELS.CHANNEL_CALLBACK(type),
+  //     undefined,
+  //     options,
+  //   );
 
   // metaDisconnect = (type: UrlChannelType, options?: RequestOptions) =>
   //   this.post(

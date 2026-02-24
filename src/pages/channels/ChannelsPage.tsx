@@ -1,50 +1,15 @@
 import { useAppChannels, type Channel } from "@/api/services/channels";
 import { useAuthStore } from "@/stores/auth-store";
-import { useSearch } from "@tanstack/react-router";
 import { Facebook, Instagram, Loader2, Radio } from "lucide-react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { ChannelCard } from "./components/ChannelCard";
 import { ConnectChannelDialog } from "./components/ConnectChannelDialog";
-import { OAUTH_CHANNEL_NAME } from "./const";
 
 export default function ChannelsPage() {
   const selectedApp = useAuthStore((s) => s.selectedApp);
   const appId = selectedApp?.id ?? "";
-  const { success } = useSearch({ from: "/_private/channels" });
 
-  const {
-    data,
-    isLoading,
-    refetch: refetchChannels,
-  } = useAppChannels({ appId });
-
-  // OAuth popup callback — broadcasts result to opener and closes
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (!params.has("success")) return;
-
-    try {
-      const bc = new BroadcastChannel(OAUTH_CHANNEL_NAME);
-      bc.postMessage({
-        type: success ? "oauth_success" : "oauth_error",
-        success: !!success,
-      });
-      bc.close();
-
-      window.opener?.postMessage(
-        { type: success ? "oauth_success" : "oauth_error", success: !!success },
-        window.location.origin,
-      );
-
-      setTimeout(() => window.close(), 150);
-    } catch {
-      try {
-        window.close();
-      } catch {
-        /* stay on page */
-      }
-    }
-  }, [success]);
+  const { data, isLoading } = useAppChannels({ appId });
 
   const { facebookChannels, instagramChannels } = useMemo(() => {
     const channels = data?.channels ?? [];
@@ -53,10 +18,6 @@ export default function ChannelsPage() {
       instagramChannels: channels.filter((c) => c.platform === "instagram"),
     };
   }, [data?.channels]);
-
-  const handleConnected = useCallback(() => {
-    refetchChannels();
-  }, [refetchChannels]);
 
   if (isLoading) {
     return (
@@ -99,7 +60,6 @@ export default function ChannelsPage() {
           accentColor="text-[#1877F2]"
           channels={facebookChannels}
           appId={appId}
-          onConnected={handleConnected}
         />
 
         <ChannelSection
@@ -111,7 +71,6 @@ export default function ChannelsPage() {
           accentColor="text-[#E1306C]"
           channels={instagramChannels}
           appId={appId}
-          onConnected={handleConnected}
         />
       </div>
     </div>
@@ -129,7 +88,6 @@ interface ChannelSectionProps {
   accentColor: string;
   channels: Channel[];
   appId: string;
-  onConnected: () => void;
 }
 
 function ChannelSection({
@@ -141,7 +99,6 @@ function ChannelSection({
   accentColor,
   channels,
   appId,
-  onConnected,
 }: ChannelSectionProps) {
   const urlType = platform === "facebook" ? "meta" : "instagram";
 
@@ -170,11 +127,7 @@ function ChannelSection({
           </div>
         </div>
 
-        <ConnectChannelDialog
-          type={urlType}
-          appId={appId}
-          onConnected={onConnected}
-        />
+        <ConnectChannelDialog type={urlType} appId={appId} />
       </div>
 
       {/* Divider */}
@@ -204,7 +157,7 @@ function ChannelSection({
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {channels.map((channel) => (
-            <ChannelCard key={channel.id} channel={channel} />
+            <ChannelCard key={channel.channel_id} channel={channel} />
           ))}
         </div>
       )}

@@ -27,10 +27,16 @@ export type MetaAccountChannels = {
   total?: number;
   user_id?: string;
   accounts?: Channel[];
+  has_connection?: boolean;
+  connection_expires_at?: string;
 };
 
 export type Channel = {
-  id: string;
+  id?: string;
+  is_subscribed: false;
+  linked_instagram?: null;
+  profile_pic_url?: string;
+  channel_id: string;
   platform?: PlatformType;
   account_name?: string;
   instagram_username?: string;
@@ -62,3 +68,10 @@ export type AppChannelResponse = {
 };
 
 export type AppChannelsParams = { appId?: string; platform?: PlatformType };
+
+export type SDKLoginRequest = {
+  user_id?: string;
+  platform?: string;
+  access_token?: string;
+  data_access_expiration_time?: number;
+};

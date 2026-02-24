@@ -36,7 +36,7 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
     }
 
     try {
-      await metaDelete.mutateAsync(channel.id);
+      if (channel.id) metaDelete.mutate(channel.id);
       toast.success(`${channel.account_name} has been deleted`);
       setIsOpen(false);
       setConfirmName("");

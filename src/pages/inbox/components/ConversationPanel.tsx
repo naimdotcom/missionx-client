@@ -1,15 +1,14 @@
+import { ConversationTicket } from "@/api/services/inbox/inbox.type";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, Inbox, Info, PanelRight } from "lucide-react";
-import { mockMessages, mockTickets } from "../const";
-import { MessageBubble } from "./message-bubble";
 import { SimplifiedReplier } from "./replier/components/SimplifiedReplier";
 
 type ConversationAreaProps = {
   className?: string;
   onBack?: () => void;
-  selectedTicket?: number;
+  selectedTicket?: ConversationTicket;
   onShowDetails?: () => void;
   onShowSidebar?: () => void;
   handleSendMessage: (message: string, attachments?: File[]) => Promise<void>;
@@ -23,7 +22,6 @@ function ConversationArea({
   className,
   onShowSidebar,
 }: ConversationAreaProps) {
-  const ticketDetails = mockTickets.find((t) => t.id === selectedTicket);
   return (
     <div
       className={cn("flex flex-col h-full overflow-hidden min-w-0", className)}
@@ -47,21 +45,27 @@ function ConversationArea({
               <div className="flex items-center gap-1">
                 <Avatar>
                   <AvatarImage
-                    src={ticketDetails?.contactAvatarUrl}
-                    alt={ticketDetails?.contactName || "Avatar"}
+                    src={selectedTicket?.customer_profile_pic}
+                    alt={selectedTicket?.customer_name || "Avatar"}
                   />
                   <AvatarFallback>
-                    {ticketDetails?.firstName.charAt(0).toUpperCase()}
-                    {ticketDetails?.lastName.charAt(0).toUpperCase()}
+                    {selectedTicket?.customer_name
+                      ?.split(" ")[0]
+                      .charAt(0)
+                      .toUpperCase()}
+                    {selectedTicket?.customer_name
+                      ?.split(" ")[1]
+                      .charAt(0)
+                      .toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <h2 className="font-medium truncate">
-                    {ticketDetails?.contactName}
+                    {selectedTicket?.customer_name}
                   </h2>
 
                   <span className="capitalize text-xs text-muted-foreground truncate">
-                    {ticketDetails?.channel}
+                    {selectedTicket?.platform}
                   </span>
                 </div>
               </div>
@@ -88,7 +92,7 @@ function ConversationArea({
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-muted/30">
-            {(
+            {/* {(
               mockMessages[selectedTicket as keyof typeof mockMessages] || []
             ).map((msg) => {
               const ticket = mockTickets.find((t) => t.id === selectedTicket);
@@ -104,7 +108,7 @@ function ConversationArea({
                   }
                 />
               );
-            })}
+            })} */}
           </div>
 
           {/* Message Input - New SimplifiedReplier */}

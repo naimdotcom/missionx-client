@@ -1,4 +1,5 @@
 import { useConversationTickets } from "@/api/services/inbox/inbox.hook";
+import { ConversationTicket } from "@/api/services/inbox/inbox.type";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,12 +12,12 @@ import { TicketCard } from "./ticket-card";
 type TicketsPanelProps = {
   className?: string;
   selectedTicket?: string;
-  setSelectedTicket: (ticketId?: string) => void;
+  setSelectedTicket?: (ticket: ConversationTicket) => void;
 };
 function TicketsPanel({
-  selectedTicket,
   setSelectedTicket,
   className,
+  selectedTicket,
 }: TicketsPanelProps) {
   const navigate = useNavigate();
   const { selectedApp } = useAuthStore();
@@ -74,9 +75,15 @@ function TicketsPanel({
                   isSelected={ticket.id === selectedTicket}
                   onClick={() => {
                     if (selectedTicket === ticket.id) {
-                      setSelectedTicket?.(undefined);
+                      // navigate({
+                      //   search: (prev) => ({ ...prev, case: undefined }),
+                      // });
                     } else {
-                      setSelectedTicket?.(ticket.id);
+                      setSelectedTicket?.(ticket);
+                      navigate({
+                        to: "/inbox",
+                        search: (prev) => ({ ...prev, case: ticket.id }),
+                      });
                     }
                   }}
                 />

@@ -4,8 +4,17 @@ import { channelsService } from "./channels.service";
 import type {
   AppChannelsParams,
   ChannelSubscribeAppRequest,
+  SDKLoginRequest,
   UrlChannelType,
 } from "./channels.types";
+
+export function useChannelSdkLogin() {
+  return useMutation({
+    mutationKey: mutationKeys.channelsKeys.channelSdkLogin,
+    mutationFn: (payload: SDKLoginRequest) =>
+      channelsService.channelSdkLogin(payload),
+  });
+}
 
 export function useMetaAccounts(type: UrlChannelType, enable: boolean) {
   return useQuery({
@@ -38,46 +47,6 @@ export function useAppChannels(params: AppChannelsParams) {
     },
   });
 }
-
-export function useChannelConnectUrl(params: {
-  appId?: string;
-  type: UrlChannelType;
-}) {
-  return useQuery({
-    enabled: !!params.type && !!params.appId,
-    queryKey: queryKeys.channelsKeys.channelConnect(params.type),
-    queryFn: async () => {
-      const response = await channelsService.channelConnectUrl(params);
-      return response;
-    },
-  });
-}
-
-export function useMetaCallback(type: UrlChannelType) {
-  return useQuery({
-    enabled: !!type,
-    queryKey: queryKeys.channelsKeys.metaCallback,
-    queryFn: async () => {
-      const response = await channelsService.metaCallback(type);
-      return response;
-    },
-  });
-}
-
-// export function useMetaDisconnect(type: UrlChannelType) {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationKey: mutationKeys.channelsKeys.metaDisconnect,
-//     mutationFn: () => channelsService.metaDisconnect(type),
-//     onSuccess: () => {
-//       // Invalidate all channels queries
-//       queryClient.invalidateQueries({
-//         queryKey: queryKeys.channelsKeys.all,
-//       });
-//     },
-//   });
-// }
 
 export function useMetaDisconnect(type: UrlChannelType) {
   const queryClient = useQueryClient();

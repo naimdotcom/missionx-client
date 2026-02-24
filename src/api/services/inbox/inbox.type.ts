@@ -1,3 +1,5 @@
+import { PlatformType } from "../channels";
+
 export interface ConversationTicketsParams {
   app_id: string;
   "channel-id"?: string;
@@ -10,7 +12,7 @@ export interface ConversationTicketsParams {
 export interface ConversationTicket {
   id: string;
   channel_id: string;
-  platform: string;
+  platform: PlatformType;
   customer_name: string;
   customer_profile_pic: string;
   customer_platform_id: string;
