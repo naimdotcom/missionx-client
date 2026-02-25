@@ -47,19 +47,12 @@ export const API_ENDPOINTS = {
 
   //CHANNELS
   CHANNELS: {
-    CHANNEL_SDK_LOGIN: "/api/v1/channels/connect",
-    MY_CHANNELS: "/api/v1/channels/my",
-    APP_CHANNELS: (id?: string) => `/api/v1/channels/${id}`,
-
-    // CHANNEL_DISCONNECT: (type: string) => `/api/v1/channels/${type}/disconnect`,
-    CHANNEL_DISCONNECT: (id: string, type: string) =>
-      `/api/v1/channels/${type}/accounts/${id}`,
-    META_SUBSCRIPTION_STATUS: (id: string) =>
-      `/api/v1/channels/meta/accounts/${id}/subscription-status`,
-
-    META_ACCOUNTS: (type: string) => `/api/v1/channels/${type}/accounts`,
-    CHANNEL_SUBSCRIBE_APP: "/api/v1/channels/subscribe",
-    CHANNEL_UNSUBSCRIBE_APP: "/api/v1/channels/unsubscribe",
+  CHANNEL_CONNECT:'/api/v1/channels/connect',
+  CHANNELS_LIST:'/api/v1/channels/accounts',
+  SUBSCRIBE_CHANNEL:'/api/v1/channels/subscribe',
+  UNSUBSCRIBE_CHANNEL:'/api/v1/channels/unsubscribe',
+  APP_CHANNEL_DISCONNECT:'/api/v1/channels/disconnect',
+  DELETE_CHANNEL:(id:string)=>`/api/v1/channels/${id}`
   },
 
   // Upload

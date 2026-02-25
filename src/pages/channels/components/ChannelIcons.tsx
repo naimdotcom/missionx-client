@@ -1,113 +1,71 @@
-import { PlatformType } from "@/api";
+import type { ChannelPlatform } from "@/api";
 import { cn } from "@/lib/utils";
+import { Facebook, Instagram } from "lucide-react";
 
-interface IconProps extends React.SVGProps<SVGSVGElement> {
-  size?: number;
-}
+// ─── Platform config ───────────────────────────────────────────────────────────
 
-export const FacebookIcon = ({ size = 16, className, ...props }: IconProps) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={cn("lucide lucide-facebook", className)}
-    {...props}
-  >
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-  </svg>
-);
-
-export const InstagramIcon = ({
-  size = 16,
-  className,
-  ...props
-}: IconProps) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={cn("lucide lucide-instagram", className)}
-    {...props}
-  >
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-  </svg>
-);
-
-export const CHANNEL_CONFIG = {
+const PLATFORM_CONFIG = {
   facebook: {
-    icon: FacebookIcon,
-    textColor: "text-[#1877F2]",
-    bgColor: "bg-[#1877F2]/10",
-    hoverBg: "group-hover:bg-[#1877F2]/20",
+    icon: Facebook,
     label: "Facebook Page",
+    bg: "bg-[#1877F2]",
+    hoverBg: "hover:bg-[#1564d4]",
   },
   instagram: {
-    icon: InstagramIcon,
-    textColor: "text-[#E1306C]",
-    bgColor: "bg-[#E1306C]/10",
-    hoverBg: "group-hover:bg-[#E1306C]/20",
+    icon: Instagram,
     label: "Instagram Account",
+    bg: "bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888]",
+    hoverBg: "hover:opacity-90",
   },
 } as const;
 
+// ─── Types ─────────────────────────────────────────────────────────────────────
+
+export type ChannelIconShape = "circle" | "square";
+
 interface ChannelIconProps {
-  type: PlatformType | string;
+  platform: ChannelPlatform;
+  /** "circle" → rounded-full | "square" → rounded-xl  (default: "square") */
+  shape?: ChannelIconShape;
+  /** Outer container size in px — default: 40 */
+  size?: number;
+  /** Inner icon size in px — default: 20 */
+  iconSize?: number;
   className?: string;
-  iconClassName?: string;
-  variant?: "plain" | "boxed";
 }
 
+// ─── Component ─────────────────────────────────────────────────────────────────
+
 export function ChannelIcon({
-  type,
+  platform,
+  shape = "square",
+  size = 40,
+  iconSize = 20,
   className,
-  iconClassName,
-  variant = "plain",
 }: ChannelIconProps) {
-  const normalizedType = type.toLowerCase() as PlatformType;
-  const config = CHANNEL_CONFIG[normalizedType];
+  const normalizedPlatform = platform?.toLowerCase() as ChannelPlatform;
+  const config = PLATFORM_CONFIG[normalizedPlatform];
 
   if (!config) return null;
 
   const Icon = config.icon;
 
-  if (variant === "boxed") {
-    return (
-      <div
-        className={cn(
-          "p-2 rounded-lg transition-colors",
-          config.bgColor,
-          config.hoverBg,
-          className,
-        )}
-      >
-        <Icon className={cn("size-4", config.textColor, iconClassName)} />
-      </div>
-    );
-  }
-
-  return <Icon className={cn("size-4", config.textColor, className)} />;
+  return (
+    <div
+      style={{ width: size, height: size }}
+      className={cn(
+        "flex shrink-0 items-center justify-center transition-all duration-200",
+        config.bg,
+        config.hoverBg,
+        shape === "circle" ? "rounded-full" : "rounded-xl",
+        className,
+      )}
+    >
+      <Icon
+        style={{ width: iconSize, height: iconSize }}
+        className="text-white"
+        strokeWidth={2}
+      />
+    </div>
+  );
 }
-
-export const getChannelIcon = (type: string) => {
-  const normalizedType = type.toLowerCase() as PlatformType;
-  return CHANNEL_CONFIG[normalizedType]?.icon || null;
-};
-
-export const getChannelColor = (type: string) => {
-  const normalizedType = type.toLowerCase() as PlatformType;
-  return CHANNEL_CONFIG[normalizedType]?.textColor || "text-primary";
-};

@@ -1,4 +1,8 @@
-import { useAppChannels, type Channel } from "@/api/services/channels";
+import {
+  Channel,
+  ChannelPlatform,
+  useChannelsList,
+} from "@/api/services/channels";
 import { useAuthStore } from "@/stores/auth-store";
 import { Facebook, Instagram, Loader2, Radio } from "lucide-react";
 import { useMemo } from "react";
@@ -9,17 +13,17 @@ export default function ChannelsPage() {
   const selectedApp = useAuthStore((s) => s.selectedApp);
   const appId = selectedApp?.id ?? "";
 
-  const { data, isLoading } = useAppChannels({ appId });
+  const channelsQuery = useChannelsList({ app_id: selectedApp?.id });
 
   const { facebookChannels, instagramChannels } = useMemo(() => {
-    const channels = data?.channels ?? [];
+    const channels = channelsQuery.data?.accounts ?? [];
     return {
       facebookChannels: channels.filter((c) => c.platform === "facebook"),
       instagramChannels: channels.filter((c) => c.platform === "instagram"),
     };
-  }, [data?.channels]);
+  }, [channelsQuery.data?.accounts]);
 
-  if (isLoading) {
+  if (channelsQuery.isLoading) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted-foreground">
         <Loader2 className="size-5 animate-spin" />
@@ -28,7 +32,7 @@ export default function ChannelsPage() {
     );
   }
 
-  const totalChannels = (data?.channels ?? []).length;
+  const totalChannels = (channelsQuery.data?.accounts ?? []).length;
 
   return (
     <div className="grid h-full grid-rows-[auto_1fr] overflow-hidden">
@@ -80,7 +84,7 @@ export default function ChannelsPage() {
 // ─── Per-platform section ─────────────────────────────────────────
 
 interface ChannelSectionProps {
-  platform: "facebook" | "instagram";
+  platform: ChannelPlatform;
   label: string;
   description: string;
   icon: React.ReactNode;
@@ -100,8 +104,6 @@ function ChannelSection({
   channels,
   appId,
 }: ChannelSectionProps) {
-  const urlType = platform === "facebook" ? "meta" : "instagram";
-
   return (
     <section className="space-y-3">
       {/* Section heading row */}
@@ -127,7 +129,7 @@ function ChannelSection({
           </div>
         </div>
 
-        <ConnectChannelDialog type={urlType} appId={appId} />
+        <ConnectChannelDialog type={platform} appId={appId} />
       </div>
 
       {/* Divider */}

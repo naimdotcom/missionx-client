@@ -1,6 +1,5 @@
 // Query key factory for TanStack Query
 
-import { UrlChannelType } from ".";
 
 export const queryKeys = {
   authKeys: {
@@ -26,17 +25,7 @@ export const queryKeys = {
   },
 
   channelsKeys: {
-    myChannels: ["channels", "my"] as const,
-    all: ["channels", "all"] as const,
-    appChannels: (appId?: string) => ["channels", "all", appId] as const,
-    channelConnect: (type: UrlChannelType) =>
-      ["channels", type, "connect"] as const,
-    metaCallback: ["channels", "meta", "callback"] as const,
-    metaSubscriptionStatus: (accountId: string) =>
-      ["channels", "meta", "subscription-status", accountId] as const,
-
-    metaAccounts: (type: UrlChannelType) =>
-      ["channels", "meta", "accounts", type] as const,
+   channelsList: ["channels", "list"] as const,
   },
 } as const;
 
@@ -59,13 +48,10 @@ export const mutationKeys = {
   },
 
   channelsKeys: {
-    channelSdkLogin: ["channels", "meta", "sdk-login"] as const,
-    metaDisconnect: ["channels", "meta", "disconnect"] as const,
-    metaDelete: ["channels", "meta", "delete"] as const,
-    instagramConnect: ["channels", "instagram", "connect"] as const,
-    instagramDisconnect: ["channels", "instagram", "disconnect"] as const,
-    instagramDelete: ["channels", "instagram", "delete"] as const,
+    channelConnect: ["channels", "connect"] as const,
+    channelDisconnect: ["channels", "disconnect"] as const,
     channelSubscribeApp: ["channels", "subscribe-app"] as const,
     channelUnsubscribeApp: ["channels", "unsubscribe-app"] as const,
+    channelDelete: ["channels", "delete"] as const,
   },
 } as const;

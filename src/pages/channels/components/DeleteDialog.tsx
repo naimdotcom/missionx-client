@@ -1,5 +1,4 @@
-import type { Channel } from "@/api/services/channels";
-import { useMetaDisconnect } from "@/api/services/channels";
+import { useDeleteChannel, type Channel } from "@/api/services/channels";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 interface DeleteUrlChannelBtnProps {
   channel: Channel;
@@ -22,26 +20,16 @@ interface DeleteUrlChannelBtnProps {
 export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [confirmName, setConfirmName] = useState("");
-  const metaDelete = useMetaDisconnect(
-    channel.platform === "facebook" ? "meta" : "instagram",
-  );
-
-  const isDeleting = metaDelete.isPending;
+  const channelDeleteMutation = useDeleteChannel();
 
   const handleDelete = async () => {
-    if (
-      confirmName.trim().toLowerCase() !== channel.account_name?.toLowerCase()
-    ) {
-      return;
-    }
-
-    try {
-      if (channel.id) metaDelete.mutate(channel.id);
-      toast.success(`${channel.account_name} has been deleted`);
+    const isNameNotConfirmed =
+      confirmName.trim().toLowerCase() !== channel.account_name?.toLowerCase();
+    if (isNameNotConfirmed) return;
+    else if (channel.channel_id) {
+      channelDeleteMutation.mutate(channel.channel_id);
       setIsOpen(false);
       setConfirmName("");
-    } catch (error) {
-      toast.error("Failed to delete channel");
     }
   };
 
@@ -119,13 +107,14 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
               <Button
                 variant="destructive"
                 onClick={handleDelete}
-                // disabled={
-                //   confirmName.trim().toLowerCase() !==
-                //     channel.account_name.toLowerCase() || isDeleting
-                // }
+                disabled={
+                  confirmName.trim().toLowerCase() !==
+                    channel.account_name?.toLowerCase() ||
+                  channelDeleteMutation.isPending
+                }
                 className="h-12 rounded-2xl font-bold px-8 shadow-xl shadow-destructive/20 transition-all active:scale-95 order-1 sm:order-2 flex-1"
               >
-                {isDeleting ? (
+                {channelDeleteMutation.isPending ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     Removing...

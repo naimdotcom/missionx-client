@@ -2,12 +2,16 @@ import type { Channel } from "@/api/services/channels";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { BadgeCheck, Calendar, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CHANNEL_CONFIG, ChannelIcon } from "./ChannelIcons";
+import { ChannelIcon } from "./ChannelIcons";
 import { DeleteUrlChannelBtn } from "./DeleteDialog";
+
+const PLATFORM_LABELS: Record<string, string> = {
+  facebook: "Facebook Page",
+  instagram: "Instagram Account",
+};
 
 interface ChannelCardProps {
   channel: Channel;
@@ -16,7 +20,7 @@ interface ChannelCardProps {
 export function ChannelCard({ channel }: ChannelCardProps) {
   const [syncing, setSyncing] = useState(false);
   const platform = channel.platform ?? "facebook";
-  const config = CHANNEL_CONFIG[platform];
+  const platformLabel = PLATFORM_LABELS[platform] ?? "Channel";
 
   const handleSync = async () => {
     setSyncing(true);
@@ -30,7 +34,12 @@ export function ChannelCard({ channel }: ChannelCardProps) {
       <div className="flex flex-col gap-4 p-4">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <ChannelIcon variant="boxed" type={platform} />
+          <ChannelIcon
+            platform={platform}
+            shape="square"
+            size={36}
+            iconSize={16}
+          />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">
               {channel.account_name ?? "Unnamed Channel"}
@@ -40,20 +49,20 @@ export function ChannelCard({ channel }: ChannelCardProps) {
                 @{channel.instagram_username}
               </p>
             ) : (
-              <p className="text-xs text-muted-foreground">{config.label}</p>
+              <p className="text-xs text-muted-foreground">{platformLabel}</p>
             )}
           </div>
 
           {/* Status badge */}
           <StatusBadge
             className="shrink-0 border-none"
-            status={channel.is_active ? "active" : "expired"}
+            status={channel.is_subscribed ? "active" : "expired"}
           />
         </div>
 
         {/* Metadata */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t pt-3 text-xs text-muted-foreground">
-          {channel.created_at && (
+          {/* {channel. && (
             <span className="flex items-center gap-1.5">
               <Calendar className="size-3.5" />
               {format(new Date(channel.created_at), "MMM d, yyyy")}
@@ -68,7 +77,7 @@ export function ChannelCard({ channel }: ChannelCardProps) {
               <BadgeCheck className="size-3" />
               Verified
             </StatusBadge>
-          )}
+          )} */}
         </div>
 
         {/* Actions */}

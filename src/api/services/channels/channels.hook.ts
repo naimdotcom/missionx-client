@@ -1,108 +1,129 @@
 import { mutationKeys, queryKeys } from "@/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { toast } from "sonner";
 import { channelsService } from "./channels.service";
 import type {
-  AppChannelsParams,
-  ChannelSubscribeAppRequest,
-  SDKLoginRequest,
-  UrlChannelType,
+  AppChannelDisconnectParams,
+  ChannelConnectPayload,
+  ChannelsListParams,
+  ChannelSubscribePayload,
 } from "./channels.types";
 
-export function useChannelSdkLogin() {
-  return useMutation({
-    mutationKey: mutationKeys.channelsKeys.channelSdkLogin,
-    mutationFn: (payload: SDKLoginRequest) =>
-      channelsService.channelSdkLogin(payload),
-  });
-}
-
-export function useMetaAccounts(type: UrlChannelType, enable: boolean) {
+/**
+ * Hook to list all channels for the authenticated user
+ * @param params - Optional parameters for filtering channels (app_id, platform)
+ * @returns Query result with channels list
+ */
+export const useChannelsList = (params?: ChannelsListParams) => {
   return useQuery({
-    enabled: !!type && !!enable,
-    queryKey: queryKeys.channelsKeys.metaAccounts(type),
-    queryFn: async () => {
-      const response = await channelsService.getMetaAccountChannels(type);
-      return response;
-    },
+    staleTime: 100, // 1 minute
+    queryFn: () => channelsService.channelsList(params),
+    queryKey: [...queryKeys.channelsKeys.channelsList, params],
   });
-}
+};
 
-export function useMyChannels() {
-  return useQuery({
-    queryKey: queryKeys.channelsKeys.myChannels,
-    queryFn: async () => {
-      const response = await channelsService.getMyChannels();
-      return response;
-    },
-  });
-}
-
-export function useAppChannels(params: AppChannelsParams) {
-  return useQuery({
-    enabled: !!params.appId,
-    queryKey: [...queryKeys.channelsKeys.appChannels(params.appId), params],
-    queryFn: async () => {
-      const response = await channelsService.getAppChannels(params);
-      return response;
-    },
-  });
-}
-
-export function useMetaDisconnect(type: UrlChannelType) {
+/**
+ * Hook to connect a new channel
+ * Automatically invalidates the channels list on success
+ * @returns Mutation function to connect a channel with payload: ChannelConnectPayload
+ */
+export const useChannelConnect = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (accountId: string) => {
-      const response = await channelsService.metaDisconnect(accountId, type);
-      return response;
-    },
-    mutationKey: [...mutationKeys.channelsKeys.metaDisconnect, type],
+    mutationFn: (payload: ChannelConnectPayload) =>
+      channelsService.channelConnect(payload),
+    mutationKey: mutationKeys.channelsKeys.channelConnect,
     onSuccess: () => {
-      // Invalidate all channels queries
+      // Invalidate channels list to refresh with new channel
       queryClient.invalidateQueries({
-        queryKey: queryKeys.channelsKeys.all,
+        queryKey: queryKeys.channelsKeys.channelsList,
       });
     },
   });
-}
+};
 
-export function useMetaSubscriptionStatus(accountId: string) {
-  return useQuery({
-    enabled: !!accountId,
-    queryKey: queryKeys.channelsKeys.metaSubscriptionStatus(accountId),
-    queryFn: async () => {
-      const response = await channelsService.metaSubscriptionStatus(accountId);
-      return response;
-    },
-  });
-}
-
-export function useChannelSubscribeApp() {
-  const queryClient = useQueryClient();
-
+/**
+ * Hook to subscribe to a channel
+ * Links an app (channel) subscription for the user
+ * @returns Mutation function to subscribe with payload: ChannelSubscribePayload
+ */
+export const useChannelSubscribe = () => {
   return useMutation({
+    mutationFn: (payload: ChannelSubscribePayload) =>
+      channelsService.channelSubscribe(payload),
     mutationKey: mutationKeys.channelsKeys.channelSubscribeApp,
-    mutationFn: (payload: ChannelSubscribeAppRequest) =>
-      channelsService.channelSubscribeApp(payload),
-    onSuccess: () => {
-      // Invalidate all channels queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.channelsKeys.all });
+
+    onError: (error) => {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.detail || "Failed to subscribe to channel",
+        );
+      }
     },
   });
-}
+};
 
-export function useChannelUnsubscribeApp() {
+/**
+ * Hook to unsubscribe from a channel
+ * Removes the subscription relationship between app and channel
+ * @returns Mutation function to unsubscribe with payload: { channel_id: string }
+ */
+export const useChannelUnsubscribe = () => {
+  return useMutation({
+    mutationFn: (payload: { channel_id: string }) =>
+      channelsService.channelUnsubscribe(payload),
+    mutationKey: mutationKeys.channelsKeys.channelUnsubscribeApp,
+
+    onError: (error) => {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.detail || "Failed to subscribe to channel",
+        );
+      }
+    },
+  });
+};
+
+/**
+ * Hook to disconnect an app channel
+ * Removes the connection between an app and a platform (Facebook/Instagram)
+ * @returns Mutation function to disconnect with params: AppChannelDisconnectParams
+ */
+export const useAllAppChannelDisconnect = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: mutationKeys.channelsKeys.channelUnsubscribeApp,
-    mutationFn: async (payload: ChannelSubscribeAppRequest) => {
-      const response = await channelsService.channelUnsubscribeApp(payload);
-      return response;
-    },
+    mutationFn: (params: AppChannelDisconnectParams) =>
+      channelsService.appAllChannelDisconnect(params),
+    mutationKey: mutationKeys.channelsKeys.channelDisconnect,
     onSuccess: () => {
-      // Invalidate all channels queries
-      queryClient.invalidateQueries({ queryKey: queryKeys.channelsKeys.all });
+      // Invalidate channels list after disconnection
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.channelsKeys.channelsList,
+      });
     },
   });
-}
+};
+
+/**
+ * Hook to delete a channel
+ * Permanently removes a channel connection
+ * @returns Mutation function to delete with channel_id: string
+ */
+export const useDeleteChannel = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (channel_id: string) =>
+      channelsService.deleteChannel(channel_id),
+    mutationKey: mutationKeys.channelsKeys.channelDelete,
+    onSuccess: () => {
+      // Invalidate channels list after deletion
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.channelsKeys.channelsList,
+      });
+    },
+  });
+};
