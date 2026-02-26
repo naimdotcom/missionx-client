@@ -109,8 +109,8 @@ function DialogChannelContent(props: ConnectChannelDialogProps) {
               className={cn(props.type === "facebook" && "text-white")}
             />
           </div>
-          <div>
-            <DialogTitle className="text-base font-bold text-white capitalize">
+          <div className="flex flex-col items-start">
+            <DialogTitle className="text-base font-semibold text-white capitalize">
               {props.type}
             </DialogTitle>
             <DialogDescription className="text-sm text-white/80">
