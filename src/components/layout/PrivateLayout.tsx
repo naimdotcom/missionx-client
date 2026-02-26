@@ -3,7 +3,6 @@ import { useListMyApps } from "@/api/services/apps/apps.hook";
 import { useUserProfileFull } from "@/api/services/users/users.hooks";
 import { AppSidebar } from "@/components/nav-menu/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { Spinner } from "@/components/ui/spinner";
 import { env } from "@/lib/env";
 import { useAuthStore } from "@/stores/auth-store";
 import { Outlet } from "@tanstack/react-router";
@@ -12,6 +11,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { CreateFirstApp } from "../onboarding/CreateFirstApp";
 import TopBar from "../top-bar";
+import { PageLoader } from "../ui/loader";
 
 function PrivateLayout() {
   const { setUserProfile, selectedApp, setSelectedApp } = useAuthStore();
@@ -64,11 +64,7 @@ function PrivateLayout() {
     myAppsQuery.isLoading ||
     refreshTokenMutation.isPending
   ) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full">
-        <Spinner />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   // Onboarding flow: No apps → Show create app screen

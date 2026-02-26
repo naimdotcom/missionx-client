@@ -8,14 +8,14 @@ const PLATFORM_CONFIG = {
   facebook: {
     icon: Facebook,
     label: "Facebook Page",
-    bg: "bg-[#1877F2]",
-    hoverBg: "hover:bg-[#1564d4]",
+    bg: "bg-[#1877F2]/10",
+    text: "text-[#1564d4]",
   },
   instagram: {
     icon: Instagram,
     label: "Instagram Account",
-    bg: "bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888]",
-    hoverBg: "hover:opacity-90",
+    bg: " bg-[#e6683c]/10",
+    text: "text-[#bc1888]",
   },
 } as const;
 
@@ -54,18 +54,14 @@ export function ChannelIcon({
     <div
       style={{ width: size, height: size }}
       className={cn(
-        "flex shrink-0 items-center justify-center transition-all duration-200",
         config.bg,
-        config.hoverBg,
-        shape === "circle" ? "rounded-full" : "rounded-xl",
+        config.text,
         className,
+        "flex shrink-0 items-center justify-center",
+        shape === "circle" ? "rounded-full" : "rounded-xl",
       )}
     >
-      <Icon
-        style={{ width: iconSize, height: iconSize }}
-        className="text-white"
-        strokeWidth={2}
-      />
+      <Icon strokeWidth={2} style={{ width: iconSize, height: iconSize }} />
     </div>
   );
 }
