@@ -27,7 +27,6 @@ function InboxPage() {
         "md:grid grid-cols-[400px_1fr_auto]",
       )}
     >
-      Test PUSH
       <TicketsPanel
         selectedTicket={selectedCase}
         setSelectedTicket={(ticket) => setSelectedTicket(ticket)}
