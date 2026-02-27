@@ -52,23 +52,24 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: GH_PAT, LOW_IMG # Pass these into the SSH session
           script: |
-            # Use the variable passed through envs
-            echo "$GH_PAT" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            # 1. Login using the GH_PAT you added to Secrets
+            echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            docker pull $LOW_IMG:latest
+            # 2. Pull the new image
+            docker pull ${{ env.LOW_IMG }}:latest
 
+            # 3. Stop and Remove the old container
             docker stop missionx-client || true
             docker rm missionx-client || true
 
+            # 4. Run the new container
+            # We use 3000:80 assuming your Dockerfile uses Nginx (Internal port 80)
             docker run -d \
               --name missionx-client \
               -p 3000:80 \
               --restart unless-stopped \
-              $LOW_IMG:latest
+              ${{ env.LOW_IMG }}:latest
 
+            # 5. Cleanup old images to save disk space
             docker image prune -f
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-          LOW_IMG: ${{ env.LOW_IMG }}
