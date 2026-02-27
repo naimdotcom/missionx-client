@@ -1,26 +1,30 @@
 import { useConversationTickets } from "@/api/services/inbox/inbox.hook";
 import { ConversationTicket } from "@/api/services/inbox/inbox.type";
+import InfiniteScroll from "@/components/shared/InfinityScroll";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+import { Route } from "@/routes";
 import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { CheckCircle2, Inbox } from "lucide-react";
+import { useMemo } from "react";
 import { TicketCard } from "./ticket-card";
 
 type TicketsPanelProps = {
   className?: string;
   selectedTicket?: string;
-  setSelectedTicket?: (ticket: ConversationTicket) => void;
+  setSelectedTicket?: (ticket?: ConversationTicket) => void;
 };
 function TicketsPanel({
   setSelectedTicket,
   className,
   selectedTicket,
 }: TicketsPanelProps) {
-  const navigate = useNavigate();
   const { selectedApp } = useAuthStore();
+  const navigate = useNavigate({ from: Route.fullPath });
   const { status } = useSearch({ from: "/_private/inbox" });
 
   const ticketsQuery = useConversationTickets({
@@ -29,16 +33,23 @@ function TicketsPanel({
   });
 
   const handleTicketStatus = (status: "active" | "closed") => {
-    navigate({ to: "/inbox", search: { status } });
+    navigate({ to: "/inbox", search: (prev) => ({ ...prev, status }) });
   };
 
-  const hasAvailableTickets =
-    Number(ticketsQuery.data?.conversations.length) > 0;
+  const flattenedTickets = useMemo(() => {
+    if (ticketsQuery.isSuccess) {
+      return ticketsQuery.data?.pages.flatMap((page) => page.conversations);
+    } else return [];
+  }, [ticketsQuery.data?.pages, ticketsQuery.isSuccess]);
+
+  const hasAvailableTickets = Number(flattenedTickets?.length) > 0;
 
   return (
     <div
       className={cn(
         "grid grid-rows-[auto_1fr] h-full p-2 gap-1 overflow-hidden",
+        "border-r-0 md:border-r",
+        selectedTicket ? "hidden md:grid" : "w-full",
         className,
       )}
     >
@@ -68,16 +79,17 @@ function TicketsPanel({
         <ScrollArea className="h-full min-h-0 w-full overflow-auto">
           <div>
             {hasAvailableTickets &&
-              ticketsQuery?.data?.conversations?.map((ticket) => (
+              flattenedTickets?.map((ticket) => (
                 <TicketCard
                   ticket={ticket}
                   key={ticket.id}
                   isSelected={ticket.id === selectedTicket}
                   onClick={() => {
                     if (selectedTicket === ticket.id) {
-                      // navigate({
-                      //   search: (prev) => ({ ...prev, case: undefined }),
-                      // });
+                      setSelectedTicket?.(undefined);
+                      navigate({
+                        search: (prev) => ({ ...prev, case: undefined }),
+                      });
                     } else {
                       setSelectedTicket?.(ticket);
                       navigate({
@@ -88,6 +100,15 @@ function TicketsPanel({
                   }}
                 />
               ))}
+
+            <InfiniteScroll
+              hasMore={ticketsQuery.hasNextPage}
+              isLoading={ticketsQuery.isFetchingNextPage}
+              next={ticketsQuery.fetchNextPage}
+              threshold={1}
+            >
+              {ticketsQuery.hasNextPage && <Spinner />}
+            </InfiniteScroll>
 
             {!hasAvailableTickets && (
               <div className="flex flex-col h-96 items-center justify-center flex-1 text-muted-foreground">

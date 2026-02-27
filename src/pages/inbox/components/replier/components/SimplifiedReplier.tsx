@@ -2,7 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Loader2, Paperclip, Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { EmojiPicker } from "./emoji-picker";
 
 interface SimplifiedReplierProps {
@@ -12,17 +18,31 @@ interface SimplifiedReplierProps {
   maxLength?: number;
 }
 
-export function SimplifiedReplier({
-  onSend,
-  placeholder = "Type a message...",
-  disabled = false,
-  maxLength = 2000,
-}: SimplifiedReplierProps) {
+export interface SimplifiedReplierHandle {
+  focus: () => void;
+}
+
+export const SimplifiedReplier = forwardRef<
+  SimplifiedReplierHandle,
+  SimplifiedReplierProps
+>(function SimplifiedReplier(
+  {
+    onSend,
+    placeholder = "Type a message...",
+    disabled = false,
+    maxLength = 2000,
+  },
+  ref,
+) {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => textareaRef.current?.focus(),
+  }));
 
   // Auto-resize textarea
   useEffect(() => {
@@ -51,6 +71,8 @@ export function SimplifiedReplier({
       console.error("Failed to send message:", error);
     } finally {
       setIsSending(false);
+      // Re-focus the textarea so the agent can keep typing
+      textareaRef.current?.focus();
     }
   };
 
@@ -203,4 +225,4 @@ export function SimplifiedReplier({
       </div>
     </div>
   );
-}
+});

@@ -3,8 +3,8 @@
 import { ConversationTicket } from "@/api/services/inbox/inbox.type";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { Route } from "@/routes";
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useSearch } from "@tanstack/react-router";
+import { Inbox } from "lucide-react";
 import { useState } from "react";
 import ConversationArea from "./components/ConversationPanel";
 import TicketsPanel from "./components/TicketPanel";
@@ -13,16 +13,12 @@ import { DetailsPanel } from "./components/WidgetPanel";
 function InboxPage() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
-  const navigate = useNavigate({ from: Route.fullPath });
   const [selectedTicket, setSelectedTicket] = useState<
     ConversationTicket | undefined
   >(undefined);
-  const { case: selectedCase } = useSearch({ from: "/_private/inbox" });
+  console.log(selectedTicket);
 
-  const handleSendMessage = async (message: string, attachments?: File[]) => {
-    console.log("Sending message:", message, "Attachments:", attachments);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  };
+  const { case: selectedCase } = useSearch({ from: "/_private/inbox" });
 
   return (
     <div
@@ -32,27 +28,33 @@ function InboxPage() {
       )}
     >
       <TicketsPanel
-        className={cn(
-          "border-r-0 md:border-r",
-          selectedCase ? "hidden md:grid" : "w-full",
-        )}
-        selectedTicket={selectedTicket?.id}
+        selectedTicket={selectedCase}
         setSelectedTicket={(ticket) => setSelectedTicket(ticket)}
       />
 
-      <ConversationArea
-        handleSendMessage={handleSendMessage}
-        onBack={() =>
-          navigate({ search: (prev) => ({ ...prev, case: undefined }) })
-        }
-        selectedTicket={selectedTicket}
-        onShowDetails={() => setShowDetails(true)}
-        onShowSidebar={() => setShowSidebar((prev) => !prev)}
-        className={cn(
-          "min-w-0",
-          !selectedCase ? "hidden md:flex" : "flex h-full",
-        )}
-      />
+      {selectedCase && (
+        <ConversationArea
+          selectedTicket={selectedCase}
+          onShowDetails={() => setShowDetails(true)}
+          onShowSidebar={() => setShowSidebar((prev) => !prev)}
+        />
+      )}
+
+      {!selectedCase && (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+              <Inbox className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">
+              No conversation selected
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Select a ticket from the list to view the conversation
+            </p>
+          </div>
+        </div>
+      )}
 
       <div
         className={cn(

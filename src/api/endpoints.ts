@@ -42,17 +42,16 @@ export const API_ENDPOINTS = {
     CONVERSATION_HISTORY: (id: string) => `/api/v1/inbox/${id}`,
     UPDATE_CONVERSATION_STATUS: (id: string) => `/api/v1/inbox/${id}/status`,
     SEND_MESSAGE: "/api/v1/messaging/send",
-    SEND_CSAT_TEMPLATE: "/api/v1/messaging/send-feedback-template",
   },
 
   //CHANNELS
   CHANNELS: {
-  CHANNEL_CONNECT:'/api/v1/channels/connect',
-  CHANNELS_LIST:'/api/v1/channels/accounts',
-  SUBSCRIBE_CHANNEL:'/api/v1/channels/subscribe',
-  UNSUBSCRIBE_CHANNEL:'/api/v1/channels/unsubscribe',
-  APP_CHANNEL_DISCONNECT:'/api/v1/channels/disconnect',
-  DELETE_CHANNEL:(id:string)=>`/api/v1/channels/${id}`
+    CHANNEL_CONNECT: "/api/v1/channels/connect",
+    CHANNELS_LIST: "/api/v1/channels/accounts",
+    SUBSCRIBE_CHANNEL: "/api/v1/channels/subscribe",
+    UNSUBSCRIBE_CHANNEL: "/api/v1/channels/unsubscribe",
+    APP_CHANNEL_DISCONNECT: "/api/v1/channels/disconnect",
+    DELETE_CHANNEL: (id: string) => `/api/v1/channels/${id}`,
   },
 
   // Upload

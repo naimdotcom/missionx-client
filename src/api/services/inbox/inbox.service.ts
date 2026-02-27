@@ -1,7 +1,14 @@
 import { API_ENDPOINTS, RequestOptions } from "@/api";
 import { BaseAPIService } from "@/api/core/base.service";
 import { env } from "@/lib/env";
-import { ConversationTickets, ConversationTicketsParams } from "./inbox.type";
+import {
+  ConversationHistoryParams,
+  ConversationHistoryResponse,
+  ConversationTickets,
+  ConversationTicketsParams,
+  MessageSendResponse,
+  SendMessagePayload,
+} from "./inbox.type";
 
 export class InboxService extends BaseAPIService {
   constructor(baseURL: string) {
@@ -18,10 +25,14 @@ export class InboxService extends BaseAPIService {
       options,
     );
 
-  conversationHistory = (conversationId: string, options?: RequestOptions) =>
-    this.get(
-      API_ENDPOINTS.INBOX.CONVERSATION_HISTORY(conversationId),
-      undefined,
+  conversationHistory = (
+    conversationID: string,
+    params?: ConversationHistoryParams,
+    options?: RequestOptions,
+  ) =>
+    this.get<ConversationHistoryResponse>(
+      API_ENDPOINTS.INBOX.CONVERSATION_HISTORY(conversationID),
+      params,
       options,
     );
 
@@ -36,21 +47,19 @@ export class InboxService extends BaseAPIService {
       options,
     );
 
-  sendMessage = (
-    payload: {
-      conversationId: string;
-      content: string;
-      senderType: "user" | "agent";
-    },
-    options?: RequestOptions,
-  ) => this.post(API_ENDPOINTS.INBOX.SEND_MESSAGE, payload, options);
+  sendMessage = (payload: SendMessagePayload, options?: RequestOptions) =>
+    this.post<MessageSendResponse>(
+      API_ENDPOINTS.INBOX.SEND_MESSAGE,
+      payload,
+      options,
+    );
 
-  sendCSATTemplate = (
-    payload: {
-      conversationId: string;
-    },
-    options?: RequestOptions,
-  ) => this.post(API_ENDPOINTS.INBOX.SEND_CSAT_TEMPLATE, payload, options);
+  // sendCSATTemplate = (
+  //   payload: {
+  //     conversationId: string;
+  //   },
+  //   options?: RequestOptions,
+  // ) => this.post(API_ENDPOINTS.INBOX.SEND_CSAT_TEMPLATE, payload, options);
 }
 
 export const inboxService = new InboxService(env.channelUrl || "");

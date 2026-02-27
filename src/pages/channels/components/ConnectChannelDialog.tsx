@@ -170,7 +170,10 @@ function DialogChannelContent(props: ConnectChannelDialogProps) {
                   appId={props.appId}
                   channel={channel}
                   key={channel.channel_id}
-                  refetchChannels={channelsQuery.refetch}
+                  refetchChannels={() => {
+                    channelsQuery.refetch();
+                    props.refetchChannels?.();
+                  }}
                 />
               ))}
             </div>

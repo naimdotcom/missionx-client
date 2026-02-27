@@ -1,6 +1,5 @@
 // Query key factory for TanStack Query
 
-
 export const queryKeys = {
   authKeys: {
     meta: ["auth", "meta"] as const,
@@ -25,7 +24,7 @@ export const queryKeys = {
   },
 
   channelsKeys: {
-   channelsList: ["channels", "list"] as const,
+    channelsList: ["channels", "list"] as const,
   },
 } as const;
 
