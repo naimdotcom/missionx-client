@@ -1,11 +1,14 @@
 import { queryKeys } from "@/api";
-import { ConversationHistoryMessage } from "@/api/services/inbox/inbox.type";
+import {
+  ConversationHistoryMessage,
+  ConversationHistoryResponse,
+} from "@/api/services/inbox/inbox.type";
 import {
   SocketNewMessagePayload,
   socketService,
 } from "@/services/socket.service";
 import { useAuthStore } from "@/stores/auth-store";
-import { useQueryClient } from "@tanstack/react-query";
+import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
 
 /**
@@ -36,16 +39,23 @@ export function useConversationSocket(conversationId: string | undefined) {
 
       const queryKey = queryKeys.inboxKeys.conversationHistory(conversationId);
 
-      queryClient.setQueryData<{
-        messages: ConversationHistoryMessage[];
-        [key: string]: unknown;
-      }>(queryKey, (old) => {
-        if (!old) return old;
-        // Avoid duplicates (e.g. optimistic vs real)
-        const exists = old.messages.some((m) => m.id === newMsg.id);
-        if (exists) return old;
-        return { ...old, messages: [...old.messages, newMsg] };
-      });
+      queryClient.setQueryData<InfiniteData<ConversationHistoryResponse>>(
+        queryKey,
+        (old) => {
+          if (!old || !old.pages.length) return old;
+          // Append new message to the first page (newest messages)
+          const firstPage = old.pages[0];
+          const exists = firstPage.messages.some((m) => m.id === newMsg.id);
+          if (exists) return old;
+          return {
+            ...old,
+            pages: [
+              { ...firstPage, messages: [...firstPage.messages, newMsg] },
+              ...old.pages.slice(1),
+            ],
+          };
+        },
+      );
     },
     [conversationId, queryClient],
   );

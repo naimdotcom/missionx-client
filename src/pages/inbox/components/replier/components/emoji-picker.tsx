@@ -1,5 +1,10 @@
-// Lazy-loaded emoji picker component
+// Lazy-loaded emoji picker component using emoji-mart
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Smile } from "lucide-react";
 import { Suspense, lazy, useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -9,42 +14,47 @@ const EmojiPickerImpl = lazy(() => import("./emoji-picker-impl"));
 
 interface EmojiPickerProps {
   onSelect: (emoji: string) => void;
+  disabled?: boolean;
 }
 
-export const EmojiPicker = ({ onSelect }: EmojiPickerProps) => {
+export const EmojiPicker = ({ onSelect, disabled }: EmojiPickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsOpen(!isOpen)}
-        title="Add emoji"
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          disabled={disabled}
+          title="Add emoji"
+        >
+          <Smile className="w-5 h-5" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        side="top"
+        align="end"
+        className="w-auto p-0 border-none shadow-xl"
+        sideOffset={8}
       >
-        <Smile className="w-5 h-5" />
-      </Button>
-
-      {isOpen && (
-        <div className="absolute bottom-full right-0 mb-2 z-50">
-          <Suspense
-            fallback={
-              <div className="bg-background border rounded-lg p-4 shadow-lg">
-                <p className="text-sm text-muted-foreground">Loading...</p>
-              </div>
-            }
-          >
-            <EmojiPickerImpl
-              onSelect={(emoji) => {
-                onSelect(emoji);
-                setIsOpen(false);
-              }}
-              onClose={() => setIsOpen(false)}
-            />
-          </Suspense>
-        </div>
-      )}
-    </div>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center w-[352px] h-[435px] bg-background rounded-lg">
+              <p className="text-sm text-muted-foreground">Loading emojis...</p>
+            </div>
+          }
+        >
+          <EmojiPickerImpl
+            onSelect={(emoji) => {
+              onSelect(emoji);
+              setIsOpen(false);
+            }}
+            onClose={() => setIsOpen(false)}
+          />
+        </Suspense>
+      </PopoverContent>
+    </Popover>
   );
 };

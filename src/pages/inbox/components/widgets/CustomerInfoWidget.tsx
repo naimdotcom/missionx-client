@@ -2,7 +2,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Mail, MapPin, Phone, Tag } from "lucide-react";
+import {
+  Calendar,
+  Facebook,
+  Instagram,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Tag,
+} from "lucide-react";
 
 interface CustomerInfo {
   name: string;
@@ -14,6 +23,9 @@ interface CustomerInfo {
   tags?: string[];
   totalOrders?: number;
   totalSpent?: string;
+  platform?: string;
+  platformId?: string;
+  status?: string;
 }
 
 interface CustomerInfoWidgetProps {
@@ -44,9 +56,37 @@ export function CustomerInfoWidget({ customer }: CustomerInfoWidgetProps) {
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm truncate">{customer.name}</p>
-            <p className="text-xs text-muted-foreground">Customer</p>
+            <div className="flex items-center gap-1.5">
+              {customer.platform && (
+                <PlatformIcon platform={customer.platform} />
+              )}
+              <p className="text-xs text-muted-foreground capitalize">
+                {customer.platform || "Customer"}
+              </p>
+            </div>
           </div>
+          {customer.status && (
+            <Badge
+              variant={customer.status === "ONGOING" ? "default" : "secondary"}
+              className="text-xs"
+            >
+              {customer.status === "ONGOING" ? "Active" : "Closed"}
+            </Badge>
+          )}
         </div>
+
+        {/* Platform ID */}
+        {customer.platformId && (
+          <>
+            <Separator />
+            <div className="flex items-center gap-2 text-xs">
+              <MessageCircle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <span className="text-muted-foreground truncate">
+                ID: {customer.platformId}
+              </span>
+            </div>
+          </>
+        )}
 
         <Separator />
 
@@ -131,4 +171,15 @@ export function CustomerInfoWidget({ customer }: CustomerInfoWidgetProps) {
       </CardContent>
     </Card>
   );
+}
+
+function PlatformIcon({ platform }: { platform: string }) {
+  switch (platform?.toLowerCase()) {
+    case "facebook":
+      return <Facebook className="h-3.5 w-3.5 text-[#1877F2]" />;
+    case "instagram":
+      return <Instagram className="h-3.5 w-3.5 text-[#E1306C]" />;
+    default:
+      return <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />;
+  }
 }

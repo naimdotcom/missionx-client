@@ -1,4 +1,5 @@
 import { env } from "@/lib/env";
+import { useAuthStore } from "@/stores/auth-store";
 import { io, Socket } from "socket.io-client";
 
 // ─── Event Types ────────────────────────────────────────────────────────────
@@ -26,16 +27,19 @@ class SocketService {
   private socket: Socket | null = null;
 
   connect(token?: string): Socket {
+    const selectedApp = useAuthStore.getState().selectedApp;
     if (this.socket?.connected) return this.socket;
 
     this.socket = io(env.socketUrl, {
-      transports: ["websocket"],
+      path: "/api/v1/realtime/broadcast",
       autoConnect: true,
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      transports: ["websocket"],
       reconnectionDelayMax: 16000,
       auth: token ? { token } : undefined,
+      query: { app_id: selectedApp?.id, event_type: "message" },
     });
 
     this.socket.on("connect", () => {

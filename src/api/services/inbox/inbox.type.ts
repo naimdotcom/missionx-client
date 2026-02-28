@@ -38,6 +38,16 @@ export interface ConversationHistoryParams {
   limit?: number;
 }
 
+export interface MessageAttachment {
+  url: string;
+  type: string;
+  meta_url: string;
+  file_size: number;
+  stored_at: string;
+  content_type: string;
+  payload: { url: string };
+}
+
 export interface ConversationHistoryMessage {
   id: string;
   mid?: string;
@@ -46,7 +56,11 @@ export interface ConversationHistoryMessage {
   sender_id?: string;
   created_at: string;
   conversation_id?: string;
-  content?: { text?: string };
+  content?: {
+    text?: string;
+    html?: string;
+    attachments?: MessageAttachment[];
+  };
   attendant?: { id?: string; name?: string };
 }
 
@@ -80,14 +94,12 @@ export interface SendMessagePayload {
   message_type: "standard";
   payload?: {
     text?: string;
-    attachments?: [
-      {
-        type: "image";
-        url: string;
-        attachment_id: string;
-        is_reusable: boolean;
-      },
-    ];
+    attachments?: {
+      type: string;
+      url: string;
+      attachment_id: string;
+      is_reusable?: boolean;
+    }[];
   };
   // flow?: { flownode_id: string };
   // template: {

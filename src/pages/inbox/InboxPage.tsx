@@ -16,7 +16,6 @@ function InboxPage() {
   const [selectedTicket, setSelectedTicket] = useState<
     ConversationTicket | undefined
   >(undefined);
-  console.log(selectedTicket);
 
   const { case: selectedCase } = useSearch({ from: "/_private/inbox" });
 
@@ -31,6 +30,7 @@ function InboxPage() {
         selectedTicket={selectedCase}
         setSelectedTicket={(ticket) => setSelectedTicket(ticket)}
       />
+
       {selectedCase && (
         <ConversationArea
           selectedTicket={selectedCase}
@@ -38,6 +38,7 @@ function InboxPage() {
           onShowSidebar={() => setShowSidebar((prev) => !prev)}
         />
       )}
+
       {!selectedCase && (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
@@ -53,6 +54,7 @@ function InboxPage() {
           </div>
         </div>
       )}
+
       <div
         className={cn(
           "hidden xl:block shrink-0 transition-[width] duration-200 ease-linear overflow-hidden bg-background",
@@ -61,11 +63,19 @@ function InboxPage() {
             : "w-0 border-none",
         )}
       >
-        <DetailsPanel className="w-[350px] 2xl:w-[400px] h-full border-none" />
+        <DetailsPanel
+          className="w-[350px] 2xl:w-[400px] h-full border-none"
+          selectedTicket={selectedTicket}
+          conversationId={selectedCase}
+        />
       </div>
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent side="right" className="w-[90%] sm:w-[400px] p-0 pt-10">
-          <DetailsPanel className="w-full border-0" />
+          <DetailsPanel
+            className="w-full border-0"
+            selectedTicket={selectedTicket}
+            conversationId={selectedCase}
+          />
         </SheetContent>
       </Sheet>
     </div>

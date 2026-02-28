@@ -1,7 +1,6 @@
 import { useConversationTickets } from "@/api/services/inbox/inbox.hook";
 import { ConversationTicket } from "@/api/services/inbox/inbox.type";
 import InfiniteScroll from "@/components/shared/InfinityScroll";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -76,7 +75,7 @@ function TicketsPanel({
       </Tabs>
 
       {!ticketsQuery.isPending && (
-        <ScrollArea className="h-full min-h-0 w-full overflow-auto">
+        <div className="h-full min-h-0 w-full overflow-y-auto">
           <div>
             {hasAvailableTickets &&
               flattenedTickets?.map((ticket) => (
@@ -105,9 +104,9 @@ function TicketsPanel({
               hasMore={ticketsQuery.hasNextPage}
               isLoading={ticketsQuery.isFetchingNextPage}
               next={ticketsQuery.fetchNextPage}
-              threshold={1}
+              threshold={0.5}
             >
-              {ticketsQuery.hasNextPage && <Spinner />}
+              {ticketsQuery.isFetchingNextPage && <Spinner />}
             </InfiniteScroll>
 
             {!hasAvailableTickets && (
@@ -119,7 +118,7 @@ function TicketsPanel({
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
       )}
 
       {ticketsQuery.isPending && (

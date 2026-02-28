@@ -21,10 +21,11 @@ export const TicketCard = ({
     <button
       onClick={onClick}
       className={cn(
-        "w-full px-3 py-2.5 text-left transition-colors border-b",
+        "w-full px-3 py-2.5 text-left border-b",
+        "transition-all duration-200 ease-in-out",
         "hover:bg-muted/50",
         "focus:outline-none focus:bg-muted font-sans",
-        isSelected && "bg-accent/50 px-[9px]",
+        isSelected && "bg-primary/10 border-l-2 border-l-primary shadow-sm",
       )}
     >
       <div className="flex items-center gap-3">
@@ -45,7 +46,12 @@ export const TicketCard = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-1 mb-0.5">
-            <span className="font-semibold text-sm truncate leading-none">
+            <span
+              className={cn(
+                "text-sm truncate leading-none",
+                isSelected && "font-semibold",
+              )}
+            >
               {ticket.customer_name}
             </span>
             <span className="text-[10px] text-muted-foreground whitespace-nowrap">
@@ -54,8 +60,13 @@ export const TicketCard = ({
           </div>
 
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs text-muted-foreground truncate line-clamp-1 leading-normal">
-              {ticket.last_message_text}
+            <p
+              className={cn(
+                "text-xs text-muted-foreground truncate line-clamp-1 leading-normal",
+                isSelected && "font-semibold",
+              )}
+            >
+              {ticket.last_message_text || "No messages yet"}
             </p>
             {(ticket.unread_count ?? 0) > 0 && (
               <span className="flex-shrink-0 h-4 min-w-[1rem] flex items-center justify-center bg-primary text-[10px] font-bold text-primary-foreground px-1 rounded-full">

@@ -2,7 +2,6 @@ import { mutationKeys, queryKeys } from "@/api";
 import {
   useInfiniteQuery,
   useMutation,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { inboxService } from "./inbox.service";
@@ -31,11 +30,26 @@ export function useConversationTickets(params: ConversationTicketsParams) {
 }
 
 export function useConversationHistory(conversationId: string) {
-  return useQuery({
-    staleTime: 100, // 1 minute
+  return useInfiniteQuery({
+    staleTime: 100,
     enabled: !!conversationId,
-    queryFn: () => inboxService.conversationHistory(conversationId),
-    queryKey: [queryKeys.inboxKeys.conversationHistory, conversationId],
+    queryKey: [...queryKeys.inboxKeys.conversationHistory(conversationId)],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam }) => {
+      const response = await inboxService.conversationHistory(conversationId, {
+        page: pageParam,
+      });
+      return response;
+    },
+    getNextPageParam: (lastPage) => {
+      if (
+        lastPage.has_more &&
+        (lastPage.page ?? 1) < (lastPage.total_pages ?? 1)
+      ) {
+        return (lastPage.page ?? 1) + 1;
+      }
+      return undefined;
+    },
   });
 }
 
@@ -59,10 +73,10 @@ export function useUpdateConversationStatus() {
     mutationKey: mutationKeys.inboxKeys.updateConversationStatus,
     onSuccess: (_, { conversationId }) => {
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.inboxKeys.conversationHistory, conversationId],
+        queryKey: queryKeys.inboxKeys.conversationHistory(conversationId),
       });
       queryClient.invalidateQueries({
-        queryKey: [queryKeys.inboxKeys.conversationList],
+        queryKey: queryKeys.inboxKeys.conversationList,
       });
     },
   });
@@ -76,12 +90,13 @@ export function useSendMessage() {
       inboxService.sendMessage(payload),
     mutationKey: mutationKeys.inboxKeys.sendMessage,
     onSuccess: (data) => {
-      queryClient.invalidateQueries({
-        queryKey: [
-          queryKeys.inboxKeys.conversationHistory,
-          data?.conversation_id,
-        ],
-      });
+      if (data?.conversation_id) {
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.inboxKeys.conversationHistory(
+            data.conversation_id,
+          ),
+        });
+      }
     },
   });
 }
