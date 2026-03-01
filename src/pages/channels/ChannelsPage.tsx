@@ -1,7 +1,8 @@
 import { ChannelPlatform, useChannelsList } from "@/api/services/channels";
-import { Loader } from "@/components/ui/loader";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth-store";
-import { Radio } from "lucide-react";
+import { Loader2, Radio } from "lucide-react";
 import { ChannelCard } from "./components/ChannelCard";
 import ChannelHead from "./components/ChannelHead";
 import { ChannelIcon } from "./components/ChannelIcons";
@@ -40,30 +41,33 @@ interface ChannelSectionProps {
 function ChannelSection(props: ChannelSectionProps) {
   const selectedApp = useAuthStore((s) => s.selectedApp);
   const appId = selectedApp?.id ?? "";
+
   const channelsQuery = useChannelsList({
     app_id: selectedApp?.id,
     platform: props.platform,
   });
-  const channels = channelsQuery.data?.accounts ?? [];
-  const hasChannels = channels.length > 0;
 
-  if (channelsQuery.isLoading) {
-    return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-3 text-muted-foreground">
-        <Loader />
-        <p className="text-sm">Loading channels...</p>
-      </div>
-    );
-  }
+  const channels =
+    channelsQuery.data?.pages.flatMap((p) => p.accounts ?? []) ?? [];
+  const total = channelsQuery.data?.pages[0]?.total ?? channels.length;
+  const hasChannels = channels.length > 0;
+  const isLoading = channelsQuery.isLoading;
+
   return (
     <section className="space-y-3">
-      {/* Section heading row */}
-      <div className="flex items-center ">
+      {/* Section heading */}
+      <div className="flex items-center gap-2">
         <ChannelHead
           label={props.label}
           platform={props.platform}
           description={props.description}
         />
+        {hasChannels && (
+          <span className="text-xs font-medium text-muted-foreground tabular-nums">
+            {channels.length}
+            {channelsQuery.hasNextPage ? `+` : ""} / {total}
+          </span>
+        )}
         <ConnectChannelDialog
           appId={appId}
           type={props.platform}
@@ -74,8 +78,17 @@ function ChannelSection(props: ChannelSectionProps) {
       {/* Divider */}
       <div className="h-px bg-border" />
 
-      {/* Channel grid or empty state */}
-      {!hasChannels && (
+      {/* Loading skeleton */}
+      {isLoading && (
+        <div className="space-y-2">
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full rounded-xl" />
+          ))}
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!isLoading && !hasChannels && (
         <div className="flex flex-col items-center justify-center gap-2.5 rounded-xl border border-dashed py-10 text-center">
           <ChannelIcon platform={props.platform} />
           <div>
@@ -87,11 +100,32 @@ function ChannelSection(props: ChannelSectionProps) {
         </div>
       )}
 
+      {/* Channel list */}
       {hasChannels && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="space-y-2">
           {channels.map((channel) => (
             <ChannelCard key={channel.channel_id} channel={channel} />
           ))}
+
+          {/* Load more */}
+          {channelsQuery.hasNextPage && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-2 text-xs"
+              disabled={channelsQuery.isFetchingNextPage}
+              onClick={() => channelsQuery.fetchNextPage()}
+            >
+              {channelsQuery.isFetchingNextPage ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                `Load more (${total - channels.length} remaining)`
+              )}
+            </Button>
+          )}
         </div>
       )}
     </section>
@@ -108,7 +142,7 @@ function Header() {
         <div>
           <h1 className="text-base font-semibold leading-tight">Channels</h1>
           <p className="text-xs text-muted-foreground">
-            Connect your Facebook & Instagram channels
+            Connect your Facebook &amp; Instagram channels
           </p>
         </div>
       </div>

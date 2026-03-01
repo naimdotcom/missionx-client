@@ -1,6 +1,7 @@
 // Simple inbox page with mock data
 
 import { ConversationTicket } from "@/api/services/inbox/inbox.type";
+import { useInboxSoketi } from "@/api/services/soketi/use-inbox-soketi";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useSearch } from "@tanstack/react-router";
@@ -11,6 +12,10 @@ import TicketsPanel from "./components/TicketPanel";
 import { DetailsPanel } from "./components/WidgetPanel";
 
 function InboxPage() {
+  // Register Soketi event handlers for the inbox module.
+  // Must live here (not in ConversationArea) so handlers are active even
+  // when no conversation is open — e.g. to update the ticket list unread counts.
+  useInboxSoketi();
   const [showSidebar, setShowSidebar] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<

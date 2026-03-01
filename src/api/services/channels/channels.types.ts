@@ -10,6 +10,8 @@ export type ChannelConnectPayload = {
 export type ChannelsListParams = {
   app_id?: string;
   platform?: ChannelPlatform;
+  page?: number;
+  limit?: number;
 };
 
 export type ChannelsListResponse = {
@@ -18,6 +20,10 @@ export type ChannelsListResponse = {
   has_connection?: boolean;
   connection_expires_at?: string;
   accounts?: Array<Channel>;
+  page?: number;
+  limit?: number;
+  total_pages?: number;
+  has_more?: boolean;
 };
 
 export type Channel = {

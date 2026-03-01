@@ -1,5 +1,9 @@
 import { mutationKeys, queryKeys } from "@/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
 import { channelsService } from "./channels.service";
@@ -10,16 +14,32 @@ import type {
   ChannelSubscribePayload,
 } from "./channels.types";
 
+const CHANNELS_PAGE_SIZE = 12;
+
 /**
- * Hook to list all channels for the authenticated user
- * @param params - Optional parameters for filtering channels (app_id, platform)
- * @returns Query result with channels list
+ * Infinite-query hook to list channels with pagination.
+ * Each page fetches `limit` accounts; call `fetchNextPage` to load more.
  */
-export const useChannelsList = (params?: ChannelsListParams) => {
-  return useQuery({
-    staleTime: 100, // 1 minute
-    queryFn: () => channelsService.channelsList(params),
+export const useChannelsList = (params?: Omit<ChannelsListParams, "page">) => {
+  return useInfiniteQuery({
+    staleTime: 30_000,
     queryKey: [...queryKeys.channelsKeys.channelsList, params],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      channelsService.channelsList({
+        ...params,
+        page: pageParam,
+        limit: CHANNELS_PAGE_SIZE,
+      }),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.has_more) return (lastPage.page ?? 1) + 1;
+      // Fallback: derive from total / limit when has_more isn't returned
+      const total = lastPage.total ?? 0;
+      const currentPage = lastPage.page ?? 1;
+      const totalPages =
+        lastPage.total_pages ?? Math.ceil(total / CHANNELS_PAGE_SIZE);
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
   });
 };
 

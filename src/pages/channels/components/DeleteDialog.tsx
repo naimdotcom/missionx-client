@@ -36,13 +36,13 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
   return (
     <>
       <Button
-        size="sm"
-        variant="outline"
+        size="icon"
+        variant="ghost"
         onClick={() => setIsOpen(true)}
-        className="flex-1 gap-1.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+        className="size-7 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+        title="Disconnect channel"
       >
         <Trash2 className="size-3.5" />
-        Disconnect
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

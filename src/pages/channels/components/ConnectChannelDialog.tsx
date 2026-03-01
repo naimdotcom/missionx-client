@@ -63,7 +63,8 @@ function DialogChannelContent(props: ConnectChannelDialogProps) {
   useFacebookSdk();
   const chanelLoginMutation = useChannelConnect();
   const channelsQuery = useChannelsList({ platform: props.type });
-  const channels = channelsQuery.data?.accounts ?? [];
+  const channels =
+    channelsQuery.data?.pages.flatMap((p) => p.accounts ?? []) ?? [];
   //  "pages_show_list,pages_messaging,instagram_basic,instagram_manage_messages",
   const scopes = useMemo(() => {
     if (props.type === "facebook") {

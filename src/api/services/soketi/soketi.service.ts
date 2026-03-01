@@ -1,19 +1,39 @@
 import { API_ENDPOINTS } from "@/api";
 import { env } from "@/lib/env";
 import Pusher, { Channel } from "pusher-js";
+import { SoketiEventMap } from "./soketi.type";
+
+// ─── Internal event emitter type ─────────────────────────────────────────────
+
+type EventHandler<T> = (data: T) => void;
+type AnyHandler = EventHandler<unknown>;
+
+// All Pusher events the service bridges to the internal emitter.
+// To support a new module, add its event name + payload to SoketiEventMap.
+const BRIDGED_EVENTS = [
+  "new_message",
+  "message_read",
+  "customer_updated",
+  "new_comment",
+  "feedback_received",
+] as const satisfies ReadonlyArray<keyof SoketiEventMap>;
+
+// ─── Service ──────────────────────────────────────────────────────────────────
 
 class SoketiService {
   private pusher: Pusher | null = null;
   private channel: Channel | null = null;
   private currentAppId: string | null = null;
 
-  connect(appId: string): Channel {
-    // Re-use existing connection if same app
-    if (this.pusher && this.channel && this.currentAppId === appId) {
-      return this.channel;
-    }
+  // Internal typed listener registry — survives reconnections
+  private listeners = new Map<string, Set<AnyHandler>>();
 
-    // Disconnect previous connection if switching apps
+  // ── Connection ─────────────────────────────────────────────────────────────
+
+  connect(appId: string): void {
+    // Re-use existing connection if same app
+    if (this.pusher && this.currentAppId === appId) return;
+
     this.disconnect();
 
     console.debug("[Soketi] Connecting with app:", appId);
@@ -23,11 +43,7 @@ class SoketiService {
     this.pusher = new Pusher(env.pusherAppKey ?? "", {
       cluster: "mt1", // required by pusher-js SDK type; safely ignored by Soketi
       wsHost: env.pusherHost,
-      // wsPort: 443,
-      // wssPort: 443,
       wsPath: "/soketi",
-      // forceTLS: true,
-      // disableStats: true,
       enabledTransports: ["ws", "wss"],
       // Custom authorizer — mirrors axios withCredentials: true
       // Automatically sends all browser cookies (including httpOnly) to the auth endpoint
@@ -65,11 +81,9 @@ class SoketiService {
     this.pusher.connection.bind("connected", () => {
       console.debug("[Soketi] Connection established");
     });
-
     this.pusher.connection.bind("error", (err: unknown) => {
       console.error("[Soketi] Connection error:", err);
     });
-
     this.pusher.connection.bind("disconnected", () => {
       console.debug("[Soketi] Disconnected");
     });
@@ -80,34 +94,44 @@ class SoketiService {
     this.channel.bind("pusher:subscription_succeeded", () => {
       console.debug("[Soketi] ✅ Subscribed to private-app-" + appId);
     });
-
     this.channel.bind("pusher:subscription_error", (err: unknown) => {
       console.error("[Soketi] ❌ Subscription failed:", err);
     });
 
-    return this.channel;
+    // Bridge all Pusher channel events → internal emitter
+    // Any registered listener (from any module) receives the event automatically
+    BRIDGED_EVENTS.forEach((event) => {
+      this.channel?.bind(event, (data: unknown) => this.emit(event, data));
+    });
   }
 
-  on<T>(event: string, handler: (data: T) => void): () => void {
-    this.channel?.bind(event, handler);
-    return () => this.channel?.unbind(event, handler);
+  // ── Typed pub/sub ─────────────────────────────────────────────────────────
+  // Modules call `soketiService.on("new_message", handler)` and get full type inference.
+  // Multiple modules can subscribe to the same event independently.
+
+  on<K extends keyof SoketiEventMap>(
+    event: K,
+    handler: EventHandler<SoketiEventMap[K]>,
+  ): () => void {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    const h = handler as AnyHandler;
+    this.listeners.get(event)!.add(h);
+    return () => this.listeners.get(event)?.delete(h);
   }
+
+  private emit(event: string, data: unknown): void {
+    this.listeners.get(event)?.forEach((h) => h(data));
+  }
+
+  // ── Teardown ──────────────────────────────────────────────────────────────
 
   /**
-   * Unbind all user event handlers without closing the WebSocket.
-   * Use this in component cleanup so the connection stays alive for the session.
+   * Fully tear down the WebSocket connection.
+   * Listeners are kept — they re-activate on the next `connect()` call.
+   * Call on app switch or logout.
    */
-  unbindEvents(): void {
-    [
-      "new_message",
-      "message_read",
-      "customer_updated",
-      "new_comment",
-      "feedback_received",
-    ].forEach((event) => this.channel?.unbind(event));
-  }
-
-  /** Fully tear down the connection — call only on logout or app switch. */
   disconnect(): void {
     if (this.channel && this.currentAppId) {
       this.channel.unbind_all();
@@ -119,6 +143,17 @@ class SoketiService {
     }
     this.channel = null;
     this.currentAppId = null;
+    console.debug("[Soketi] Disconnected");
+  }
+
+  /**
+   * Full teardown including all listeners.
+   * Call only on user logout to fully clean up state.
+   */
+  destroy(): void {
+    this.disconnect();
+    this.listeners.clear();
+    console.debug("[Soketi] Destroyed");
   }
 
   get isConnected(): boolean {
