@@ -22,9 +22,8 @@ export const TicketCard = ({
       onClick={onClick}
       className={cn(
         "w-full px-3 py-2.5 text-left border-b",
-        "transition-all duration-200 ease-in-out",
+        "transition-all duration-100",
         "hover:bg-muted/50",
-        "focus:outline-none focus:bg-muted font-sans",
         isSelected && "bg-primary/10 border-l-2 border-l-primary shadow-sm",
       )}
     >
@@ -46,12 +45,7 @@ export const TicketCard = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-1 mb-0.5">
-            <span
-              className={cn(
-                "text-sm truncate leading-none",
-                isSelected && "font-semibold",
-              )}
-            >
+            <span className={cn("text-sm truncate leading-none")}>
               {ticket.customer_name}
             </span>
             <span className="text-[10px] text-muted-foreground whitespace-nowrap">
@@ -63,7 +57,6 @@ export const TicketCard = ({
             <p
               className={cn(
                 "text-xs text-muted-foreground truncate line-clamp-1 leading-normal",
-                isSelected && "font-semibold",
               )}
             >
               {ticket.last_message_text || "No messages yet"}

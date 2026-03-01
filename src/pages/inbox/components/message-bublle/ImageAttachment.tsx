@@ -23,21 +23,22 @@ function ImageAttachment({ attachmentUrl }: { attachmentUrl: string }) {
       className="block relative group"
     >
       {!loaded && (
-        <div className="w-full h-40 rounded-lg bg-muted animate-pulse flex items-center justify-center">
+        <div className="w-40 h-40 rounded-lg bg-muted animate-pulse flex items-center justify-center">
           <ImageIcon className="h-6 w-6 text-muted-foreground/50" />
         </div>
       )}
-      <img
-        src={attachmentUrl}
-        alt={"unknown"}
-        className={cn(
-          "max-w-[280px] max-h-[300px] rounded-lg object-cover cursor-pointer",
-          !loaded && "hidden",
-        )}
-        onLoad={() => setLoaded(true)}
-        onError={() => setError(true)}
-        loading="lazy"
-      />
+      {attachmentUrl && (
+        <img
+          src={attachmentUrl}
+          alt={"image"}
+          className={cn(
+            "min-w-40 min-h-40 max-w-[280px] max-h-[300px] rounded-lg object-cover cursor-pointer",
+            !loaded && "hidden",
+          )}
+          onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
+        />
+      )}
       {/* <div
         className={cn(
           "absolute inset-0 rounded-lg bg-black/0 group-hover:bg-black/10 transition-colors",

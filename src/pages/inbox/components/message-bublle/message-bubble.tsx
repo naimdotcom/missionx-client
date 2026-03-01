@@ -42,7 +42,7 @@ export const MessageBubble = ({
   const hasAttachments = !!(attachments && attachments.length > 0);
 
   const renderedText = useMemo(() => {
-    if (html) return null; // HTML content handled separately
+    if (html) return null;
     if (!text) return null;
     return linkifyText(text, isCustomer);
   }, [text, html, isCustomer]);
@@ -50,111 +50,122 @@ export const MessageBubble = ({
   return (
     <div
       className={cn(
-        "flex gap-2 items-start max-w-full group",
+        "flex gap-2.5 items-end max-w-full group",
         !isCustomer && "flex-row-reverse",
       )}
     >
       {/* Avatar */}
-      <div className="flex-shrink-0 mt-0.5">
-        {showAvatar ? (
-          <Avatar className="h-8 w-8 border shadow-sm">
+      <div className="flex-shrink-0">
+        {showAvatar && (
+          <Avatar className="h-7 w-7 ring-2 ring-background shadow-sm">
             <AvatarImage src={avatarUrl} alt={senderName} />
-            <AvatarFallback className="text-[10px] bg-muted">
-              {initials}
-            </AvatarFallback>
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
-        ) : (
-          <div className="w-0" />
         )}
       </div>
 
-      {/* Name + Bubble + Time */}
+      {/* Name + Bubble */}
       <div
         className={cn(
-          "flex flex-col gap-1 max-w-[75%]",
+          "flex flex-col gap-1 max-w-[72%]",
           isCustomer ? "items-start" : "items-end",
         )}
       >
-        {/* Name */}
-        <span className="text-[11px] font-medium text-muted-foreground leading-none">
-          {senderName}
-        </span>
+        {/* Sender name — only shown when avatar is visible */}
+        {senderName && (
+          <span className={cn("text-[11px] font-semibold tracking-wide px-1")}>
+            {senderName}
+          </span>
+        )}
 
-        {/* Message content */}
-        <div className="flex flex-col gap-1.5">
-          {/* Attachments */}
-          {hasAttachments && (
-            <div className="flex flex-col gap-1.5">
-              {attachments!.map((attachment, idx) => {
-                const attachmentType = getAttachmentType(
-                  attachment.content_type,
-                  attachment.payload.url,
-                );
-                return (
-                  <div key={attachment.stored_at || idx}>
-                    {attachmentType === "image" && (
-                      <ImageAttachment attachmentUrl={attachment.payload.url} />
-                    )}
-                    {attachmentType === "video" && (
-                      <VideoAttachment attachmentUrl={attachment.payload.url} />
-                    )}
-                    {attachmentType === "audio" && (
-                      <AudioAttachment attachmentUrl={attachment.payload.url} />
-                    )}
-                    {attachmentType === "file" && (
-                      <FileAttachment
-                        type={attachment.content_type}
-                        attachmentUrl={attachment.payload.url}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+        {/* Attachments (outside bubble) */}
+        {hasAttachments && (
+          <div className="flex flex-col gap-1.5">
+            {attachments!.map((attachment, idx) => {
+              const attachmentType = getAttachmentType(
+                attachment.content_type,
+                attachment.payload.url,
+              );
+              return (
+                <div key={attachment.stored_at || idx}>
+                  {attachmentType === "image" && (
+                    <ImageAttachment attachmentUrl={attachment.payload.url} />
+                  )}
+                  {attachmentType === "video" && (
+                    <VideoAttachment attachmentUrl={attachment.payload.url} />
+                  )}
+                  {attachmentType === "audio" && (
+                    <AudioAttachment attachmentUrl={attachment.payload.url} />
+                  )}
+                  {attachmentType === "file" && (
+                    <FileAttachment
+                      type={attachment.content_type}
+                      attachmentUrl={attachment.payload.url}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
-          {/* Text bubble */}
-          {hasText && (
-            <div
-              className={cn(
-                "px-4 py-2.5 rounded-2xl text-sm shadow-sm",
-                isCustomer
-                  ? "bg-muted/80 text-foreground rounded-tl-none"
-                  : "bg-primary text-primary-foreground rounded-tr-none",
-              )}
-            >
-              {html ? (
+        {/* Text bubble */}
+        {(hasText || (!hasText && !hasAttachments)) && (
+          <div
+            className={cn(
+              "relative px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
+              "rounded-2xl",
+              isCustomer
+                ? [
+                    "bg-white dark:bg-muted/60",
+                    "text-foreground",
+                    "border border-border/50",
+                    "rounded-bl-sm",
+                    "shadow-[0_1px_4px_0_rgba(0,0,0,0.06)]",
+                  ]
+                : [
+                    "bg-gradient-to-br from-primary to-primary/80",
+                    "text-primary-foreground",
+                    "rounded-br-sm",
+                    "shadow-[0_2px_8px_0_rgba(var(--primary)/0.35)]",
+                  ],
+            )}
+          >
+            {hasText ? (
+              html ? (
                 <div
-                  className="prose prose-sm max-w-none leading-relaxed [&_a]:underline [&_a]:text-inherit [&_img]:max-w-full [&_img]:rounded-lg"
+                  className="prose prose-sm max-w-none [&_a]:underline [&_a]:text-inherit [&_img]:max-w-full [&_img]:rounded-lg"
                   dangerouslySetInnerHTML={{ __html: html }}
                 />
               ) : (
-                <p className="whitespace-pre-wrap leading-relaxed break-words">
+                <p className="whitespace-pre-wrap break-words">
                   {renderedText}
                 </p>
-              )}
-            </div>
-          )}
+              )
+            ) : (
+              <p className="italic opacity-50">No content</p>
+            )}
 
-          {/* Fallback if no content */}
-          {!hasText && !hasAttachments && (
-            <div
+            {/* Inline timestamp */}
+            <span
               className={cn(
-                "px-4 py-2.5 rounded-2xl text-sm shadow-sm italic text-muted-foreground",
+                "block text-right text-[10px] mt-1 leading-none select-none",
                 isCustomer
-                  ? "bg-muted/80 rounded-tl-none"
-                  : "bg-primary/80 rounded-tr-none",
+                  ? "text-muted-foreground/70"
+                  : "text-primary-foreground/60",
               )}
             >
-              <p className="leading-relaxed">No content</p>
-            </div>
-          )}
-        </div>
+              {formatTime(time)}
+            </span>
+          </div>
+        )}
 
-        {/* Time */}
-        <span className="text-[10px] text-muted-foreground px-0.5">
-          {formatTime(time)}
-        </span>
+        {/* Standalone time when there's only an attachment (no text bubble) */}
+        {hasAttachments && !hasText && (
+          <span className="text-[10px] text-muted-foreground/70 px-1">
+            {formatTime(time)}
+          </span>
+        )}
       </div>
     </div>
   );

@@ -13,14 +13,13 @@ interface EmojiMartEmoji {
   shortcodes: string;
 }
 
-const EmojiPickerImpl = ({ onSelect, onClose }: EmojiPickerImplProps) => {
+const EmojiPickerImpl = ({ onSelect }: EmojiPickerImplProps) => {
   return (
     <Picker
       data={data}
       onEmojiSelect={(emoji: EmojiMartEmoji) => {
         onSelect(emoji.native);
       }}
-      onClickOutside={onClose}
       theme="light"
       previewPosition="none"
       skinTonePosition="search"
