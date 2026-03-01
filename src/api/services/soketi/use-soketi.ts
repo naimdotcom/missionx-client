@@ -1,29 +1,25 @@
-import { queryKeys, useRefreshToken } from "@/api";
+import { queryKeys } from "@/api";
 import {
   ConversationHistoryMessage,
   ConversationHistoryResponse,
 } from "@/api/services/inbox/inbox.type";
-import {
-  SoketiNewMessagePayload,
-  soketiService,
-} from "@/services/soketi.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { soketiService } from "./soketi.service";
+import { SoketiNewMessagePayload } from "./soketi.type";
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
 interface UseSoketiOptions {
-  /** If provided, new messages for this conversation are injected into the Query cache */
   activeConversationId?: string;
 }
 
 export function useSoketi({ activeConversationId }: UseSoketiOptions = {}) {
   const queryClient = useQueryClient();
+  const [connected, setConnected] = useState(false);
   const selectedApp = useAuthStore((s) => s.selectedApp);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const [connected, setConnected] = useState(false);
-  const refreshToken = useRefreshToken();
 
   // Keep a stable ref to the conversation id so event handlers don't go stale
   const conversationIdRef = useRef(activeConversationId);
@@ -91,11 +87,8 @@ export function useSoketi({ activeConversationId }: UseSoketiOptions = {}) {
     const init = () => {
       // Read token from readable cookies; falls back to empty string
       // (Soketi service will use withCredentials so httpOnly cookies are sent automatically)
-      const token =
-        refreshToken.data?.refreshToken ??
-        "eyJhbGciOiJSUzI1NiIsImtpZCI6ImtleS0xIiwidHlwIjoiSldUIn0.eyJ1c2VyX2lkIjoiNjU5ZGZkNGItYmU0ZC00ZTUzLTg1ZDgtNjM5YjIxN2JjZGIwIiwiZW1haWwiOiJtZXZyaWt0ZXN0MDFAZ21haWwuY29tIiwic2Vzc2lvbl9pZCI6IjAwNWYzMmI3LWRhM2ItNDk3NC05YjE2LWZmOTk0N2Q5N2JjNyIsImlzcyI6Imh0dHBzOi8vYXV0aC5icmFpbmNoYXQuY2xvdWQiLCJhdWQiOiJtaXNzaW9uLWF1dGgiLCJpYXQiOjE3NzIzNDAwOTQsImV4cCI6MTc3MzYzNjA5NCwidHlwZSI6ImFjY2VzcyJ9.kxjnmDcRGPaVJqGrSu4UHKpjHGnr4Buzq4J2M2_KNatPjArcSPtmCKCLhPm87X2kl_qJSvWby7KTIsrzgfLAqj90tQ1wH0oUII4t2mhQ3kmD6C0bN4zVdq6Noub4fjTbHH2ekjS_HDSv49Y2P8Tl4Nfb0lzvdiSQUWGE0IApT39IE1x8ZQhJpdPBgGZPoerKcYUZpWzILLSGO4hynu61o1cAUmBolGTcKQk31QiPbnfH5dtSDG9gG9nZC8s_Lbw8XRvEYgXTfdqMYwjFPvbo7G3UGx878M77qL8AXbuPwSXdfTTuHvzrjDPO8FB9_rlL2G1iOmPxVxRxw2PsZC_DRA";
 
-      const channel = soketiService.connect(selectedApp.id, token);
+      const channel = soketiService.connect(selectedApp.id);
 
       channel.bind("pusher:subscription_succeeded", () => {
         if (!cancelled) setConnected(true);

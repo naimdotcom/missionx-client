@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
     LOGOUT_ALL: "/api/auth/logout/all",
     DELETE_SESSION: (id: string) => `/api/auth/session/${id}`,
     FACEBOOK_LOGIN: "/api/auth/login/facebook/sdk",
+    SOKETI: "api/auth/soketi/auth",
   },
 
   // Users

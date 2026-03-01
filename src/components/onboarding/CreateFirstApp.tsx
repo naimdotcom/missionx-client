@@ -164,7 +164,7 @@ export function CreateFirstApp() {
                     )}
                   </form.Field>
 
-                  <form.Field name="short_id">
+                  {/* <form.Field name="short_id">
                     {(field) => (
                       <TextField
                         field={field}
@@ -173,7 +173,7 @@ export function CreateFirstApp() {
                         description="Unique identifier for URLs (optional)"
                       />
                     )}
-                  </form.Field>
+                  </form.Field> */}
 
                   <form.Field name="description">
                     {(field) => (

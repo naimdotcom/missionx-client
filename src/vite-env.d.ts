@@ -15,6 +15,8 @@ interface ImportMetaEnv {
   readonly VITE_FIREBASE_APP_ID?: string;
   readonly VITE_FIREBASE_MEASUREMENT_ID?: string;
   readonly VITE_OPEN_ALL_ROUTES?: string;
+  readonly VITE_PUSHER_APP_KEY?: string;
+  readonly VITE_PUSHER_HOST?: string;
   // Add more env variables here as needed
 }
 

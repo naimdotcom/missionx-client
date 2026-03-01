@@ -18,4 +18,6 @@ export const env = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
     measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
   },
+  pusherAppKey: import.meta.env.VITE_PUSHER_APP_KEY,
+  pusherHost: import.meta.env.VITE_PUSHER_HOST,
 } as const;

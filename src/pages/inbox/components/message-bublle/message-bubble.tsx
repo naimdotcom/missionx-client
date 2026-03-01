@@ -83,7 +83,7 @@ export const MessageBubble = ({
           <div className="flex flex-col gap-1.5">
             {attachments!.map((attachment, idx) => {
               const attachmentType = getAttachmentType(
-                attachment.content_type,
+                attachment.content_type || attachment.type,
                 attachment.payload.url,
               );
               return (

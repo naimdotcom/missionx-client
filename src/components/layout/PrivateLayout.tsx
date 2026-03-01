@@ -1,5 +1,6 @@
 import { useRefreshToken, useVerifyToken } from "@/api";
 import { useListMyApps } from "@/api/services/apps/apps.hook";
+import { useSoketi } from "@/api/services/soketi/use-soketi";
 import { useUserProfileFull } from "@/api/services/users/users.hooks";
 import { AppSidebar } from "@/components/nav-menu/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -16,20 +17,14 @@ import { PageLoader } from "../ui/loader";
 function PrivateLayout() {
   const { setUserProfile, selectedApp, setSelectedApp } = useAuthStore();
 
-  // Step 1: Verify current access token
   const refreshTokenMutation = useRefreshToken();
   const verifyTokenQuery = useVerifyToken();
   const isValidToken = verifyTokenQuery.data?.status === "valid";
 
   useEffect(() => {
     if (!isValidToken && verifyTokenQuery.isSuccess) {
-      console.log("Token Validity Check", isValidToken);
-
       refreshTokenMutation.mutate(undefined, {
-        onSuccess: () => {
-          verifyTokenQuery.refetch(); // Re-verify token after successful refresh
-          // Token refreshed successfully, no further action needed here
-        },
+        onSuccess: () => verifyTokenQuery.refetch(),
         onError: () => {
           toast.error("Session expired. Please log in again.");
         },
@@ -49,13 +44,13 @@ function PrivateLayout() {
   const myAppsQuery = useListMyApps({ page: 1, page_size: 10 });
 
   // Step 5: Connect to Soketi real-time channel
-  // const { connected: soketiConnected } = useSoketi();
+  const { connected: soketiConnected } = useSoketi();
 
-  // useEffect(() => {
-  //   if (soketiConnected) {
-  //     console.log("[Soketi] Real-time connection active");
-  //   }
-  // }, [soketiConnected]);
+  useEffect(() => {
+    if (soketiConnected) {
+      console.log("[Soketi] Real-time connection active");
+    }
+  }, [soketiConnected]);
 
   const hasApps = (myAppsQuery.data?.apps?.length ?? 0) > 0;
   const firstApp = myAppsQuery.data?.apps?.[0];
@@ -67,7 +62,6 @@ function PrivateLayout() {
     }
   }, [hasApps, selectedApp, firstApp, setSelectedApp]);
 
-  // Show loading state during initial verification or token refresh
   if (
     verifyTokenQuery.isLoading ||
     myAppsQuery.isLoading ||
