@@ -5,9 +5,9 @@ import type { RequestOptions } from "../../core/api.types";
 import { BaseAPIService } from "../../core/base.service";
 import { API_ENDPOINTS } from "../../endpoints";
 import type {
+  FacebookLoginResponse,
   LoginRequest,
   LoginResponse,
-  MetaLoginResponse,
   RefreshTokenResponse,
   RegisterRequest,
   VerifyToken,
@@ -52,10 +52,10 @@ export class AuthService extends BaseAPIService {
     return this.get<VerifyToken>(API_ENDPOINTS.AUTH.VERIFY, undefined, options);
   };
 
-  metaLogin = (options?: RequestOptions) => {
-    return this.post<MetaLoginResponse>(
-      API_ENDPOINTS.AUTH.META_LOGIN,
-      { customer_id: 0 },
+  facebookLogin = (access_token: string, options?: RequestOptions) => {
+    return this.post<FacebookLoginResponse>(
+      API_ENDPOINTS.AUTH.FACEBOOK_LOGIN,
+      { access_token },
       options,
     );
   };

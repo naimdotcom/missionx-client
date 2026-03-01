@@ -2,7 +2,6 @@
 
 export const queryKeys = {
   authKeys: {
-    meta: ["auth", "meta"] as const,
     verifyToken: ["verify", "auth"] as const,
   },
   usersQueryKeys: {
@@ -34,6 +33,7 @@ export const mutationKeys = {
     register: ["auth", "register"] as const,
     logout: ["auth", "logout"] as const,
     google: ["auth", "google"] as const,
+    facebook: ["auth", "facebook"] as const,
     meta: ["auth", "meta"] as const,
     refreshToken: ["auth", "refreshToken"] as const,
     verify: ["auth", "verify"] as const,

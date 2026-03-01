@@ -25,9 +25,14 @@ export interface LoginResponse {
   session_id?: string | number;
 }
 
-export interface MetaLoginResponse {
-  authorization_url: string;
-  state: string;
+export interface FacebookLoginResponse {
+  access_token?: string;
+  refresh_token?: string;
+  token_type?: string;
+  expires_in?: number;
+  refresh_expires_in?: number;
+  session_id?: string | number;
+  user?: { id?: string; email?: string; phone?: string };
 }
 
 export type VerifyToken = {

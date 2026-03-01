@@ -3,7 +3,6 @@ import { useListMyApps } from "@/api/services/apps/apps.hook";
 import { useUserProfileFull } from "@/api/services/users/users.hooks";
 import { AppSidebar } from "@/components/nav-menu/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useSoketi } from "@/hooks/use-soketi";
 import { env } from "@/lib/env";
 import { useAuthStore } from "@/stores/auth-store";
 import { Outlet } from "@tanstack/react-router";
@@ -50,13 +49,13 @@ function PrivateLayout() {
   const myAppsQuery = useListMyApps({ page: 1, page_size: 10 });
 
   // Step 5: Connect to Soketi real-time channel
-  const { connected: soketiConnected } = useSoketi();
+  // const { connected: soketiConnected } = useSoketi();
 
-  useEffect(() => {
-    if (soketiConnected) {
-      console.log("[Soketi] Real-time connection active");
-    }
-  }, [soketiConnected]);
+  // useEffect(() => {
+  //   if (soketiConnected) {
+  //     console.log("[Soketi] Real-time connection active");
+  //   }
+  // }, [soketiConnected]);
 
   const hasApps = (myAppsQuery.data?.apps?.length ?? 0) > 0;
   const firstApp = myAppsQuery.data?.apps?.[0];

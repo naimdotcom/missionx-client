@@ -1,8 +1,8 @@
 import { useGoogleLogin, useMetaLogin } from "@/api";
 import { Spinner } from "@/components/ui/spinner";
+import { useFacebookSdk } from "@/hooks/useFacebookSdk";
 import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate } from "@tanstack/react-router";
-import axios from "axios";
 import { signInWithPopup } from "firebase/auth";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -110,8 +110,6 @@ function LoginPage() {
 export default LoginPage;
 
 function GoogleLoginBtn() {
-  const navigate = useNavigate();
-  const { setIsAuthenticated } = useAuthStore();
   const googleAuthMutation = useGoogleLogin();
 
   const handleGoogleLogin = async () => {
@@ -119,26 +117,10 @@ function GoogleLoginBtn() {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
 
-      googleAuthMutation.mutate(
-        { firebase_token: idToken },
-        {
-          onSuccess: (data) => {
-            toast.success("Login successful with Google");
-            if (data.access_token && data.refresh_token) {
-              setIsAuthenticated(true);
-            }
-            navigate({ to: "/inbox" });
-          },
-          onError: (err) => {
-            if (axios.isAxiosError(err)) {
-              toast.error(err.response?.data?.detail);
-            }
-          },
-        },
-      );
-    } catch (error: any) {
+      googleAuthMutation.mutate({ firebase_token: idToken });
+    } catch (error) {
       console.error("Google Popup Error:", error);
-      toast.error(error.message || "Could not complete Google Sign-In");
+      toast.error("Could not complete Google Sign-In");
     }
   };
 
@@ -176,30 +158,40 @@ function GoogleLoginBtn() {
 }
 
 function MetaLoginBtn() {
-  const { data, isSuccess, isPending } = useMetaLogin();
+  useFacebookSdk();
+  const facebookLoginMutation = useMetaLogin();
 
-  const handleMetaLogin = () => {
-    if (isSuccess) {
-      window.open(data.authorization_url, "_blank", "width=500,height=600");
-    } else {
-      toast.error("Failed to initiate Meta login. Please try again.");
-    }
+  const handleConnectFacebook = () => {
+    window.FB.login(
+      (response) => {
+        if (response.authResponse) {
+          const accessToken = response.authResponse.accessToken;
+          facebookLoginMutation.mutate(accessToken);
+        } else {
+          console.log("User cancelled login or did not fully authorize.");
+        }
+      },
+      {
+        scope:
+          "pages_show_list,pages_messaging,instagram_basic,instagram_manage_messages",
+      },
+    );
   };
 
   return (
     <Button
       size="lg"
       variant={"secondary"}
-      onClick={handleMetaLogin}
+      onClick={handleConnectFacebook}
       className=" font-semibold shadow-md"
     >
-      {isPending && (
+      {facebookLoginMutation.isPending && (
         <div className="flex items-center justify-center gap-1">
           <Spinner />
         </div>
       )}
 
-      {!isPending && (
+      {!facebookLoginMutation.isPending && (
         <span className="flex items-center justify-center gap-2 sm:gap-3">
           <svg
             xmlns="http://www.w3.org/2000/svg"

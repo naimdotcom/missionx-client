@@ -22,8 +22,8 @@ import { cn } from "@/lib/utils";
 import { ExternalLink, LinkIcon, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { useFacebookSdk } from "../../../hooks/useFacebookSdk";
 import { ChannelIcon } from "./ChannelIcons";
-import { useFacebookSdk } from "./useFacebookSdk";
 
 interface ConnectChannelDialogProps {
   appId: string;
