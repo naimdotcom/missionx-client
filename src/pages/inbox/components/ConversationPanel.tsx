@@ -7,7 +7,6 @@ import InfiniteScroll from "@/components/shared/InfinityScroll";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useConversationSocket } from "@/hooks/use-conversation-socket";
 import { cn } from "@/lib/utils";
 import { Route } from "@/routes";
 import { useNavigate } from "@tanstack/react-router";
@@ -36,9 +35,6 @@ function ConversationArea(props: ConversationAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const replierRef = useRef<SimplifiedReplierHandle>(null);
   const isInitialLoad = useRef(true);
-
-  // Real-time socket updates for this conversation
-  useConversationSocket(props.selectedTicket);
 
   // Flatten all pages of messages (API returns newest-first, so reverse to show oldest at top)
   const messageHistory = useMemo(() => {
