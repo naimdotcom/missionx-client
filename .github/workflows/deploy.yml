@@ -45,6 +45,8 @@ jobs:
             VITE_APP_URL=${{ secrets.VITE_APP_URL }}
             VITE_CHANNEL_URL=${{ secrets.VITE_CHANNEL_URL }}
             VITE_META_APP_ID=${{ secrets.VITE_META_APP_ID }}
+            VITE_PUSHER_APP_KEY=${{ secrets.VITE_PUSHER_APP_KEY }}
+            VITE_PUSHER_HOST=${{ secrets.VITE_PUSHER_HOST }}
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
