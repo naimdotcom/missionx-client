@@ -2,6 +2,7 @@ export const env = {
   authUrl: import.meta.env.VITE_AUTH_URL,
   channelUrl: import.meta.env.VITE_CHANNEL_URL,
   socketUrl: import.meta.env.VITE_CHANNEL_URL,
+  mediaUrl: import.meta.env.VITE_MEDIA_URL,
   metaAppId: import.meta.env.VITE_META_APP_ID,
   appUrl: import.meta.env.VITE_APP_URL,
   apiTimeout: import.meta.env.VITE_API_TIMEOUT

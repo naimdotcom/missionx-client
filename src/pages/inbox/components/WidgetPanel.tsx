@@ -12,7 +12,7 @@ interface DetailsPanelProps {
   conversationId?: string;
 }
 
-export function DetailsPanel({
+export function WidgetPanel({
   className,
   selectedTicket,
   conversationId,

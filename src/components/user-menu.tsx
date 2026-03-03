@@ -91,7 +91,7 @@ export function UserMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate({ to: "/settings" })}>
           <BadgeCheck />
           Account
         </DropdownMenuItem>

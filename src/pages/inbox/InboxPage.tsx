@@ -9,7 +9,7 @@ import { Inbox } from "lucide-react";
 import { useState } from "react";
 import ConversationArea from "./components/ConversationPanel";
 import TicketsPanel from "./components/TicketPanel";
-import { DetailsPanel } from "./components/WidgetPanel";
+import { WidgetPanel } from "./components/WidgetPanel";
 
 function InboxPage() {
   // Register Soketi event handlers for the inbox module.
@@ -68,15 +68,16 @@ function InboxPage() {
             : "w-0 border-none",
         )}
       >
-        <DetailsPanel
+        <WidgetPanel
           className="w-[350px] 2xl:w-[400px] h-full border-none"
           selectedTicket={selectedTicket}
           conversationId={selectedCase}
         />
       </div>
+
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent side="right" className="w-[90%] sm:w-[400px] p-0 pt-10">
-          <DetailsPanel
+          <WidgetPanel
             className="w-full border-0"
             selectedTicket={selectedTicket}
             conversationId={selectedCase}

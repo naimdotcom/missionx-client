@@ -91,7 +91,7 @@ export interface ConversationHistoryResponse {
 
 export interface SendMessagePayload {
   conversation_id: string;
-  message_type: "standard";
+  message_type: "standard" | "message" | "comment";
   payload?: {
     text?: string;
     attachments?: {

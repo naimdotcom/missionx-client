@@ -80,7 +80,7 @@ export const MessageBubble = ({
 
         {/* Attachments (outside bubble) */}
         {hasAttachments && (
-          <div className="flex flex-col gap-1.5">
+          <div className="grid grid-cols-2 gap-1.5 ">
             {attachments!.map((attachment, idx) => {
               const attachmentType = getAttachmentType(
                 attachment.content_type || attachment.type,
@@ -89,7 +89,10 @@ export const MessageBubble = ({
               return (
                 <div key={attachment.stored_at || idx}>
                   {attachmentType === "image" && (
-                    <ImageAttachment attachmentUrl={attachment.payload.url} />
+                    <ImageAttachment
+                      totalImage={attachments.length}
+                      attachmentUrl={attachment.payload.url}
+                    />
                   )}
                   {attachmentType === "video" && (
                     <VideoAttachment attachmentUrl={attachment.payload.url} />

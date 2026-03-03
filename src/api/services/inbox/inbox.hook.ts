@@ -38,6 +38,7 @@ export function useConversationHistory(conversationId: string) {
     queryFn: async ({ pageParam }) => {
       const response = await inboxService.conversationHistory(conversationId, {
         page: pageParam,
+        limit: 20,
       });
       return response;
     },

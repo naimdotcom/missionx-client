@@ -113,7 +113,7 @@ function ConversationArea(props: ConversationAreaProps) {
       if (!text.trim() && (!attachments || attachments.length === 0)) return;
       await sendMessageMutation.mutateAsync({
         conversation_id: props.selectedTicket,
-        message_type: "standard",
+        message_type: "message",
         payload: {
           text: text.trim() || undefined,
           ...(attachments && attachments.length > 0 && { attachments }),
