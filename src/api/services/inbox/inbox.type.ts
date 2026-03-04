@@ -10,19 +10,24 @@ export interface ConversationTicketsParams {
 }
 
 export interface ConversationTicket {
-  id: string;
-  channel_id: string;
-  platform: ChannelPlatform;
-  customer_name: string;
-  customer_profile_pic: string;
-  customer_platform_id: string;
-  status: "ONGOING" | "DONE" | "PENDING";
-  last_message_text: string;
-  last_message_time: string;
-  unread_count: number;
-  total_unseen_count: number;
-  created_at: string;
-  updated_at: string;
+  id?: string;
+  channel_id?: string;
+  platform?: ChannelPlatform;
+  customer_name?: string;
+  customer_profile_pic?: string;
+  customer_platform_id?: string;
+  status?: "ONGOING" | "DONE" | "PENDING";
+  last_message_text?: string;
+  last_message_time?: string;
+  unread_count?: number;
+  total_unseen_count?: number;
+  created_at?: string;
+  updated_at?: string;
+  agent_last_read_at?: string;
+  agent_last_message_mid?: string;
+  customer_last_message_mid?: string;
+  customer_last_read_at?: string;
+  customer_unread_count?: number;
 }
 
 export interface ConversationTickets {
@@ -36,57 +41,63 @@ export interface ConversationTickets {
 export interface ConversationHistoryParams {
   page?: number;
   limit?: number;
+  before_id?: string;
+  before_time?: string;
 }
 
-export interface MessageAttachment {
-  url: string;
-  type: string;
-  meta_url: string;
-  file_size: number;
-  stored_at: string;
-  content_type: string;
-  payload: { url: string };
-}
-
-export interface ConversationHistoryMessage {
+export interface Conversation {
   id: string;
   mid?: string;
   type?: string;
   sender?: string;
+  post_id?: string;
   sender_id?: string;
-  created_at: string;
+  sentiment?: string;
+  is_hidden?: string;
+  is_replied?: string;
+  created_at?: string;
+  reply_to_mid?: string;
+  content_type?: string;
   conversation_id?: string;
-  content?: {
-    text?: string;
-    html?: string;
-    attachments?: MessageAttachment[];
-  };
-  attendant?: { id?: string; name?: string };
+  parent_comment_id?: string;
+  replied_to_content?: ReplyToConversation;
+  attendant?: { id: string; name: string };
+  content?: { text?: string; attachments?: Array<ConversationAttachment> };
 }
 
-export interface ConversationHistoryResponse {
-  messages: ConversationHistoryMessage[];
-  channel: {
-    id?: string;
-    platform?: string;
-    platform_page_id?: string;
-    is_active?: boolean;
+export interface ReplyToConversation {
+  id?: string;
+  sender_id?: string;
+  created_at?: string;
+  conversation_id?: string;
+  content?: { text?: string; attachments?: Array<ConversationAttachment> };
+}
+
+export interface ConversationAttachment {
+  type?: string;
+  payload: { url?: string; sticker_id?: string };
+}
+
+export interface ConversationHistory {
+  items?: Conversation[];
+  channel?: {
+    id: string;
+    platform: string;
+    platform_page_id: string;
+    is_active: boolean;
   };
-  conversation?: {
-    id?: string;
-    status?: string;
-    external_id?: string;
-  };
+  conversation?: { id?: string; status?: string; external_id?: string };
   customer?: {
     platform_id?: string;
     display_name?: string;
     profile_pic_url?: string;
   };
-  page?: number;
   limit?: number;
   count?: number;
-  has_more?: boolean;
-  total_pages?: number;
+  has_older?: boolean;
+  has_newer?: boolean;
+  before_cursor?: string;
+  after_cursor?: string;
 }
 
 export interface SendMessagePayload {

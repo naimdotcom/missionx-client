@@ -2,6 +2,7 @@ import {
   useConversationHistory,
   useSendMessage,
 } from "@/api/services/inbox/inbox.hook";
+import { Conversation } from "@/api/services/inbox/inbox.type";
 import ConversationLoading from "@/components/shared/ConversationLoading";
 import InfiniteScroll from "@/components/shared/InfinityScroll";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,9 +11,15 @@ import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Route } from "@/routes";
 import { useNavigate } from "@tanstack/react-router";
-import { format, isToday, parseISO } from "date-fns";
 import { ArrowLeft, Info, PanelRight } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { MessageBubble } from "./message-bublle/message-bubble";
 import {
   SimplifiedReplier,
@@ -27,83 +34,117 @@ type ConversationAreaProps = {
 };
 
 function ConversationArea(props: ConversationAreaProps) {
-  const navigate = useNavigate({ from: Route.fullPath });
-  const conversationHistoryQuery = useConversationHistory(props.selectedTicket);
   const sendMessageMutation = useSendMessage();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const conversationsQuery = useConversationHistory(props.selectedTicket);
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const replierRef = useRef<SimplifiedReplierHandle>(null);
-  const isInitialLoad = useRef(true);
+  // Scroll height captured just before fetchNextPage fires — used to restore
+  // the user's position after older messages are prepended.
+  const savedScrollHeightRef = useRef(0);
+
+  // Reply-to state — the message the agent is replying to
+  const [replyTo, setReplyTo] = useState<Conversation | null>(null);
 
   // Flatten all pages of messages (API returns newest-first, so reverse to show oldest at top)
-  const messageHistory = useMemo(() => {
-    if (conversationHistoryQuery.isSuccess) {
-      const allMessages = conversationHistoryQuery.data?.pages
-        .flatMap((page) => page.messages)
-        .reverse();
-      return allMessages ?? [];
-    }
-    return [];
-  }, [
-    conversationHistoryQuery.data?.pages,
-    conversationHistoryQuery.isSuccess,
-  ]);
+  const messages = useMemo(() => {
+    if (conversationsQuery.isSuccess) {
+      return (
+        conversationsQuery.data?.pages
+          .flatMap((page) => page.items)
+          .reverse() ?? []
+      );
+    } else return [];
+  }, [conversationsQuery.data?.pages, conversationsQuery.isSuccess]);
 
-  // Extract data from the first page (contains metadata)
-  const firstPageData = conversationHistoryQuery.data?.pages[0];
-
-  // Group messages by calendar date for separators
-  const groupedMessages = useMemo(() => {
-    const groups: {
-      dateKey: string;
-      label: string;
-      messages: typeof messageHistory;
-    }[] = [];
-    const seenDates = new Map<string, number>();
-
-    for (const msg of messageHistory) {
-      const date = parseISO(msg.created_at);
-      const dateKey = format(date, "yyyy-MM-dd");
-      const label = isToday(date) ? "Today" : format(date, "MMMM d, yyyy");
-
-      if (!seenDates.has(dateKey)) {
-        seenDates.set(dateKey, groups.length);
-        groups.push({ dateKey, label, messages: [] });
-      }
-      groups[seenDates.get(dateKey)!].messages.push(msg);
-    }
-    return groups;
-  }, [messageHistory]);
+  // Extract metadata from the first page
+  const firstPageData = conversationsQuery.data?.pages[0];
 
   const customerDetails = useMemo(() => {
-    if (conversationHistoryQuery.isSuccess && firstPageData) {
+    if (conversationsQuery.isSuccess && firstPageData) {
       return firstPageData.customer;
     }
     return null;
-  }, [firstPageData, conversationHistoryQuery.isSuccess]);
+  }, [firstPageData, conversationsQuery.isSuccess]);
 
-  // Auto-scroll to bottom on initial load & new messages
-  useEffect(() => {
-    if (isInitialLoad.current && messageHistory.length > 0) {
+  const pageCount = conversationsQuery.data?.pages.length ?? 0;
+
+  // ── Scroll: initial load & new message ──────────────────────────────────
+  // Runs synchronously after every paint so there's no visible jump.
+  // On the very first load (pageCount === 1) or when a new message arrives
+  // while the user is near the bottom, scroll to the anchor.
+  useLayoutEffect(() => {
+    if (pageCount === 1) {
+      // Initial load — jump straight to the bottom
       messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
-      isInitialLoad.current = false;
-    } else if (!conversationHistoryQuery.isFetchingNextPage) {
+    }
+  }, [pageCount]);
+
+  // Scroll to bottom when a new message is appended (send / realtime WebSocket)
+  // We detect this by checking if the last message id changed while pageCount
+  // didn't increase (i.e. it wasn't a pagination fetch).
+  const lastMsgId = messages[messages.length - 1]?.id;
+  const prevLastMsgIdRef = useRef<string | undefined>(undefined);
+  const prevPageCountRef = useRef(pageCount);
+  useLayoutEffect(() => {
+    const isNewMessage =
+      lastMsgId !== prevLastMsgIdRef.current &&
+      pageCount === prevPageCountRef.current;
+    prevLastMsgIdRef.current = lastMsgId;
+    prevPageCountRef.current = pageCount;
+    if (isNewMessage) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messageHistory, conversationHistoryQuery.isFetchingNextPage]);
+  });
 
-  // Reset initial load flag when conversation changes
+  // ── Scroll: pagination (older messages prepended) ────────────────────────
+  // After a new page is added, restore the scroll offset so the user stays
+  // at the same visual position they were at before loading.
+  useLayoutEffect(() => {
+    if (pageCount <= 1) return; // skip initial single-page load
+    const container = scrollContainerRef.current;
+    if (!container || savedScrollHeightRef.current === 0) return;
+    container.scrollTop = container.scrollHeight - savedScrollHeightRef.current;
+    savedScrollHeightRef.current = 0;
+  }, [pageCount]);
+
+  // Reset state and scroll when switching conversations
   useEffect(() => {
-    isInitialLoad.current = true;
+    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   }, [props.selectedTicket]);
+
+  // Reset replyTo when the ticket changes using the React recommended pattern:
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+  const [prevTicket, setPrevTicket] = useState(props.selectedTicket);
+  if (prevTicket !== props.selectedTicket) {
+    setPrevTicket(props.selectedTicket);
+    setReplyTo(null);
+  }
 
   // Auto-focus replier when conversation changes
   useEffect(() => {
-    if (conversationHistoryQuery.isSuccess) {
+    if (conversationsQuery.isSuccess) {
       replierRef.current?.focus();
     }
-  }, [props.selectedTicket, conversationHistoryQuery.isSuccess]);
+  }, [props.selectedTicket, conversationsQuery.isSuccess]);
+
+  // Wrap fetchNextPage to save scroll height first — must happen synchronously
+  // before the query fires so we can restore position after the new page renders.
+  const fetchOlderMessages = useCallback(() => {
+    if (scrollContainerRef.current) {
+      savedScrollHeightRef.current = scrollContainerRef.current.scrollHeight;
+    }
+    conversationsQuery.fetchNextPage();
+  }, [conversationsQuery]);
+
+  const handleReply = useCallback((msg: Conversation) => {
+    setReplyTo(msg);
+    // Focus the replier so the agent can immediately type
+    requestAnimationFrame(() => replierRef.current?.focus());
+  }, []);
 
   const handleSend = useCallback(
     async (
@@ -118,17 +159,15 @@ function ConversationArea(props: ConversationAreaProps) {
           text: text.trim() || undefined,
           ...(attachments && attachments.length > 0 && { attachments }),
         },
-        reply_to_mid: "",
+        reply_to_mid: replyTo?.mid ?? "",
       });
-      // Focus back to replier after send (use rAF to wait for re-render)
-      requestAnimationFrame(() => {
-        replierRef.current?.focus();
-      });
+      setReplyTo(null);
+      requestAnimationFrame(() => replierRef.current?.focus());
     },
-    [props.selectedTicket, sendMessageMutation],
+    [props.selectedTicket, sendMessageMutation, replyTo],
   );
 
-  if (conversationHistoryQuery.isLoading) {
+  if (conversationsQuery.isLoading) {
     return <ConversationLoading />;
   }
   return (
@@ -199,57 +238,50 @@ function ConversationArea(props: ConversationAreaProps) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto bg-muted/30">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto bg-muted/30"
+      >
         <div className="flex flex-col justify-end min-h-full p-4 space-y-6">
           {/* Load older messages */}
           <InfiniteScroll
-            hasMore={conversationHistoryQuery.hasNextPage}
-            isLoading={conversationHistoryQuery.isFetchingNextPage}
-            next={conversationHistoryQuery.fetchNextPage}
+            hasMore={conversationsQuery.hasNextPage}
+            isLoading={conversationsQuery.isFetchingNextPage}
+            next={fetchOlderMessages}
             threshold={0.5}
             reverse
           >
-            {conversationHistoryQuery.isFetchingNextPage && (
+            {conversationsQuery.isFetchingNextPage && (
               <div className="flex justify-center py-2">
                 <Spinner />
               </div>
             )}
           </InfiniteScroll>
 
-          {groupedMessages.map((group) => (
-            <div key={group.dateKey} className="space-y-4">
-              <div className="flex items-center gap-3 my-2">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs border text-muted-foreground bg-muted/50 rounded-full py-0.5 px-3">
-                  {group.label}
-                </span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-
-              {group.messages.map((msg) => {
-                const isCustomer = msg.sender === "customer";
-                const name = isCustomer
-                  ? customerDetails?.display_name
-                  : msg.attendant?.name || "Agent";
-                const avatarUrl = isCustomer
-                  ? customerDetails?.profile_pic_url
-                  : undefined;
-                return (
-                  <MessageBubble
-                    key={msg.id}
-                    senderName={name}
-                    time={msg.created_at}
-                    avatarUrl={avatarUrl}
-                    isCustomer={isCustomer}
-                    showAvatar={isCustomer}
-                    text={msg.content?.text}
-                    html={msg.content?.html}
-                    attachments={msg.content?.attachments}
-                  />
-                );
-              })}
-            </div>
-          ))}
+          {messages.map((msg) => {
+            const isCustomer = msg?.sender === "customer";
+            const name = isCustomer
+              ? customerDetails?.display_name
+              : msg?.attendant?.name || "Agent";
+            const avatarUrl = isCustomer
+              ? customerDetails?.profile_pic_url
+              : undefined;
+            return (
+              <MessageBubble
+                key={msg?.id}
+                msgId={msg?.id}
+                senderName={name}
+                time={msg?.created_at}
+                avatarUrl={avatarUrl}
+                isCustomer={isCustomer}
+                showAvatar={isCustomer}
+                text={msg?.content?.text}
+                attachments={msg?.content?.attachments}
+                repliedTo={msg?.replied_to_content}
+                onReply={() => msg && handleReply(msg)}
+              />
+            );
+          })}
           {/* Scroll anchor */}
           <div ref={messagesEndRef} />
         </div>
@@ -264,6 +296,8 @@ function ConversationArea(props: ConversationAreaProps) {
         onSend={handleSend}
         conversationId={props.selectedTicket}
         ticketStatus={firstPageData?.conversation?.status}
+        replyTo={replyTo}
+        onCancelReply={() => setReplyTo(null)}
       />
     </div>
   );

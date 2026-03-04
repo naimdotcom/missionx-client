@@ -1,4 +1,5 @@
 import { useUpdateConversationStatus } from "@/api/services/inbox/inbox.hook";
+import { Conversation } from "@/api/services/inbox/inbox.type";
 import { useFileUpload } from "@/api/services/upload/upload.hook";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import {
   MessageCircle,
   Paperclip,
   RefreshCw,
+  Reply,
   Send,
   Video,
   X,
@@ -58,6 +60,8 @@ interface SimplifiedReplierProps {
   maxLength?: number;
   conversationId?: string;
   ticketStatus?: string;
+  replyTo?: Conversation | null;
+  onCancelReply?: () => void;
 }
 
 export interface SimplifiedReplierHandle {
@@ -87,6 +91,8 @@ export const SimplifiedReplier = forwardRef<
     maxLength = 2000,
     conversationId,
     ticketStatus,
+    replyTo,
+    onCancelReply,
   },
   ref,
 ) {
@@ -339,6 +345,28 @@ export const SimplifiedReplier = forwardRef<
   return (
     <div className="border-t bg-background shrink-0">
       <div className="p-4">
+        {/* Reply-to preview banner */}
+        {replyTo && (
+          <div className="mb-2 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
+            <Reply className="size-3.5 shrink-0 text-primary" />
+            <p className="flex-1 truncate text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">
+                {replyTo.sender === "customer"
+                  ? "Customer"
+                  : replyTo.attendant?.name || "Agent"}
+              </span>
+              {" — "}
+              {replyTo.content?.text || "Attachment"}
+            </p>
+            <button
+              onClick={onCancelReply}
+              className="shrink-0 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
+            >
+              <X className="size-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Attachments Preview */}
         {attachments.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">

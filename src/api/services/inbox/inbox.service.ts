@@ -2,8 +2,8 @@ import { API_ENDPOINTS, RequestOptions } from "@/api";
 import { BaseAPIService } from "@/api/core/base.service";
 import { env } from "@/lib/env";
 import {
+  ConversationHistory,
   ConversationHistoryParams,
-  ConversationHistoryResponse,
   ConversationTickets,
   ConversationTicketsParams,
   MessageSendResponse,
@@ -30,7 +30,7 @@ export class InboxService extends BaseAPIService {
     params?: ConversationHistoryParams,
     options?: RequestOptions,
   ) =>
-    this.get<ConversationHistoryResponse>(
+    this.get<ConversationHistory>(
       API_ENDPOINTS.INBOX.CONVERSATION_HISTORY(conversationID),
       params,
       options,

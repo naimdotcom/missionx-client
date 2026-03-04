@@ -29,27 +29,37 @@ export function useConversationTickets(params: ConversationTicketsParams) {
   });
 }
 
+/** Cursor used by bi-directional (older) pagination. */
+interface HistoryCursor {
+  before_id: string;
+  before_time: string;
+}
+
 export function useConversationHistory(conversationId: string) {
   return useInfiniteQuery({
     staleTime: 100,
     enabled: !!conversationId,
     queryKey: [...queryKeys.inboxKeys.conversationHistory(conversationId)],
-    initialPageParam: 1,
+    initialPageParam: undefined as HistoryCursor | undefined,
     queryFn: async ({ pageParam }) => {
       const response = await inboxService.conversationHistory(conversationId, {
-        page: pageParam,
-        limit: 20,
+        limit: 10,
+        ...(pageParam && {
+          before_id: pageParam.before_id,
+          before_time: pageParam.before_time,
+        }),
       });
       return response;
     },
     getNextPageParam: (lastPage) => {
-      if (
-        lastPage.has_more &&
-        (lastPage.page ?? 1) < (lastPage.total_pages ?? 1)
-      ) {
-        return (lastPage.page ?? 1) + 1;
-      }
-      return undefined;
+      if (!lastPage.has_older) return undefined;
+
+      // Use the oldest message in this page as the cursor for the next page
+      const items = lastPage.items ?? [];
+      const oldest = items[items.length - 1];
+      if (!oldest?.id || !oldest?.created_at) return undefined;
+
+      return { before_id: oldest.id, before_time: oldest.created_at };
     },
   });
 }

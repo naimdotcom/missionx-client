@@ -88,6 +88,15 @@ interface InfiniteScrollProps {
   children?: React.ReactNode;
 }
 
+/**
+ * Sentinel-based infinite scroll.
+ *
+ * The IntersectionObserver is created ONCE per sentinel element mount.
+ * `hasMore`, `isLoading`, and `next` are stored in refs so the observer
+ * never needs to be torn down and recreated when they change — which was
+ * the cause of the double-fetch bug (observer recreated while sentinel was
+ * still visible → immediate second fire).
+ */
 export default function InfiniteScroll({
   isLoading,
   hasMore,
@@ -98,39 +107,49 @@ export default function InfiniteScroll({
   reverse,
   children,
 }: InfiniteScrollProps) {
+  // Keep latest values accessible inside the stable observer callback
+  const hasMoreRef = React.useRef(hasMore);
+  const isLoadingRef = React.useRef(isLoading);
+  const nextRef = React.useRef(next);
+  hasMoreRef.current = hasMore;
+  isLoadingRef.current = isLoading;
+  nextRef.current = next;
+
   const observerRef = React.useRef<IntersectionObserver | null>(null);
 
-  const sentinelCallbackRef = React.useCallback(
+  // Callback ref — runs when the sentinel mounts/unmounts.
+  // Does NOT depend on hasMore/isLoading/next so the observer is never
+  // recreated mid-scroll; it just reads the latest values via refs.
+  const sentinelRef = React.useCallback(
     (element: HTMLDivElement | null) => {
       if (observerRef.current) {
         observerRef.current.disconnect();
         observerRef.current = null;
       }
-
-      if (!element || isLoading || !hasMore) return;
+      if (!element) return;
 
       let safeThreshold = threshold;
-      if (threshold < 0 || threshold > 1) {
-        console.warn(
-          "threshold should be between 0 and 1. You are exceeding the range. Will use default value: 1",
-        );
-        safeThreshold = 1;
-      }
+      if (threshold < 0 || threshold > 1) safeThreshold = 1;
 
       observerRef.current = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && hasMore) {
-            next();
+        ([entry]) => {
+          if (
+            entry.isIntersecting &&
+            hasMoreRef.current &&
+            !isLoadingRef.current
+          ) {
+            nextRef.current();
           }
         },
         { threshold: safeThreshold, root, rootMargin },
       );
       observerRef.current.observe(element);
     },
-    [hasMore, isLoading, next, threshold, root, rootMargin],
+    // Only structural observer options — NOT hasMore/isLoading/next
+    [threshold, root, rootMargin],
   );
 
-  const sentinel = <div ref={sentinelCallbackRef} style={{ height: 1 }} />;
+  const sentinel = <div ref={sentinelRef} style={{ height: 1 }} />;
 
   return (
     <>

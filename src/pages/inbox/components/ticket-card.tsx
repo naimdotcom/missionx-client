@@ -39,7 +39,7 @@ export const TicketCard = ({
             </AvatarFallback>
           </Avatar>
           <div className="absolute -bottom-1 -right-1">
-            <ChannelIcon channel={ticket.platform} />
+            {ticket.platform && <ChannelIcon platform={ticket.platform} />}
           </div>
         </div>
 
@@ -49,7 +49,7 @@ export const TicketCard = ({
               {ticket.customer_name}
             </span>
             <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-              {format(new Date(ticket.created_at), "Pp")}
+              {ticket.created_at && format(new Date(ticket.created_at), "Pp")}
             </span>
           </div>
 
@@ -73,8 +73,8 @@ export const TicketCard = ({
   );
 };
 
-const ChannelIcon = ({ channel }: { channel: string }) => {
-  switch (channel?.toLowerCase()) {
+const ChannelIcon = ({ platform }: { platform: string }) => {
+  switch (platform?.toLowerCase()) {
     case "facebook":
       return (
         <div className="rounded-full bg-[#1877F2] p-0.5 border border-background shadow-sm">

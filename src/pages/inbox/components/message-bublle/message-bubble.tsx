@@ -1,7 +1,12 @@
-import { MessageAttachment } from "@/api/services/inbox/inbox.type";
+import {
+  ConversationAttachment,
+  ReplyToConversation,
+} from "@/api/services/inbox/inbox.type";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { Reply } from "lucide-react";
 import { useMemo } from "react";
 import AudioAttachment from "./AudiAttachment";
 import FileAttachment from "./FileAttachment";
@@ -11,26 +16,49 @@ import { getAttachmentType } from "./utill";
 import VideoAttachment from "./VideoAttachment";
 
 interface MessageBubbleProps {
+  msgId?: string;
   text?: string;
-  html?: string;
-  time: string;
+  time?: string;
   avatarUrl?: string;
   senderName?: string;
   showAvatar?: boolean;
   isCustomer?: boolean;
-  attachments?: MessageAttachment[];
+  attachments?: ConversationAttachment[];
+  repliedTo?: ReplyToConversation;
+  onReply?: () => void;
 }
 
-export const MessageBubble = ({
+function Attachment({
+  attachment,
+  total,
+}: {
+  attachment: ConversationAttachment;
+  total: number;
+}) {
+  const type = getAttachmentType(attachment.type || "", attachment.payload.url);
+  const url = attachment.payload.url;
+  if (!url) return null;
+  if (type === "image")
+    return <ImageAttachment totalImage={total} attachmentUrl={url} />;
+  if (type === "video") return <VideoAttachment attachmentUrl={url} />;
+  if (type === "audio") return <AudioAttachment attachmentUrl={url} />;
+  return (
+    <FileAttachment attachmentUrl={url} type={attachment.type || "file"} />
+  );
+}
+
+export function MessageBubble({
+  msgId,
   text,
-  html,
   time,
   senderName,
   avatarUrl,
   showAvatar = true,
   isCustomer = true,
-  attachments,
-}: MessageBubbleProps) => {
+  attachments = [],
+  repliedTo,
+  onReply,
+}: MessageBubbleProps) {
   const initials = senderName
     ?.split(" ")
     .map((n) => n[0])
@@ -38,138 +66,129 @@ export const MessageBubble = ({
     .toUpperCase()
     .slice(0, 2);
 
-  const hasText = !!(text?.trim() || html?.trim());
-  const hasAttachments = !!(attachments && attachments.length > 0);
+  const scrollToReplied = () => {
+    if (!repliedTo?.id) return;
+    document
+      .querySelector(`[data-msg-id="${repliedTo.id}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const isAgent = !isCustomer;
 
   const renderedText = useMemo(() => {
-    if (html) return null;
     if (!text) return null;
     return linkifyText(text, isCustomer);
-  }, [text, html, isCustomer]);
+  }, [text, isCustomer]);
+
+  // const hasText = !!text?.trim();
+  // const hasAttachments = !!(attachments && attachments.length > 0);
 
   return (
     <div
+      data-msg-id={msgId}
       className={cn(
-        "flex gap-2.5 items-end max-w-full group",
-        !isCustomer && "flex-row-reverse",
+        "flex gap-2 items-end max-w-full group",
+        isAgent && "flex-row-reverse",
       )}
     >
       {/* Avatar */}
-      <div className="flex-shrink-0">
-        {showAvatar && (
-          <Avatar className="h-7 w-7 ring-2 ring-background shadow-sm">
-            <AvatarImage src={avatarUrl} alt={senderName} />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-        )}
-      </div>
 
-      {/* Name + Bubble */}
+      {showAvatar && (
+        <Avatar className="h-7 w-7">
+          <AvatarImage src={avatarUrl} alt={senderName} />
+          <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
+        </Avatar>
+      )}
+
+      {/* Bubble column */}
       <div
         className={cn(
-          "flex flex-col gap-1 max-w-[72%]",
-          isCustomer ? "items-start" : "items-end",
+          "flex flex-col gap-0.5 max-w-lg",
+          isAgent ? "items-end" : "items-start",
         )}
       >
-        {/* Sender name — only shown when avatar is visible */}
         {senderName && (
-          <span className={cn("text-[11px] font-semibold tracking-wide px-1")}>
+          <span className="text-[11px] text-muted-foreground px-1">
             {senderName}
           </span>
         )}
 
-        {/* Attachments (outside bubble) */}
-        {hasAttachments && (
-          <div className="grid grid-cols-2 gap-1.5 ">
-            {attachments!.map((attachment, idx) => {
-              const attachmentType = getAttachmentType(
-                attachment.content_type || attachment.type,
-                attachment.payload.url,
-              );
-              return (
-                <div key={attachment.stored_at || idx}>
-                  {attachmentType === "image" && (
-                    <ImageAttachment
-                      totalImage={attachments.length}
-                      attachmentUrl={attachment.payload.url}
-                    />
-                  )}
-                  {attachmentType === "video" && (
-                    <VideoAttachment attachmentUrl={attachment.payload.url} />
-                  )}
-                  {attachmentType === "audio" && (
-                    <AudioAttachment attachmentUrl={attachment.payload.url} />
-                  )}
-                  {attachmentType === "file" && (
-                    <FileAttachment
-                      type={attachment.content_type}
-                      attachmentUrl={attachment.payload.url}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {/* Unified bubble */}
+        <div
+          className={cn(
+            "flex flex-col rounded-2xl overflow-hidden text-sm shadow-md",
+            isAgent && "bg-primary/90 rounded-br-sm text-primary-foreground",
+            !isAgent && "bg-white dark:bg-muted/70 rounded-bl-sm",
+          )}
+        >
+          {/* Replied-to quote — click to scroll to the original message */}
+          {repliedTo?.content?.text && (
+            <button
+              onClick={scrollToReplied}
+              className={cn(
+                "mx-2 mt-2 px-2.5 py-1.5 rounded border-r-2 text-xs",
+                isAgent
+                  ? "bg-white/10 border-l-white/60 text-primary-foreground/80"
+                  : "bg-muted/60 border-r-primary/50 text-muted-foreground",
+              )}
+            >
+              <p className="line-clamp-2 break-words">
+                {repliedTo.content.text}
+              </p>
+            </button>
+          )}
 
-        {/* Text bubble */}
-        {(hasText || (!hasText && !hasAttachments)) && (
-          <div
-            className={cn(
-              "relative px-3.5 py-2.5 text-sm leading-relaxed shadow-sm",
-              "rounded-2xl",
-              isCustomer
-                ? [
-                    "bg-white dark:bg-muted/60",
-                    "text-foreground",
-                    "border border-border/50",
-                    "rounded-bl-sm",
-                    "shadow-[0_1px_4px_0_rgba(0,0,0,0.06)]",
-                  ]
-                : [
-                    "bg-gradient-to-br from-primary to-primary/80",
-                    "text-primary-foreground",
-                    "rounded-br-sm",
-                    "shadow-[0_2px_8px_0_rgba(var(--primary)/0.35)]",
-                  ],
-            )}
-          >
-            {hasText ? (
-              html ? (
-                <div
-                  className="prose prose-sm max-w-none [&_a]:underline [&_a]:text-inherit [&_img]:max-w-full [&_img]:rounded-lg"
-                  dangerouslySetInnerHTML={{ __html: html }}
-                />
-              ) : (
-                <p className="whitespace-pre-wrap break-words">
-                  {renderedText}
-                </p>
-              )
+          {/* Attachments */}
+          {attachments.length > 0 && (
+            <div
+              className={cn(
+                "grid gap-1 p-2",
+                attachments.length > 1 && "grid-cols-2",
+              )}
+            >
+              {attachments.map((a, i) => (
+                <Attachment key={i} attachment={a} total={attachments.length} />
+              ))}
+            </div>
+          )}
+
+          {/* Text + timestamp */}
+          <div className="px-3 py-2">
+            {renderedText ? (
+              <p className="leading-relaxed break-words whitespace-pre-wrap">
+                {renderedText}
+              </p>
             ) : (
-              <p className="italic opacity-50">No content</p>
+              attachments.length === 0 && (
+                <p className="italic opacity-40">No content</p>
+              )
             )}
-
-            {/* Inline timestamp */}
             <span
               className={cn(
-                "block text-right text-[10px] mt-1 leading-none select-none",
-                isCustomer
-                  ? "text-muted-foreground/70"
-                  : "text-primary-foreground/60",
+                "block text-right text-[10px] leading-none select-none mt-1",
+                isAgent
+                  ? "text-primary-foreground/60"
+                  : "text-muted-foreground/60",
               )}
             >
               {formatTime(time)}
             </span>
           </div>
-        )}
-
-        {/* Standalone time when there's only an attachment (no text bubble) */}
-        {hasAttachments && !hasText && (
-          <span className="text-[10px] text-muted-foreground/70 px-1">
-            {formatTime(time)}
-          </span>
-        )}
+        </div>
       </div>
+
+      {/* Reply button — appears on hover */}
+      {onReply && (
+        <Button
+          size="icon"
+          title="Reply"
+          variant="ghost"
+          onClick={onReply}
+          className="self-center opacity-0 group-hover:opacity-100 rounded-full"
+        >
+          <Reply className="size-3.5" />
+        </Button>
+      )}
     </div>
   );
-};
+}

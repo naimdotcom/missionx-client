@@ -1,7 +1,7 @@
 import { queryKeys } from "@/api";
 import {
-  ConversationHistoryMessage,
-  ConversationHistoryResponse,
+  Conversation,
+  ConversationHistory,
 } from "@/api/services/inbox/inbox.type";
 import { useAuthStore } from "@/stores/auth-store";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +10,6 @@ import { soketiService } from "./soketi.service";
 import {
   SoketiCustomerUpdatedPayload,
   SoketiMessageReadPayload,
-  SoketiNewMessagePayload,
 } from "./soketi.type";
 
 /**
@@ -28,58 +27,41 @@ export function useInboxSoketi() {
 
   // ── new_message ────────────────────────────────────────────────────────────
   const handleNewMessage = useCallback(
-    (payload: SoketiNewMessagePayload) => {
-      console.debug("[Soketi][Inbox] new_message:", payload);
+    (message: Conversation) => {
+      console.debug("[Soketi][Inbox] new_message:", message);
 
-      const { message, conversation } = payload;
-      const convId = message.conversation_id ?? conversation?.id;
-      if (!convId) return;
+      if (!message.conversation_id) return;
 
-      // Map Soketi payload → ConversationHistoryMessage
-      const newMsg: ConversationHistoryMessage = {
-        id: message.id,
-        type: message.message_type,
-        sender: message.sender_type,
-        sender_id: message.sender_id,
-        content: message.content,
-        created_at: message.created_at,
-        conversation_id: convId,
-      };
-
-      queryClient.setQueryData<InfiniteData<ConversationHistoryResponse>>(
-        queryKeys.inboxKeys.conversationHistory(convId),
+      queryClient.setQueryData<InfiniteData<ConversationHistory>>(
+        queryKeys.inboxKeys.conversationHistory(message.conversation_id),
         (old) => {
-          // If conversation isn't in cache yet, bootstrap an initial page
-          // so the message is never silently dropped
+          // No cache yet — create a minimal first page so the message is not lost
           if (!old || !old.pages.length) {
             return {
-              pages: [
-                {
-                  messages: [newMsg],
-                  channel: {},
-                  has_more: false,
-                } satisfies ConversationHistoryResponse,
-              ],
-              pageParams: [1],
+              pages: [{ items: [message] } satisfies ConversationHistory],
+              pageParams: [undefined],
             };
           }
-          const firstPage = old.pages[0];
-          // Deduplicate by id
-          if (firstPage.messages.some((m) => m.id === newMsg.id)) return old;
-          // API returns newest-first within each page. Prepend so the new
-          // message is at index 0 of the first page. The conversation view does
-          // .flatMap().reverse(), so it will appear at the bottom of the list.
+
+          const [firstPage, ...restPages] = old.pages;
+
+          // Skip if the message is already in cache (deduplication)
+          if (firstPage.items?.some((m) => m.id === message.id)) return old;
+
+          // Prepend the new message to the first page.
+          // The conversation view flattens pages and reverses them,
+          // so prepending here makes it appear at the bottom of the chat.
           return {
             ...old,
             pages: [
-              { ...firstPage, messages: [newMsg, ...firstPage.messages] },
-              ...old.pages.slice(1),
+              { ...firstPage, items: [message, ...(firstPage.items ?? [])] },
+              ...restPages,
             ],
           };
         },
       );
 
-      // Refresh conversation list so unread counts update
+      // Refresh conversation list so unread counts / last message update
       queryClient.invalidateQueries({
         queryKey: queryKeys.inboxKeys.conversationList,
       });
@@ -91,7 +73,8 @@ export function useInboxSoketi() {
   const handleMessageRead = useCallback(
     (payload: SoketiMessageReadPayload) => {
       console.debug("[Soketi][Inbox] message_read:", payload);
-      // Invalidate the specific conversation so unseen_count refreshes
+
+      // Refresh both the conversation history (unseen_count) and the list
       queryClient.invalidateQueries({
         queryKey: queryKeys.inboxKeys.conversationHistory(
           payload.conversation_id,
@@ -108,7 +91,8 @@ export function useInboxSoketi() {
   const handleCustomerUpdated = useCallback(
     (payload: SoketiCustomerUpdatedPayload) => {
       console.debug("[Soketi][Inbox] customer_updated:", payload);
-      // Refresh conversation list so avatar/name/status updates appear
+
+      // Refresh conversation list so avatar / name / status changes appear
       queryClient.invalidateQueries({
         queryKey: queryKeys.inboxKeys.conversationList,
       });
@@ -126,9 +110,7 @@ export function useInboxSoketi() {
       soketiService.on("customer_updated", handleCustomerUpdated),
     ];
 
-    return () => {
-      unsubs.forEach((unsub) => unsub());
-    };
+    return () => unsubs.forEach((unsub) => unsub());
   }, [
     selectedApp?.id,
     handleNewMessage,
