@@ -162,7 +162,7 @@ function AddAppButton() {
                 )}
               />
 
-              <form.Field
+              {/* <form.Field
                 name="short_id"
                 validators={{
                   onChange: ({ value }) =>
@@ -176,7 +176,7 @@ function AddAppButton() {
                     description="A unique identifier for your app (optional)"
                   />
                 )}
-              />
+              /> */}
 
               <form.Field
                 name="description"

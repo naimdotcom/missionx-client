@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
+import { env } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { ExternalLink, LinkIcon, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -60,7 +61,7 @@ export function ConnectChannelDialog(props: ConnectChannelDialogProps) {
 }
 
 function DialogChannelContent(props: ConnectChannelDialogProps) {
-  useFacebookSdk();
+  useFacebookSdk(env.metaAppId);
   const chanelLoginMutation = useChannelConnect();
   const channelsQuery = useChannelsList({ platform: props.type });
   const channels =
@@ -76,6 +77,10 @@ function DialogChannelContent(props: ConnectChannelDialogProps) {
   }, [props.type]);
 
   const handleConnectFacebook = () => {
+    if (!window.FB) {
+      toast.error("Facebook SDK is still loading. Please try again.");
+      return;
+    }
     // This automatically opens the Facebook-managed popup!
     window.FB.login(
       (response) => {

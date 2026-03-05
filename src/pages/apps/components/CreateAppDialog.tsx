@@ -81,7 +81,7 @@ export function CreateAppDialog() {
                 )}
               />
 
-              <form.Field
+              {/* <form.Field
                 name="short_id"
                 children={(field) => (
                   <TextField
@@ -91,7 +91,7 @@ export function CreateAppDialog() {
                     description="A unique identifier for your app (optional)"
                   />
                 )}
-              />
+              /> */}
 
               <form.Field
                 name="description"

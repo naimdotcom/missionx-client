@@ -1,6 +1,7 @@
 import { useGoogleLogin, useMetaLogin } from "@/api";
 import { Spinner } from "@/components/ui/spinner";
 import { useFacebookSdk } from "@/hooks/useFacebookSdk";
+import { env } from "@/lib/env";
 import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate } from "@tanstack/react-router";
 import { signInWithPopup } from "firebase/auth";
@@ -158,10 +159,14 @@ function GoogleLoginBtn() {
 }
 
 function MetaLoginBtn() {
-  useFacebookSdk();
+  useFacebookSdk(env.metaAppId);
   const facebookLoginMutation = useMetaLogin();
 
   const handleConnectFacebook = () => {
+    if (!window.FB) {
+      toast.error("Facebook SDK is still loading. Please try again.");
+      return;
+    }
     window.FB.login(
       (response) => {
         if (response.authResponse) {

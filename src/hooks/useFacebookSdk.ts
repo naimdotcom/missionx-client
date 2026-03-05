@@ -30,19 +30,29 @@ declare global {
   }
 }
 
-export function useFacebookSdk() {
+export function useFacebookSdk(appId?: string) {
   useEffect(() => {
-    // 1. Initialize the SDK
-    window.fbAsyncInit = function () {
+    if (!appId) return;
+
+    const initSdk = () => {
       window.FB.init({
-        appId: "33654498497496886", // Get this from your Meta Developer Dashboard
+        appId,
         cookie: true,
         xfbml: true,
-        version: "v19.0", // Use the latest API version
+        version: "v22.0",
       });
     };
 
-    // 2. Load the SDK script asynchronously
+    // If the SDK is already loaded, re-initialize with the correct appId
+    if (window.FB) {
+      initSdk();
+      return;
+    }
+
+    // 1. Set the async init callback for first-time load
+    window.fbAsyncInit = initSdk;
+
+    // 2. Load the SDK script asynchronously (only once)
     (function (d, s, id) {
       const fjs = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) {
@@ -53,5 +63,5 @@ export function useFacebookSdk() {
       js.src = "https://connect.facebook.net/en_US/sdk.js";
       fjs?.parentNode?.insertBefore(js, fjs);
     })(document, "script", "facebook-jssdk");
-  }, []);
+  }, [appId]);
 }
