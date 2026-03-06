@@ -353,6 +353,8 @@ export const SimplifiedReplier = forwardRef<
               <span className="font-medium text-foreground">
                 {replyTo.sender === "customer"
                   ? "Customer"
+                  : replyTo.sender === "meta_suite"
+                  ? "Meta Business Suite"
                   : replyTo.attendant?.name || "Agent"}
               </span>
               {" — "}

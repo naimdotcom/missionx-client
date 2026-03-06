@@ -262,6 +262,8 @@ function ConversationArea(props: ConversationAreaProps) {
             const isCustomer = msg?.sender === "customer";
             const name = isCustomer
               ? customerDetails?.display_name
+              : msg?.sender === "meta_suite"
+              ? "Meta Business Suite"
               : msg?.attendant?.name || "Agent";
             const avatarUrl = isCustomer
               ? customerDetails?.profile_pic_url
