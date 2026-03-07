@@ -131,7 +131,7 @@ function AddAppButton() {
       </DropdownMenuItem>
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-125">
           <form
             onSubmit={(e) => {
               e.preventDefault();
