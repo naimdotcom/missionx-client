@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
-import { env } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { ExternalLink, LinkIcon, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -61,7 +60,7 @@ export function ConnectChannelDialog(props: ConnectChannelDialogProps) {
 }
 
 function DialogChannelContent(props: ConnectChannelDialogProps) {
-  useFacebookSdk(env.metaAppId);
+  useFacebookSdk();
   const chanelLoginMutation = useChannelConnect();
   const channelsQuery = useChannelsList({ platform: props.type });
   const channels =

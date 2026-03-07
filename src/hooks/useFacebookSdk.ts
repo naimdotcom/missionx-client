@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { useEffect } from "react";
 
 interface FacebookLoginResponse {
@@ -30,13 +31,15 @@ declare global {
   }
 }
 
-export function useFacebookSdk(appId?: string) {
+export function useFacebookSdk() {
+  const metaAppId = env.metaAppId;
+
   useEffect(() => {
-    if (!appId) return;
+    if (!metaAppId) return;
 
     const initSdk = () => {
       window.FB.init({
-        appId,
+        appId: metaAppId,
         cookie: true,
         xfbml: true,
         version: "v22.0",
@@ -63,5 +66,5 @@ export function useFacebookSdk(appId?: string) {
       js.src = "https://connect.facebook.net/en_US/sdk.js";
       fjs?.parentNode?.insertBefore(js, fjs);
     })(document, "script", "facebook-jssdk");
-  }, [appId]);
+  }, [metaAppId]);
 }

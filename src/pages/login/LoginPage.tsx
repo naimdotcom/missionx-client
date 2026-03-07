@@ -1,7 +1,6 @@
 import { useGoogleLogin, useMetaLogin } from "@/api";
 import { Spinner } from "@/components/ui/spinner";
 import { useFacebookSdk } from "@/hooks/useFacebookSdk";
-import { env } from "@/lib/env";
 import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate } from "@tanstack/react-router";
 import { signInWithPopup } from "firebase/auth";
@@ -159,7 +158,7 @@ function GoogleLoginBtn() {
 }
 
 function MetaLoginBtn() {
-  useFacebookSdk(env.metaAppId);
+  useFacebookSdk();
   const facebookLoginMutation = useMetaLogin();
 
   const handleConnectFacebook = () => {
