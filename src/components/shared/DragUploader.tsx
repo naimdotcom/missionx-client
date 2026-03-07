@@ -33,9 +33,11 @@ function DragUploader(props: Props) {
           try {
             await uploadMutation.mutateAsync(
               {
-                file,
-                context_id: userProfile?.profile?.user_id || "profile", // Use user's profile ID or "profile" as default context_id for profile uploads
-                context_type: "app",
+                apiPayload: {
+                  file,
+                  context_id: userProfile?.profile?.user_id || "profile", // Use user's profile ID or "profile" as default context_id for profile uploads
+                  context_type: "app",
+                },
               },
               {
                 onSuccess: () => {

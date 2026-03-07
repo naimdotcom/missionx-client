@@ -175,7 +175,7 @@ export function FileUpload({
 
     // Upload file
     fileUploadMutation.mutate(
-      { file, context_id: appId, context_type: "app" },
+      { apiPayload: { file, context_id: appId, context_type: "app" } },
       {
         onSuccess: (response: any) => {
           const fileUrl = response.data?.url || response.data?.path;
