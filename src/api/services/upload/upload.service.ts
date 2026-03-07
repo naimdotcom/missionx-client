@@ -11,15 +11,18 @@ export class UploadService extends BaseAPIService {
 
   fileUpload = (payload: FileUploadPayload, options?: RequestOptions) => {
     const formData = new FormData();
+    const queryParams = new URLSearchParams();
     formData.append("file", payload.file);
-    formData.append("app_id", payload.app_id);
-    // if (payload.metadata) {
-    //   Object.entries(payload.metadata).forEach(([key, value]) => {
-    //     formData.append(`metadata[${key}]`, JSON.stringify(value));
-    //   });
-    // }
+    if (payload.context_id) {
+      queryParams.append("context_id", payload.context_id);
+    }
+    if (payload.context_type) {
+      queryParams.append("context_type", payload.context_type);
+    }
 
-    return this.upload(API_ENDPOINTS.UPLOAD.FILE, formData, options);
+    const uploadUrl = `${API_ENDPOINTS.UPLOAD.FILE}?${queryParams.toString()}`;
+
+    return this.upload(uploadUrl, formData, options);
   };
 }
 

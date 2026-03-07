@@ -39,11 +39,27 @@ export interface SokетiFeedbackReceivedPayload {
   created_at: string;
 }
 
+export interface SoketiNewMessagePayload {
+  message: Conversation;
+  channel?: {
+    id: string;
+    platform: string;
+    platform_page_id: string;
+    is_active: boolean;
+  };
+  conversation?: { id?: string; status?: string; external_id?: string };
+  customer?: {
+    platform_id?: string;
+    display_name?: string;
+    profile_pic_url?: string;
+  };
+}
+
 // ─── Typed Event Map ──────────────────────────────────────────────────────────
 // Add new event types here — the service and hooks get full type inference automatically.
 
 export interface SoketiEventMap {
-  new_message: Conversation;
+  new_message: SoketiNewMessagePayload;
   message_read: SoketiMessageReadPayload;
   customer_updated: SoketiCustomerUpdatedPayload;
   new_comment: SoketiNewCommentPayload;

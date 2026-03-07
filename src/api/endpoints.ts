@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
     CONVERSATION_HISTORY: (id: string) => `/api/v1/inbox/${id}`,
     UPDATE_CONVERSATION_STATUS: (id: string) => `/api/v1/inbox/${id}/status`,
     SEND_MESSAGE: "/api/v1/messaging/send",
+    MARK_AS_READ: (id: string) => `/api/v1/inbox/${id}/mark-as-read`,
   },
 
   //CHANNELS
@@ -55,7 +56,7 @@ export const API_ENDPOINTS = {
 
   // Upload
   UPLOAD: {
-    FILE: "/api/v1/upload/file",
+    FILE: "/api/v1/media/upload",
     IMAGE: "/api/v1/upload/image",
   },
 } as const;

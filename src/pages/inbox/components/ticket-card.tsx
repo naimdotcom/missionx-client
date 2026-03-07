@@ -59,7 +59,7 @@ export const TicketCard = ({
                 "text-xs text-muted-foreground truncate line-clamp-1 leading-normal",
               )}
             >
-              {ticket.last_message_text || "No messages yet"}
+              {ticket.last_message || "No messages yet"}
             </p>
             {(ticket.unread_count ?? 0) > 0 && (
               <span className="flex-shrink-0 h-4 min-w-[1rem] flex items-center justify-center bg-primary text-[10px] font-bold text-primary-foreground px-1 rounded-full">

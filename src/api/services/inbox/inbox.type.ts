@@ -17,7 +17,7 @@ export interface ConversationTicket {
   customer_profile_pic?: string;
   customer_platform_id?: string;
   status?: "ONGOING" | "DONE" | "PENDING";
-  last_message_text?: string;
+  last_message?: string;
   last_message_time?: string;
   unread_count?: number;
   total_unseen_count?: number;

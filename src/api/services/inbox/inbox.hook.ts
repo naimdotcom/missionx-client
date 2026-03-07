@@ -112,6 +112,22 @@ export function useSendMessage() {
   });
 }
 
+export function useMarkAsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (conversationId: string) =>
+      inboxService.markAsRead(conversationId),
+    mutationKey: mutationKeys.inboxKeys.markAsRead,
+    onSuccess: () => {
+      // Refresh conversation list so unread counts update
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.inboxKeys.conversationList,
+      });
+    },
+  });
+}
+
 // export function useSendCSATTemplate() {
 //   const queryClient = useQueryClient();
 

@@ -18,13 +18,12 @@ export const queryKeys = {
 
   inboxKeys: {
     conversationList: ["inbox", "conversation-list"] as const,
+
     conversationHistory: (conversationId: string) =>
       ["inbox", "conversation-history", conversationId] as const,
   },
 
-  channelsKeys: {
-    channelsList: ["channels", "list"] as const,
-  },
+  channelsKeys: { channelsList: ["channels", "list"] as const },
 } as const;
 
 export const mutationKeys = {
@@ -41,6 +40,7 @@ export const mutationKeys = {
   },
 
   inboxKeys: {
+    markAsRead: ["inbox", "mark-as-read"] as const,
     updateConversationStatus: ["inbox", "update-conversation-status"] as const,
     sendMessage: ["inbox", "send-message"] as const,
     sendCSATTemplate: ["inbox", "send-csat-template"] as const,

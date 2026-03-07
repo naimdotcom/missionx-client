@@ -39,6 +39,7 @@ function InboxPage() {
       {selectedCase && (
         <ConversationArea
           selectedTicket={selectedCase}
+          unreadCount={selectedTicket?.unread_count}
           onShowDetails={() => setShowDetails(true)}
           onShowSidebar={() => setShowSidebar((prev) => !prev)}
         />

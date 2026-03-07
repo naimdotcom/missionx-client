@@ -1,8 +1,5 @@
 import { queryKeys } from "@/api";
-import {
-  Conversation,
-  ConversationHistory,
-} from "@/api/services/inbox/inbox.type";
+import { ConversationHistory } from "@/api/services/inbox/inbox.type";
 import { useAuthStore } from "@/stores/auth-store";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
@@ -10,6 +7,7 @@ import { soketiService } from "./soketi.service";
 import {
   SoketiCustomerUpdatedPayload,
   SoketiMessageReadPayload,
+  SoketiNewMessagePayload,
 } from "./soketi.type";
 
 /**
@@ -21,24 +19,29 @@ import {
  *
  * The connection is managed by useSoketi() in PrivateLayout.
  */
+
 export function useInboxSoketi() {
   const queryClient = useQueryClient();
   const selectedApp = useAuthStore((s) => s.selectedApp);
 
   // ── new_message ────────────────────────────────────────────────────────────
   const handleNewMessage = useCallback(
-    (message: Conversation) => {
+    (message: SoketiNewMessagePayload) => {
       console.debug("[Soketi][Inbox] new_message:", message);
 
-      if (!message.conversation_id) return;
+      if (!message.message.conversation_id) return;
 
       queryClient.setQueryData<InfiniteData<ConversationHistory>>(
-        queryKeys.inboxKeys.conversationHistory(message.conversation_id),
+        queryKeys.inboxKeys.conversationHistory(
+          message.message.conversation_id,
+        ),
         (old) => {
           // No cache yet — create a minimal first page so the message is not lost
           if (!old || !old.pages.length) {
             return {
-              pages: [{ items: [message] } satisfies ConversationHistory],
+              pages: [
+                { items: [message.message] } satisfies ConversationHistory,
+              ],
               pageParams: [undefined],
             };
           }
@@ -46,7 +49,8 @@ export function useInboxSoketi() {
           const [firstPage, ...restPages] = old.pages;
 
           // Skip if the message is already in cache (deduplication)
-          if (firstPage.items?.some((m) => m.id === message.id)) return old;
+          if (firstPage.items?.some((m) => m.id === message.message.id))
+            return old;
 
           // Prepend the new message to the first page.
           // The conversation view flattens pages and reverses them,
@@ -54,7 +58,10 @@ export function useInboxSoketi() {
           return {
             ...old,
             pages: [
-              { ...firstPage, items: [message, ...(firstPage.items ?? [])] },
+              {
+                ...firstPage,
+                items: [message.message, ...(firstPage.items ?? [])],
+              },
               ...restPages,
             ],
           };

@@ -99,7 +99,7 @@ export function ProfileForm() {
         <div>
           <h3 className="text-lg font-semibold">Profile Picture</h3>
           <FileUpload
-            appId="default"
+            appId={userProfile?.user.id || "profile"}
             userName={displayName}
             onUploadSuccess={(fileUrl) =>
               form.setFieldValue("avatar_url", fileUrl)
@@ -175,7 +175,7 @@ export function FileUpload({
 
     // Upload file
     fileUploadMutation.mutate(
-      { payload: { file, app_id: appId } },
+      { file, context_id: appId, context_type: "app" },
       {
         onSuccess: (response: any) => {
           const fileUrl = response.data?.url || response.data?.path;

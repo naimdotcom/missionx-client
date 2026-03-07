@@ -54,6 +54,13 @@ export class InboxService extends BaseAPIService {
       options,
     );
 
+  markAsRead = (conversationId: string, options?: RequestOptions) =>
+    this.post(
+      API_ENDPOINTS.INBOX.MARK_AS_READ(conversationId),
+      undefined,
+      options,
+    );
+
   // sendCSATTemplate = (
   //   payload: {
   //     conversationId: string;

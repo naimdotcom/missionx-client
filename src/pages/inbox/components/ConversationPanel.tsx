@@ -1,5 +1,6 @@
 import {
   useConversationHistory,
+  useMarkAsRead,
   useSendMessage,
 } from "@/api/services/inbox/inbox.hook";
 import { Conversation } from "@/api/services/inbox/inbox.type";
@@ -28,6 +29,7 @@ import {
 
 type ConversationAreaProps = {
   className?: string;
+  unreadCount?: number;
   selectedTicket: string;
   onShowDetails?: () => void;
   onShowSidebar?: () => void;
@@ -35,6 +37,7 @@ type ConversationAreaProps = {
 
 function ConversationArea(props: ConversationAreaProps) {
   const sendMessageMutation = useSendMessage();
+  const { mutate: markAsRead } = useMarkAsRead();
   const navigate = useNavigate({ from: Route.fullPath });
   const conversationsQuery = useConversationHistory(props.selectedTicket);
 
@@ -115,6 +118,26 @@ function ConversationArea(props: ConversationAreaProps) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
   }, [props.selectedTicket]);
+
+  // Mark conversation as read when it is opened or when the selected ticket changes
+  useEffect(() => {
+    if (props.selectedTicket && Number(props.unreadCount) > 0) {
+      markAsRead(props.selectedTicket);
+    }
+  }, [props.selectedTicket, props.unreadCount, markAsRead]);
+
+  // Mark as read when a new inbound (customer) message arrives
+  const lastMsgSender = messages[messages.length - 1]?.sender;
+  useEffect(() => {
+    if (
+      props.selectedTicket &&
+      lastMsgSender === "customer" &&
+      Number(props.unreadCount) > 0
+    ) {
+      markAsRead(props.selectedTicket);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastMsgId, props.unreadCount]);
 
   // Reset replyTo when the ticket changes using the React recommended pattern:
   // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
