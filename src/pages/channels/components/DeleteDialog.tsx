@@ -46,7 +46,7 @@ export function DeleteUrlChannelBtn({ channel }: DeleteUrlChannelBtnProps) {
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="w-[95vw] sm:max-w-[450px] rounded-[2rem] p-0 border-0 overflow-hidden shadow-2xl bg-background">
+        <DialogContent className="w-[95vw] sm:max-w-[450px] rounded-4xl p-0 border-0 overflow-hidden shadow-2xl bg-background">
           <div className="h-2 bg-destructive/10 w-full" />
 
           <div className="p-8 space-y-6">

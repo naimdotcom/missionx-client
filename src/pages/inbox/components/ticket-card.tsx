@@ -24,12 +24,12 @@ export const TicketCard = ({
         "w-full px-3 py-2.5 text-left border-b",
         "transition-all duration-100",
         "hover:bg-muted/50",
-        isSelected && "bg-primary/10 border-l-2 border-l-primary shadow-sm",
+        isSelected && "bg-primary/10 border-l-2 border-l-primary shadow-xs",
       )}
     >
       <div className="flex items-center gap-3">
-        <div className="relative flex-shrink-0">
-          <Avatar className="h-10 w-10 border shadow-sm">
+        <div className="relative shrink-0">
+          <Avatar className="h-10 w-10 border shadow-xs">
             <AvatarImage
               src={ticket.customer_profile_pic}
               alt={ticket.customer_name}
@@ -62,7 +62,7 @@ export const TicketCard = ({
               {ticket.last_message || "No messages yet"}
             </p>
             {(ticket.unread_count ?? 0) > 0 && (
-              <span className="flex-shrink-0 h-4 min-w-[1rem] flex items-center justify-center bg-primary text-[10px] font-bold text-primary-foreground px-1 rounded-full">
+              <span className="shrink-0 h-4 min-w-4 flex items-center justify-center bg-primary text-[10px] font-bold text-primary-foreground px-1 rounded-full">
                 {ticket.unread_count}
               </span>
             )}
@@ -77,19 +77,19 @@ const ChannelIcon = ({ platform }: { platform: string }) => {
   switch (platform?.toLowerCase()) {
     case "facebook":
       return (
-        <div className="rounded-full bg-[#1877F2] p-0.5 border border-background shadow-sm">
+        <div className="rounded-full bg-[#1877F2] p-0.5 border border-background shadow-xs">
           <Facebook className="w-2.5 h-2.5 text-white fill-white" />
         </div>
       );
     case "instagram":
       return (
-        <div className="rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] p-0.5 border border-background shadow-sm">
+        <div className="rounded-full bg-linear-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] p-0.5 border border-background shadow-xs">
           <Instagram className="w-2.5 h-2.5 text-white" />
         </div>
       );
     default:
       return (
-        <div className="rounded-full bg-muted p-0.5 border border-background shadow-sm">
+        <div className="rounded-full bg-muted p-0.5 border border-background shadow-xs">
           <MessageCircle className="w-2.5 h-2.5 text-muted-foreground" />
         </div>
       );

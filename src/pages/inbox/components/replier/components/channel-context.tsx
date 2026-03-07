@@ -31,7 +31,7 @@
 //           : "bg-muted text-muted-foreground",
 //       )}
 //     >
-//       <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+//       <Info className="w-4 h-4 shrink-0 mt-0.5" />
 //       <div>
 //         <p className="font-medium">
 //           {platformName} character limit: {constraints.maxTextLength}

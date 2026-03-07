@@ -198,7 +198,7 @@ export function FileUpload({
   return (
     <div className="flex items-center justify-between gap-8">
       {/* Profile Picture Section */}
-      <div className="relative flex-shrink-0">
+      <div className="relative shrink-0">
         {/* Large circular avatar */}
         <div className="relative w-40 h-40">
           <Avatar className="w-full h-full ring-2 ring-border shadow-lg">

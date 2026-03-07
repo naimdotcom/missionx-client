@@ -8,7 +8,7 @@ export function NotFound() {
   return (
     <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-background">
       {/* Animated background grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-30" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border))_1px,transparent_1px)] bg-size-[4rem_4rem] opacity-30" />
 
       {/* Radial gradient overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,hsl(var(--background))_70%)]" />
@@ -64,9 +64,9 @@ export function NotFound() {
 
         {/* Decorative line */}
         <div className="mx-auto mb-10 flex w-48 items-center gap-3">
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent to-border" />
+          <div className="h-px flex-1 bg-linear-to-r from-transparent to-border" />
           <div className="h-1.5 w-1.5 rotate-45 rounded-sm bg-primary" />
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent to-border" />
+          <div className="h-px flex-1 bg-linear-to-l from-transparent to-border" />
         </div>
 
         {/* Action buttons */}

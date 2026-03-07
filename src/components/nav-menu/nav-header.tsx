@@ -50,7 +50,7 @@ function NavHeader() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="w-full h-10 shadow-sm rounded-xl gap-2 bg-background border"
+              className="w-full h-10 shadow-xs rounded-xl gap-2 bg-background border"
             >
               <div className="bg-border ml-[3px] flex aspect-square size-6 items-center justify-center rounded-lg">
                 <Globe2 className="size-4" />

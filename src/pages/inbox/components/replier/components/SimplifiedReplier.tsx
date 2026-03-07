@@ -144,9 +144,11 @@ export const SimplifiedReplier = forwardRef<
 
       try {
         const result = await fileUploadMutation.mutateAsync({
-          payload: {
+          apiPayload: {
+            context_type: "app",
             file: attachment.file,
-            app_id: selectedApp.id,
+            sub_type: "attachment",
+            context_id: selectedApp.id,
           },
           options: {
             onUploadProgress: (progressEvent: ProgressEvent) => {
@@ -354,8 +356,8 @@ export const SimplifiedReplier = forwardRef<
                 {replyTo.sender === "customer"
                   ? "Customer"
                   : replyTo.sender === "meta_suite"
-                  ? "Meta Business Suite"
-                  : replyTo.attendant?.name || "Agent"}
+                    ? "Meta Business Suite"
+                    : replyTo.attendant?.name || "Agent"}
               </span>
               {" — "}
               {replyTo.content?.text || "Attachment"}
@@ -380,7 +382,7 @@ export const SimplifiedReplier = forwardRef<
                   className={cn(
                     "relative group rounded-lg border overflow-hidden",
                     attachment.status === "failed" && "border-destructive",
-                    attachment.previewUrl ? "w-20 h-20" : "max-w-[200px]",
+                    attachment.previewUrl ? "w-20 h-20" : "max-w-50",
                   )}
                 >
                   {/* Image preview */}
@@ -432,7 +434,7 @@ export const SimplifiedReplier = forwardRef<
                   {/* Upload success indicator */}
                   {attachment.status === "uploaded" && (
                     <div className="absolute top-1 left-1">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-green-500 drop-shadow-sm" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-green-500 drop-shadow-xs" />
                     </div>
                   )}
 
@@ -453,7 +455,7 @@ export const SimplifiedReplier = forwardRef<
                   <button
                     onClick={() => removeAttachment(attachment.id)}
                     className={cn(
-                      "absolute top-1 right-1 rounded-full p-0.5 bg-background/80 text-muted-foreground hover:text-foreground shadow-sm",
+                      "absolute top-1 right-1 rounded-full p-0.5 bg-background/80 text-muted-foreground hover:text-foreground shadow-xs",
                       "opacity-0 group-hover:opacity-100 transition-opacity",
                     )}
                   >
@@ -481,7 +483,7 @@ export const SimplifiedReplier = forwardRef<
             placeholder={placeholder}
             disabled={disabled || isSending}
             className={cn(
-              "min-h-[80px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0",
+              "min-h-20 max-h-50 resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0",
               "pr-28 pb-12",
             )}
           />

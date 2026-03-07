@@ -100,7 +100,7 @@ export function AppUsersTable({ appId, users, isLoading }: AppUsersTableProps) {
                   }
                   disabled={updateRole.isPending}
                 >
-                  <SelectTrigger className="w-[100px] md:w-[130px] text-xs md:text-sm">
+                  <SelectTrigger className="w-25 md:w-32.5 text-xs md:text-sm">
                     <SelectValue>
                       {user.role && (
                         <Badge

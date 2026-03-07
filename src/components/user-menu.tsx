@@ -1,5 +1,3 @@
-"use client";
-
 import { BadgeCheck, LogOut, Moon, Sun } from "lucide-react";
 
 import { useLogout } from "@/api";

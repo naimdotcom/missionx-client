@@ -123,19 +123,19 @@ export function MessageBubble({
         >
           {/* Replied-to quote — click to scroll to the original message */}
           {repliedTo?.content?.text && (
-            <button
+            <Button
               onClick={scrollToReplied}
               className={cn(
-                "mx-2 mt-2 px-2.5 py-1.5 rounded border-r-2 text-xs",
+                "mx-2 mt-2 px-2.5 py-1.5 rounded border-r-2 text-xs hover:bg-inherit",
                 isAgent
                   ? "bg-white/10 border-l-white/60 text-primary-foreground/80"
                   : "bg-muted/60 border-r-primary/50 text-muted-foreground",
               )}
             >
-              <p className="line-clamp-2 break-words">
+              <p className="line-clamp-2 wrap-break-word">
                 {repliedTo.content.text}
               </p>
-            </button>
+            </Button>
           )}
 
           {/* Attachments */}
@@ -155,7 +155,7 @@ export function MessageBubble({
           {/* Text + timestamp */}
           <div className="px-3 py-2">
             {renderedText ? (
-              <p className="leading-relaxed break-words whitespace-pre-wrap">
+              <p className="leading-relaxed wrap-break-word whitespace-pre-wrap">
                 {renderedText}
               </p>
             ) : (

@@ -38,7 +38,7 @@ export function ChannelCard({ channel }: ChannelCardProps) {
             "text-xs font-bold text-white",
             isFacebook
               ? "bg-[#1877F2]"
-              : "bg-gradient-to-br from-[#f09433] via-[#e6683c] to-[#bc1888]",
+              : "bg-linear-to-br from-[#f09433] via-[#e6683c] to-[#bc1888]",
           )}
         >
           {name.charAt(0).toUpperCase()}

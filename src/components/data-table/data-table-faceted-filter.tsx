@@ -1,4 +1,4 @@
-"use client";
+"";
 
 import type { Column } from "@tanstack/react-table";
 import { Check, PlusCircle, XCircle } from "lucide-react";
@@ -86,7 +86,7 @@ export function DataTableFacetedFilter<TData, TValue>({
               role="button"
               aria-label={`Clear ${title} filter`}
               tabIndex={0}
-              className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
               onClick={onReset}
             >
               <XCircle />

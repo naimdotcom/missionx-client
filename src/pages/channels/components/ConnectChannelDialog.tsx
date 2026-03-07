@@ -103,11 +103,11 @@ function DialogChannelContent(props: ConnectChannelDialogProps) {
           "px-5 py-4",
           props.type === "facebook" && "bg-[#1877F2]",
           props.type === "instagram" &&
-            "bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888]",
+            "bg-linear-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888]",
         )}
       >
         <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xs">
             <ChannelIcon
               shape="square"
               platform={props.type}

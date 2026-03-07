@@ -67,7 +67,7 @@ export function PageLoader({ size = "lg", className, ...props }: LoaderProps) {
     <div
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center",
-        "bg-background/70 backdrop-blur-sm",
+        "bg-background/70 backdrop-blur-xs",
         className,
       )}
       {...props}

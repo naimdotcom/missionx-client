@@ -55,7 +55,7 @@ export function CreateFirstApp() {
     <div className="flex min-h-screen w-full flex-col lg:flex-row">
       {/* Left Panel - Value Proposition - Show second on mobile */}
       <div className=" hidden relative md:flex w-full flex-col justify-between overflow-hidden bg-primary/5 p-6 md:p-8 lg:order-first lg:w-1/2 lg:p-12 xl:p-16">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary)/0.05)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary)/0.05)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--primary)/0.05)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--primary)/0.05)_1px,transparent_1px)] bg-size-[4rem_4rem] mask-[radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
         <div className="relative z-10 space-y-6 lg:space-y-8">
           <div className="space-y-3 lg:space-y-4">
@@ -78,7 +78,7 @@ export function CreateFirstApp() {
 
           <div className="grid gap-4 md:gap-6 lg:space-y-6 lg:block">
             <div className="flex items-start gap-3 lg:gap-4">
-              <div className="rounded-lg bg-background p-1.5 shadow-sm ring-1 ring-border lg:p-2">
+              <div className="rounded-lg bg-background p-1.5 shadow-xs ring-1 ring-border lg:p-2">
                 <LayoutGrid className="h-4 w-4 text-primary lg:h-6 lg:w-6" />
               </div>
               <div className="space-y-0.5 lg:space-y-1">
@@ -92,7 +92,7 @@ export function CreateFirstApp() {
               </div>
             </div>
             <div className="hidden sm:flex lg:flex items-start gap-3 lg:gap-4">
-              <div className="rounded-lg bg-background p-1.5 shadow-sm ring-1 ring-border lg:p-2">
+              <div className="rounded-lg bg-background p-1.5 shadow-xs ring-1 ring-border lg:p-2">
                 <MessagesSquare className="h-4 w-4 text-primary lg:h-6 lg:w-6" />
               </div>
               <div className="space-y-0.5 lg:space-y-1">
@@ -105,7 +105,7 @@ export function CreateFirstApp() {
               </div>
             </div>
             <div className="hidden sm:flex lg:flex items-start gap-3 lg:gap-4">
-              <div className="rounded-lg bg-background p-1.5 shadow-sm ring-1 ring-border lg:p-2">
+              <div className="rounded-lg bg-background p-1.5 shadow-xs ring-1 ring-border lg:p-2">
                 <Zap className="h-4 w-4 text-primary lg:h-6 lg:w-6" />
               </div>
               <div className="space-y-0.5 lg:space-y-1">
@@ -132,7 +132,7 @@ export function CreateFirstApp() {
       {/* Right Panel - Form - Show first on mobile */}
       <div className="flex w-full flex-col justify-center bg-background p-6 md:p-8 lg:w-1/2 lg:p-12 xl:p-16">
         <div className="mx-auto w-full max-w-lg">
-          <Card className="border-0 shadow-none sm:border sm:shadow-sm">
+          <Card className="border-0 shadow-none sm:border sm:shadow-xs">
             <CardHeader className="space-y-1 pb-4 text-center md:pb-6 sm:text-left">
               <CardTitle className="text-xl font-bold md:text-2xl">
                 Design your workspace
