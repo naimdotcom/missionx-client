@@ -9,15 +9,26 @@ export interface ConversationTicketsParams {
   limit?: number;
 }
 
+export interface ConversationChannel {
+  id?: string;
+  platform?: ChannelPlatform;
+  account_name?: string;
+  instagram_username?: string | null;
+  profile_pic_url?: string;
+  is_active?: boolean;
+  is_verified?: boolean;
+}
+
 export interface ConversationTicket {
   id?: string;
   channel_id?: string;
   platform?: ChannelPlatform;
+  channel?: ConversationChannel;
   customer_name?: string;
   customer_profile_pic?: string;
   customer_platform_id?: string;
   status?: "ONGOING" | "DONE" | "PENDING";
-  last_message?: string;
+  last_message_text?: string;
   last_message_time?: string;
   unread_count?: number;
   total_unseen_count?: number;

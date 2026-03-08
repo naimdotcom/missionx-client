@@ -2,7 +2,7 @@ import { RequestOptions } from "@/api/core/api.types";
 import { BaseAPIService } from "@/api/core/base.service";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { env } from "@/lib/env";
-import { FileUploadPayload } from "./upload.type";
+import { FileUploadPayload, FileUploadResponse } from "./upload.type";
 
 export class UploadService extends BaseAPIService {
   constructor(baseURL: string) {
@@ -22,7 +22,7 @@ export class UploadService extends BaseAPIService {
 
     const uploadUrl = `${API_ENDPOINTS.UPLOAD.FILE}?${queryParams.toString()}`;
 
-    return this.upload(uploadUrl, formData, options);
+    return this.upload<FileUploadResponse>(uploadUrl, formData, options);
   };
 }
 

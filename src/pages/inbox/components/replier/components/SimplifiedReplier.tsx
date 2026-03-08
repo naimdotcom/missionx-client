@@ -165,16 +165,16 @@ export const SimplifiedReplier = forwardRef<
         });
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data = result as any;
+        const data = result;
         setAttachments((prev) =>
           prev.map((a) =>
             a.id === attachment.id
               ? {
                   ...a,
-                  status: "uploaded" as UploadStatus,
                   progress: 100,
-                  uploadedUrl: data?.url || data?.data?.url,
-                  attachmentId: data?.id || data?.data?.id || a.id,
+                  attachmentId: data?.id,
+                  uploadedUrl: data?.public_url,
+                  status: "uploaded" as UploadStatus,
                 }
               : a,
           ),

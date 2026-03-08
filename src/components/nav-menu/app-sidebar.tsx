@@ -32,11 +32,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter className="px-2 py-3">
         <SidebarMenuItem>
           <SidebarMenuButton
-            isActive={location.pathname === "/settings"}
+            className="cursor-pointer"
+            isActive={location.pathname.includes("/settings")}
             onClick={() => navigation({ to: "/settings" })}
           >
-            <Settings />
-            <span className="text-[13px] font-medium">Settings</span>
+            <Settings className="size-4.25 transition-colors" />
+            <span className="text-[15.5px] transition-colors">Settings</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarFooter>

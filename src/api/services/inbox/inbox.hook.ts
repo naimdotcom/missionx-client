@@ -43,7 +43,7 @@ export function useConversationHistory(conversationId: string) {
     initialPageParam: undefined as HistoryCursor | undefined,
     queryFn: async ({ pageParam }) => {
       const response = await inboxService.conversationHistory(conversationId, {
-        limit: 10,
+        limit: 20,
         ...(pageParam && {
           before_id: pageParam.before_id,
           before_time: pageParam.before_time,

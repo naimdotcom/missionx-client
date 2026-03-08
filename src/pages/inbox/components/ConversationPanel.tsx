@@ -286,8 +286,8 @@ function ConversationArea(props: ConversationAreaProps) {
             const name = isCustomer
               ? customerDetails?.display_name
               : msg?.sender === "meta_suite"
-              ? "Meta Business Suite"
-              : msg?.attendant?.name || "Agent";
+                ? "Meta Business Suite"
+                : msg?.attendant?.name || "Agent";
             const avatarUrl = isCustomer
               ? customerDetails?.profile_pic_url
               : undefined;
@@ -296,14 +296,14 @@ function ConversationArea(props: ConversationAreaProps) {
                 key={msg?.id}
                 msgId={msg?.id}
                 senderName={name}
-                time={msg?.created_at}
                 avatarUrl={avatarUrl}
+                time={msg?.created_at}
                 isCustomer={isCustomer}
                 showAvatar={isCustomer}
                 text={msg?.content?.text}
-                attachments={msg?.content?.attachments}
                 repliedTo={msg?.replied_to_content}
                 onReply={() => msg && handleReply(msg)}
+                attachments={msg?.content?.attachments}
               />
             );
           })}

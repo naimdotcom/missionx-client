@@ -39,7 +39,27 @@ export const TicketCard = ({
             </AvatarFallback>
           </Avatar>
           <div className="absolute -bottom-1 -right-1">
-            {ticket.platform && <ChannelIcon platform={ticket.platform} />}
+            {!ticket.channel?.account_name && ticket.platform && (
+              <ChannelIcon platform={ticket.platform} />
+            )}
+            {ticket.channel?.account_name && (
+              <Avatar className="h-4 w-4">
+                <AvatarImage
+                  src={ticket.channel.profile_pic_url}
+                  alt={ticket.channel.account_name}
+                />
+                <AvatarFallback className="bg-primary/5 text-primary text-xs font-semibold">
+                  {ticket.channel.account_name
+                    .split(" ")[0]
+                    ?.charAt(0)
+                    .toUpperCase()}
+                  {ticket.channel.account_name
+                    .split(" ")[1]
+                    ?.charAt(0)
+                    .toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            )}
           </div>
         </div>
 
@@ -59,7 +79,7 @@ export const TicketCard = ({
                 "text-xs text-muted-foreground truncate line-clamp-1 leading-normal",
               )}
             >
-              {ticket.last_message || "No messages yet"}
+              {ticket.last_message_text || "No messages yet"}
             </p>
             {(ticket.unread_count ?? 0) > 0 && (
               <span className="shrink-0 h-4 min-w-4 flex items-center justify-center bg-primary text-[10px] font-bold text-primary-foreground px-1 rounded-full">

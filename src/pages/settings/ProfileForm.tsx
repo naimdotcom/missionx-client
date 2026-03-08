@@ -99,7 +99,7 @@ export function ProfileForm() {
         <div>
           <h3 className="text-lg font-semibold">Profile Picture</h3>
           <FileUpload
-            appId={userProfile?.user.id || "profile"}
+            userID={userProfile?.user.id || "profile"}
             userName={displayName}
             onUploadSuccess={(fileUrl) =>
               form.setFieldValue("avatar_url", fileUrl)
@@ -125,7 +125,7 @@ export function ProfileForm() {
 interface FileUploadProps {
   currentAvatarUrl?: string;
   userName?: string;
-  appId: string;
+  userID: string;
   onUploadSuccess: (fileUrl: string) => void;
   onUploadError?: (error: Error) => void;
   children?: ReactNode;
@@ -134,7 +134,7 @@ interface FileUploadProps {
 export function FileUpload({
   currentAvatarUrl,
   userName = "User",
-  appId,
+  userID,
   onUploadSuccess,
   onUploadError,
   children,
@@ -175,10 +175,17 @@ export function FileUpload({
 
     // Upload file
     fileUploadMutation.mutate(
-      { apiPayload: { file, context_id: appId, context_type: "app" } },
       {
-        onSuccess: (response: any) => {
-          const fileUrl = response.data?.url || response.data?.path;
+        apiPayload: {
+          file,
+          context_id: userID,
+          context_type: "user",
+          sub_type: "user_info",
+        },
+      },
+      {
+        onSuccess: (response) => {
+          const fileUrl = response.public_url;
           if (fileUrl) {
             onUploadSuccess(fileUrl);
           }

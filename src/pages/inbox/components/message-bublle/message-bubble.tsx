@@ -73,8 +73,6 @@ export function MessageBubble({
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  const isAgent = !isCustomer;
-
   const renderedText = useMemo(() => {
     if (!text) return null;
     return linkifyText(text, isCustomer);
@@ -88,7 +86,7 @@ export function MessageBubble({
       data-msg-id={msgId}
       className={cn(
         "flex gap-2 items-end max-w-full group",
-        isAgent && "flex-row-reverse",
+        !isCustomer && "flex-row-reverse",
       )}
     >
       {/* Avatar */}
@@ -104,7 +102,7 @@ export function MessageBubble({
       <div
         className={cn(
           "flex flex-col gap-0.5 max-w-lg",
-          isAgent ? "items-end" : "items-start",
+          !isCustomer ? "items-end" : "items-start",
         )}
       >
         {senderName && (
@@ -117,25 +115,43 @@ export function MessageBubble({
         <div
           className={cn(
             "flex flex-col rounded-2xl overflow-hidden text-sm shadow-md",
-            isAgent && "bg-primary/90 rounded-br-sm text-primary-foreground",
-            !isAgent && "bg-white dark:bg-muted/70 rounded-bl-sm",
+            !isCustomer &&
+              "bg-primary/90 rounded-br-sm text-primary-foreground",
+            isCustomer && "bg-white dark:bg-muted/70 rounded-bl-sm",
           )}
         >
           {/* Replied-to quote — click to scroll to the original message */}
-          {repliedTo?.content?.text && (
-            <Button
+          {(repliedTo?.content?.text ||
+            (repliedTo?.content?.attachments?.length ?? 0) > 0) && (
+            <div
               onClick={scrollToReplied}
               className={cn(
-                "mx-2 mt-2 px-2.5 py-1.5 rounded border-r-2 text-xs hover:bg-inherit",
-                isAgent
-                  ? "bg-white/10 border-l-white/60 text-primary-foreground/80"
-                  : "bg-muted/60 border-r-primary/50 text-muted-foreground",
+                "mx-2 mt-2 rounded-lg overflow-hidden cursor-pointer border-l-[3px] transition-opacity hover:opacity-80",
+                !isCustomer
+                  ? "bg-black/20 border-primary-foreground/60"
+                  : "bg-black/5 border-primary/50",
               )}
             >
-              <p className="line-clamp-2 wrap-break-word">
-                {repliedTo.content.text}
-              </p>
-            </Button>
+              <div className="px-2.5 py-2">
+                <p
+                  className={cn(
+                    "text-[10px] font-semibold mb-1 uppercase tracking-wide",
+                    !isCustomer
+                      ? "text-primary-foreground/60"
+                      : "text-primary/70",
+                  )}
+                >
+                  Replied to
+                </p>
+                {repliedTo?.content?.text ? (
+                  <p className="line-clamp-2 text-xs leading-relaxed wrap-break-word opacity-80">
+                    {repliedTo.content.text}
+                  </p>
+                ) : (
+                  <p className="text-xs italic opacity-50">📎 Attachment</p>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Attachments */}
@@ -166,7 +182,7 @@ export function MessageBubble({
             <span
               className={cn(
                 "block text-right text-[10px] leading-none select-none mt-1",
-                isAgent
+                !isCustomer
                   ? "text-primary-foreground/60"
                   : "text-muted-foreground/60",
               )}

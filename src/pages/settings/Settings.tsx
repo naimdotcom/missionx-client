@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Bell,
-  Bot,
   Palette,
   Settings as SettingsIcon,
   Shield,
@@ -11,7 +10,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { AppearanceForm } from "./AppearanceForm";
-import { CXSettingsForm } from "./CXSettingsForm";
 import { ProfileForm } from "./ProfileForm";
 
 export default function Settings({ initialTab }: { initialTab?: string }) {
@@ -54,14 +52,6 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
             >
               <Palette size={18} />
               <span className="hidden sm:inline">Appearance</span>
-            </TabsTrigger>
-
-            <TabsTrigger
-              value="cx-solutions"
-              className="w-full justify-start gap-2 data-[state=active]:bg-muted hover:bg-muted/50 transition-all px-4 py-2"
-            >
-              <Bot size={18} />
-              <span className="hidden sm:inline">CX Solutions</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -112,17 +102,6 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
             </div>
             <Separator /> */}
             <AppearanceForm />
-          </TabsContent>
-
-          <TabsContent value="cx-solutions" className="m-0 space-y-6">
-            {/* <div>
-              <h3 className="text-lg font-medium">CX Solutions Settings</h3>
-              <p className="text-sm text-muted-foreground">
-                Configure your customer experience automation and AI settings.
-              </p>
-            </div>
-            <Separator /> */}
-            <CXSettingsForm />
           </TabsContent>
 
           <TabsContent value="notifications" className="m-0 space-y-6">

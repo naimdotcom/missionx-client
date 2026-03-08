@@ -50,7 +50,7 @@ export function NavMain({
                     <div>
                       {item.icon && (
                         <item.icon
-                          className={cn("size-[17px] transition-colors")}
+                          className={cn("size-4.25 transition-colors")}
                         />
                       )}
                     </div>
