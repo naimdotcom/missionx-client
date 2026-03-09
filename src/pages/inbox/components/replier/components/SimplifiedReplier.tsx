@@ -1,6 +1,6 @@
 import { useUpdateConversationStatus } from "@/api/services/inbox/inbox.hook";
 import { Conversation } from "@/api/services/inbox/inbox.type";
-import { useFileUpload } from "@/api/services/upload/upload.hook";
+import { useFileUpload } from "@/api/services/media/media.hook";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

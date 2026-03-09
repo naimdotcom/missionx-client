@@ -57,7 +57,8 @@ export const API_ENDPOINTS = {
   // Upload
   UPLOAD: {
     FILE: "/api/v1/media/upload",
-    IMAGE: "/api/v1/upload/image",
+    ALL_MEDIA: "/api/v1/media",
+    DELETE: "/api/v1/media",
   },
 } as const;
 

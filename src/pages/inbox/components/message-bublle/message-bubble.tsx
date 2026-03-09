@@ -4,6 +4,7 @@ import {
 } from "@/api/services/inbox/inbox.type";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { env } from "@/lib/env";
 import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Reply } from "lucide-react";
@@ -36,7 +37,9 @@ function Attachment({
   total: number;
 }) {
   const type = getAttachmentType(attachment.type || "", attachment.payload.url);
-  const url = attachment.payload.url;
+  const url = attachment.payload.url
+    ? env.mediaUrl + attachment.payload.url
+    : attachment.meta_url;
   if (!url) return null;
   if (type === "image")
     return <ImageAttachment totalImage={total} attachmentUrl={url} />;

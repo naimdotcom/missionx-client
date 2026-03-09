@@ -24,6 +24,7 @@ export const queryKeys = {
   },
 
   channelsKeys: { channelsList: ["channels", "list"] as const },
+  mediaKeys: { allMedia: ["media", "all"] as const },
 } as const;
 
 export const mutationKeys = {

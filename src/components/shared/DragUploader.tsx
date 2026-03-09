@@ -1,4 +1,4 @@
-import { useFileUpload } from "@/api/services/upload/upload.hook";
+import { useFileUpload } from "@/api/services/media/media.hook";
 import { useAuthStore } from "@/stores/auth-store";
 import { Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";

@@ -11,6 +11,7 @@ function RouteComponent() {
   const allowed = [
     "profile",
     "appearance",
+    "media",
     "cx-solutions",
     "notifications",
     "security",

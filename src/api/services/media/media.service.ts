@@ -2,7 +2,13 @@ import { RequestOptions } from "@/api/core/api.types";
 import { BaseAPIService } from "@/api/core/base.service";
 import { API_ENDPOINTS } from "@/api/endpoints";
 import { env } from "@/lib/env";
-import { FileUploadPayload, FileUploadResponse } from "./upload.type";
+import {
+  DeleteMediaPayload,
+  FileUploadPayload,
+  FileUploadResponse,
+  MediaParams,
+  MediaResponse,
+} from "./media.type";
 
 export class UploadService extends BaseAPIService {
   constructor(baseURL: string) {
@@ -24,6 +30,19 @@ export class UploadService extends BaseAPIService {
 
     return this.upload<FileUploadResponse>(uploadUrl, formData, options);
   };
+
+  getAllMedia = (params?: MediaParams, options?: RequestOptions) => {
+    return this.get<MediaResponse>(
+      API_ENDPOINTS.UPLOAD.ALL_MEDIA,
+      params,
+      options,
+    );
+  };
+
+  deleteMedia = (payload: DeleteMediaPayload, options?: RequestOptions) => {
+    return this.delete(API_ENDPOINTS.UPLOAD.DELETE, payload, options);
+  };
 }
 
 export const uploadService = new UploadService(env.appUrl || "");
+

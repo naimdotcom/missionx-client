@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "@tanstack/react-router";
 import {
   Bell,
+  Image,
   Palette,
   Settings as SettingsIcon,
   Shield,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { AppearanceForm } from "./AppearanceForm";
+import { MediaSettings } from "./MediaSettings";
 import { ProfileForm } from "./ProfileForm";
 
 export default function Settings({ initialTab }: { initialTab?: string }) {
@@ -55,6 +57,14 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
             </TabsTrigger>
 
             <TabsTrigger
+              value="media"
+              className="w-full justify-start gap-2 data-[state=active]:bg-muted hover:bg-muted/50 transition-all px-4 py-2"
+            >
+              <Image size={18} />
+              <span className="hidden sm:inline">Media</span>
+            </TabsTrigger>
+
+            <TabsTrigger
               value="notifications"
               className="w-full justify-start gap-2 data-[state=active]:bg-muted hover:bg-muted/50 transition-all px-4 py-2"
             >
@@ -82,26 +92,15 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
 
         <div className="flex-1 lg:max-w-2xl">
           <TabsContent value="profile" className="m-0 space-y-6">
-            {/* <div>
-              <h3 className="text-lg font-medium">Profile</h3>
-              <p className="text-sm text-muted-foreground">
-                This is how others will see you on the site.
-              </p>
-            </div>
-            <Separator /> */}
             <ProfileForm />
           </TabsContent>
 
           <TabsContent value="appearance" className="m-0 space-y-6">
-            {/* <div>
-              <h3 className="text-lg font-medium">Appearance</h3>
-              <p className="text-sm text-muted-foreground">
-                Customize the appearance of the app. Automatically switch
-                between day and night themes.
-              </p>
-            </div>
-            <Separator /> */}
             <AppearanceForm />
+          </TabsContent>
+
+          <TabsContent value="media" className="m-0 space-y-6">
+            <MediaSettings />
           </TabsContent>
 
           <TabsContent value="notifications" className="m-0 space-y-6">
