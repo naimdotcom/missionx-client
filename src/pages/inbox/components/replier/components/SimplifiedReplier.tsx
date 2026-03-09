@@ -62,6 +62,7 @@ interface SimplifiedReplierProps {
   ticketStatus?: string;
   replyTo?: Conversation | null;
   onCancelReply?: () => void;
+  selectedTicketId?: string;
 }
 
 export interface SimplifiedReplierHandle {
@@ -93,6 +94,7 @@ export const SimplifiedReplier = forwardRef<
     ticketStatus,
     replyTo,
     onCancelReply,
+    selectedTicketId,
   },
   ref,
 ) {
@@ -145,10 +147,9 @@ export const SimplifiedReplier = forwardRef<
       try {
         const result = await fileUploadMutation.mutateAsync({
           apiPayload: {
-            context_type: "app",
+            context_type: "conv",
             file: attachment.file,
-            sub_type: "attachment",
-            context_id: selectedApp.id,
+            context_id: selectedTicketId,
           },
           options: {
             onUploadProgress: (progressEvent: ProgressEvent) => {

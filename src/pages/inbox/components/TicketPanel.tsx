@@ -1,6 +1,7 @@
 import { useConversationTickets } from "@/api/services/inbox/inbox.hook";
 import { ConversationTicket } from "@/api/services/inbox/inbox.type";
 import InfiniteScroll from "@/components/shared/InfinityScroll";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -61,6 +62,9 @@ function TicketsPanel({
           >
             <Inbox className="size-4" />
             <span>Active</span>
+            <Badge className="h-5 min-w-5 flex items-center justify-center px-1 rounded-full tabular-nums">
+              {ticketsQuery.data?.pages[0]?.total}
+            </Badge>
           </TabsTrigger>
 
           <TabsTrigger
@@ -70,6 +74,9 @@ function TicketsPanel({
           >
             <CheckCircle2 className="size-4" />
             <span>Closed</span>
+            <Badge className="h-5 min-w-5 flex items-center justify-center px-1 rounded-full tabular-nums">
+              {ticketsQuery.data?.pages[0]?.total}
+            </Badge>
           </TabsTrigger>
         </TabsList>
       </Tabs>

@@ -65,19 +65,19 @@ function InboxPage() {
         className={cn(
           "hidden xl:block shrink-0 transition-[width] duration-200 ease-linear overflow-hidden bg-background",
           showSidebar && selectedCase
-            ? "w-[350px] 2xl:w-[400px] border-l"
+            ? "w-87.5 2xl:w-100 border-l"
             : "w-0 border-none",
         )}
       >
         <WidgetPanel
-          className="w-[350px] 2xl:w-[400px] h-full border-none"
+          className="w-87.5 2xl:w-100 h-full border-none"
           selectedTicket={selectedTicket}
           conversationId={selectedCase}
         />
       </div>
 
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
-        <SheetContent side="right" className="w-[90%] sm:w-[400px] p-0 pt-10">
+        <SheetContent side="right" className="w-[90%] sm:w-100 p-0 pt-10">
           <WidgetPanel
             className="w-full border-0"
             selectedTicket={selectedTicket}

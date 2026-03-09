@@ -21,7 +21,7 @@ export const TicketCard = ({
     <button
       onClick={onClick}
       className={cn(
-        "w-full px-3 py-2.5 text-left border-b",
+        "w-full px-3 py-2.5 text-left border-b cursor-pointer last:border-b-0",
         "transition-all duration-100",
         "hover:bg-muted/50",
         isSelected && "bg-primary/10 border-l-2 border-l-primary shadow-xs",

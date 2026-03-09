@@ -8,6 +8,7 @@ import ConversationLoading from "@/components/shared/ConversationLoading";
 import InfiniteScroll from "@/components/shared/InfinityScroll";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { ScrollButton } from "@/components/ui/scroll-button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Route } from "@/routes";
@@ -21,6 +22,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { StickToBottom } from "use-stick-to-bottom";
 import { MessageBubble } from "./message-bublle/message-bubble";
 import {
   SimplifiedReplier,
@@ -196,7 +198,7 @@ function ConversationArea(props: ConversationAreaProps) {
   return (
     <div
       className={cn(
-        "flex flex-col h-full overflow-hidden min-w-0",
+        "flex flex-col h-full overflow-hidden min-w-0 relative",
         props.className,
       )}
     >
@@ -261,60 +263,64 @@ function ConversationArea(props: ConversationAreaProps) {
       </div>
 
       {/* Messages */}
-      <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto bg-muted/30"
+      <StickToBottom
+        className="flex-1 overflow-y-auto bg-muted/30 relative"
+        role="region"
       >
-        <div className="flex flex-col justify-end min-h-full p-4 space-y-6">
-          {/* Load older messages */}
-          <InfiniteScroll
-            hasMore={conversationsQuery.hasNextPage}
-            isLoading={conversationsQuery.isFetchingNextPage}
-            next={fetchOlderMessages}
-            threshold={0.5}
-            reverse
-          >
-            {conversationsQuery.isFetchingNextPage && (
-              <div className="flex justify-center py-2">
-                <Spinner />
-              </div>
-            )}
-          </InfiniteScroll>
+        <StickToBottom.Content>
+          <div className="flex flex-col justify-end min-h-full p-4 space-y-6">
+            {/* Load older messages */}
+            <InfiniteScroll
+              hasMore={conversationsQuery.hasNextPage}
+              isLoading={conversationsQuery.isFetchingNextPage}
+              next={fetchOlderMessages}
+              threshold={0.5}
+              reverse
+            >
+              {conversationsQuery.isFetchingNextPage && (
+                <div className="flex justify-center py-2">
+                  <Spinner />
+                </div>
+              )}
+            </InfiniteScroll>
 
-          {messages.map((msg) => {
-            const isCustomer = msg?.sender === "customer";
-            const name = isCustomer
-              ? customerDetails?.display_name
-              : msg?.sender === "meta_suite"
-                ? "Meta Business Suite"
-                : msg?.attendant?.name || "Agent";
-            const avatarUrl = isCustomer
-              ? customerDetails?.profile_pic_url
-              : undefined;
-            return (
-              <MessageBubble
-                key={msg?.id}
-                msgId={msg?.id}
-                senderName={name}
-                avatarUrl={avatarUrl}
-                time={msg?.created_at}
-                isCustomer={isCustomer}
-                showAvatar={isCustomer}
-                text={msg?.content?.text}
-                repliedTo={msg?.replied_to_content}
-                onReply={() => msg && handleReply(msg)}
-                attachments={msg?.content?.attachments}
-              />
-            );
-          })}
-          {/* Scroll anchor */}
-          <div ref={messagesEndRef} />
-        </div>
-      </div>
+            {messages.map((msg) => {
+              const isCustomer = msg?.sender === "customer";
+              const name = isCustomer
+                ? customerDetails?.display_name
+                : msg?.sender === "meta_suite"
+                  ? "Meta Business Suite"
+                  : msg?.attendant?.name || "Agent";
+              const avatarUrl = isCustomer
+                ? customerDetails?.profile_pic_url
+                : undefined;
+              return (
+                <MessageBubble
+                  key={msg?.id}
+                  msgId={msg?.id}
+                  senderName={name}
+                  avatarUrl={avatarUrl}
+                  time={msg?.created_at}
+                  isCustomer={isCustomer}
+                  showAvatar={isCustomer}
+                  text={msg?.content?.text}
+                  repliedTo={msg?.replied_to_content}
+                  onReply={() => msg && handleReply(msg)}
+                  attachments={msg?.content?.attachments}
+                />
+              );
+            })}
+            {/* Scroll anchor */}
+            <div ref={messagesEndRef} />
+          </div>
+        </StickToBottom.Content>
+        <ScrollButton className="absolute bottom-4 right-1/2 left-1/2 z-10" />
+      </StickToBottom>
 
       {/* Message Input */}
       <SimplifiedReplier
         ref={replierRef}
+        selectedTicketId={props.selectedTicket}
         maxLength={2000}
         placeholder="Type a message..."
         disabled={sendMessageMutation.isPending}
