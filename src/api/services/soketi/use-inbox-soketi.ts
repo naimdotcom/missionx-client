@@ -1,7 +1,9 @@
 import { queryKeys } from "@/api";
 import { ConversationHistory } from "@/api/services/inbox/inbox.type";
+import { gooeyToast } from "@/components/ui/goey-toaster";
 import { useAuthStore } from "@/stores/auth-store";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
+import { useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
 import { soketiService } from "./soketi.service";
 import {
@@ -23,24 +25,44 @@ import {
 export function useInboxSoketi() {
   const queryClient = useQueryClient();
   const selectedApp = useAuthStore((s) => s.selectedApp);
+  const search: any = useSearch({ strict: false });
+  const activeCase = search?.case;
 
   // ── new_message ────────────────────────────────────────────────────────────
   const handleNewMessage = useCallback(
-    (message: SoketiNewMessagePayload) => {
-      console.debug("[Soketi][Inbox] new_message:", message);
+    (payload: SoketiNewMessagePayload) => {
+      console.debug("[Soketi][Inbox] new_message:", payload);
 
-      if (!message.message.conversation_id) return;
+      if (!payload.message.conversation_id) return;
+
+      // Show toast if message is from customer and NOT in the active conversation
+      const isFromCustomer = payload.message.sender === "customer";
+      const isOtherTicket = payload.message.conversation_id !== activeCase;
+
+      if (isFromCustomer && isOtherTicket) {
+        const customerName = payload.customer?.display_name || "Customer";
+        const channelPlatform = payload.channel?.platform || "Channel";
+        const messageText =
+          payload.message.content?.text ||
+          (payload.message.content?.attachments?.length
+            ? "Sent an attachment"
+            : "New message");
+
+        gooeyToast(`${customerName} (${channelPlatform})`, {
+          description: messageText,
+        });
+      }
 
       queryClient.setQueryData<InfiniteData<ConversationHistory>>(
         queryKeys.inboxKeys.conversationHistory(
-          message.message.conversation_id,
+          payload.message.conversation_id,
         ),
         (old) => {
           // No cache yet — create a minimal first page so the message is not lost
           if (!old || !old.pages.length) {
             return {
               pages: [
-                { items: [message.message] } satisfies ConversationHistory,
+                { items: [payload.message] } satisfies ConversationHistory,
               ],
               pageParams: [undefined],
             };
@@ -49,7 +71,7 @@ export function useInboxSoketi() {
           const [firstPage, ...restPages] = old.pages;
 
           // Skip if the message is already in cache (deduplication)
-          if (firstPage.items?.some((m) => m.id === message.message.id))
+          if (firstPage.items?.some((m) => m.id === payload.message.id))
             return old;
 
           // Prepend the new message to the first page.
@@ -60,7 +82,7 @@ export function useInboxSoketi() {
             pages: [
               {
                 ...firstPage,
-                items: [message.message, ...(firstPage.items ?? [])],
+                items: [payload.message, ...(firstPage.items ?? [])],
               },
               ...restPages,
             ],
@@ -73,7 +95,7 @@ export function useInboxSoketi() {
         queryKey: queryKeys.inboxKeys.conversationList,
       });
     },
-    [queryClient],
+    [queryClient, activeCase],
   );
 
   // ── message_read ──────────────────────────────────────────────────────────
