@@ -12,9 +12,6 @@ import TicketsPanel from "./components/TicketPanel";
 import { WidgetPanel } from "./components/WidgetPanel";
 
 function InboxPage() {
-  // Register Soketi event handlers for the inbox module.
-  // Must live here (not in ConversationArea) so handlers are active even
-  // when no conversation is open — e.g. to update the ticket list unread counts.
   useInboxSoketi();
   const [showSidebar, setShowSidebar] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
@@ -28,7 +25,7 @@ function InboxPage() {
     <div
       className={cn(
         "h-full overflow-hidden",
-        "md:grid grid-cols-[400px_1fr_auto]",
+        "md:grid grid-cols-[350px_1fr_auto] 2xl:grid-cols-[400px_1fr_auto]",
       )}
     >
       <TicketsPanel
@@ -63,17 +60,13 @@ function InboxPage() {
 
       <div
         className={cn(
-          "hidden xl:block shrink-0 transition-[width] duration-200 ease-linear overflow-hidden bg-background",
+          "hidden xl:block shrink-0 transition-[width] duration-300 overflow-hidden bg-background",
           showSidebar && selectedCase
             ? "w-87.5 2xl:w-100 border-l"
             : "w-0 border-none",
         )}
       >
-        <WidgetPanel
-          className="w-87.5 2xl:w-100 h-full border-none"
-          selectedTicket={selectedTicket}
-          conversationId={selectedCase}
-        />
+        <WidgetPanel selectedTicket={selectedTicket} />
       </div>
 
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
@@ -81,7 +74,6 @@ function InboxPage() {
           <WidgetPanel
             className="w-full border-0"
             selectedTicket={selectedTicket}
-            conversationId={selectedCase}
           />
         </SheetContent>
       </Sheet>

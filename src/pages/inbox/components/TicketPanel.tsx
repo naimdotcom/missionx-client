@@ -10,7 +10,7 @@ import { Route } from "@/routes";
 import { useAuthStore } from "@/stores/auth-store";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { CheckCircle2, Inbox } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { TicketCard } from "./ticket-card";
 
 type TicketsPanelProps = {
@@ -41,6 +41,16 @@ function TicketsPanel({
       return ticketsQuery.data?.pages.flatMap((page) => page.conversations);
     } else return [];
   }, [ticketsQuery.data?.pages, ticketsQuery.isSuccess]);
+
+  useEffect(() => {
+    if (selectedTicket) {
+      const ticketExists = flattenedTickets?.find(
+        (ticket) => ticket.id === selectedTicket,
+      );
+
+      setSelectedTicket?.(ticketExists);
+    }
+  }, [flattenedTickets, navigate, selectedTicket, setSelectedTicket]);
 
   const hasAvailableTickets = Number(flattenedTickets?.length) > 0;
 

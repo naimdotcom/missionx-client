@@ -59,7 +59,7 @@ export function NotesWidget({ notes, onAddNote }: NotesWidgetProps) {
                 placeholder="Write a note..."
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
-                className="min-h-[80px] text-sm resize-none"
+                className="min-h-20 text-sm resize-none"
                 autoFocus
               />
               <div className="flex gap-2">
@@ -88,7 +88,7 @@ export function NotesWidget({ notes, onAddNote }: NotesWidgetProps) {
               No notes yet
             </div>
           ) : (
-            <ScrollArea className="h-[200px] -mx-2 px-2">
+            <ScrollArea className="h-50 -mx-2 px-2">
               <div className="space-y-2.5">
                 {notes.map((note) => (
                   <div

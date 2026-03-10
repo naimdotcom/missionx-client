@@ -37,7 +37,7 @@ export function OrderHistoryWidget({ orders }: OrderHistoryWidgetProps) {
             No orders found
           </div>
         ) : (
-          <ScrollArea className="h-[240px] -mx-2 px-2">
+          <ScrollArea className="h-60 -mx-2 px-2">
             <div className="space-y-3">
               {orders.map((order) => (
                 <div
