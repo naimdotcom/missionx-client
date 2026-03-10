@@ -8,7 +8,7 @@ function RootComponent() {
       <Outlet />
 
       <ScreenSizeIndicator />
-      <GooeyToaster />
+      <GooeyToaster position="top-center" />
       {/* <TanStackRouterDevtools /> */}
     </div>
   );
