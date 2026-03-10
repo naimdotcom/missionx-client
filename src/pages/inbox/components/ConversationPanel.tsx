@@ -79,11 +79,12 @@ const ConversationHeader = React.memo(
                 {customer?.display_name?.split(" ")[1]?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <h2 className="truncate font-medium text-sm sm:text-base">
+            <div className="flex flex-col min-w-0">
+              <h2 className="truncate font-bold text-sm leading-tight">
                 {customer?.display_name}
               </h2>
-              <span className="capitalize text-[10px] sm:text-xs text-muted-foreground truncate">
+
+              <span className="capitalize text-[10px] font-bold text-primary/70 tracking-tighter shrink-0">
                 {channel?.platform}
               </span>
             </div>

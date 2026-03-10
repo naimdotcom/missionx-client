@@ -25,7 +25,7 @@ function InboxPage() {
     <div
       className={cn(
         "h-full overflow-hidden",
-        "md:grid grid-cols-[350px_1fr_auto] 2xl:grid-cols-[400px_1fr_auto]",
+        "md:grid grid-cols-[350px_1fr_auto] lg:grid-cols-[400px_1fr_auto]",
       )}
     >
       <TicketsPanel
