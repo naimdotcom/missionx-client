@@ -87,7 +87,7 @@ export interface ReplyToConversation {
 export interface ConversationAttachment {
   type?: string;
   meta_url?: string;
-  payload: { url?: string; sticker_id?: string };
+  payload: { url?: string; sticker_id?: string; original_url?: string };
 }
 
 export interface ConversationHistory {
