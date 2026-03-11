@@ -9,7 +9,7 @@ import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Reply } from "lucide-react";
 import { useMemo } from "react";
-import AudioAttachment from "./AudiAttachment";
+import AudioAttachment from "./AudioAttachment";
 import FileAttachment from "./FileAttachment";
 import ImageAttachment from "./ImageAttachment";
 import linkifyText from "./LinkifyText";
