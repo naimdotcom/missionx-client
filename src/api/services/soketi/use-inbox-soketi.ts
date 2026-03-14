@@ -1,10 +1,10 @@
 import { queryKeys } from "@/api";
 import { ConversationHistory } from "@/api/services/inbox/inbox.type";
-import { gooeyToast } from "@/components/ui/goey-toaster";
 import { useAuthStore } from "@/stores/auth-store";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
+import { toast } from "sonner";
 import { soketiService } from "./soketi.service";
 import {
   SoketiCustomerUpdatedPayload,
@@ -48,7 +48,7 @@ export function useInboxSoketi() {
             ? "Sent an attachment"
             : "New message");
 
-        gooeyToast(`${customerName} (${channelPlatform})`, {
+        toast(`${customerName} (${channelPlatform})`, {
           description: messageText,
         });
       }

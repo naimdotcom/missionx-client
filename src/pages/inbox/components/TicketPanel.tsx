@@ -73,7 +73,7 @@ function TicketsPanel({
             <Inbox className="size-4" />
             <span>Active</span>
             <Badge className="h-5 min-w-5 flex items-center justify-center px-1 rounded-full tabular-nums">
-              {ticketsQuery.data?.pages[0]?.total}
+              {ticketsQuery.data?.pages[0]?.counts?.ongoing}
             </Badge>
           </TabsTrigger>
 
@@ -85,7 +85,7 @@ function TicketsPanel({
             <CheckCircle2 className="size-4" />
             <span>Closed</span>
             <Badge className="h-5 min-w-5 flex items-center justify-center px-1 rounded-full tabular-nums">
-              {ticketsQuery.data?.pages[0]?.total}
+              {ticketsQuery.data?.pages[0]?.counts?.done}
             </Badge>
           </TabsTrigger>
         </TabsList>

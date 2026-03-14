@@ -1,4 +1,8 @@
-import { useConversationHistory, useMarkAsRead, useSendMessage } from "@/api/services/inbox/inbox.hook";
+import {
+  useConversationHistory,
+  useMarkAsRead,
+  useSendMessage,
+} from "@/api/services/inbox/inbox.hook";
 import { Conversation } from "@/api/services/inbox/inbox.type";
 import { useMemo, useState } from "react";
 
@@ -12,7 +16,7 @@ export function useConversationScroll(selectedTicket: string) {
     isFetchingNextPage,
     fetchNextPage,
   } = useConversationHistory(selectedTicket);
-  
+
   const sendMessageMutation = useSendMessage();
   const { mutate: markAsRead } = useMarkAsRead();
 
@@ -49,6 +53,6 @@ export function useConversationScroll(selectedTicket: string) {
     messages,
     firstPage,
     customerDetails,
-    pageCount
+    pageCount,
   };
 }

@@ -5,7 +5,11 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { inboxService } from "./inbox.service";
-import { ConversationTicketsParams, SendMessagePayload } from "./inbox.type";
+import {
+  ConversationTicketsParams,
+  ConversationTicketStatus,
+  SendMessagePayload,
+} from "./inbox.type";
 
 export function useConversationTickets(params: ConversationTicketsParams) {
   return useInfiniteQuery({
@@ -73,7 +77,7 @@ export function useUpdateConversationStatus() {
       status,
     }: {
       conversationId: string;
-      status: "open" | "closed";
+      status: ConversationTicketStatus;
     }) => {
       const response = await inboxService.updateConversationStatus(
         conversationId,

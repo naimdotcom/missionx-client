@@ -6,6 +6,7 @@ import {
   ConversationHistoryParams,
   ConversationTickets,
   ConversationTicketsParams,
+  ConversationTicketStatus,
   MessageSendResponse,
   SendMessagePayload,
 } from "./inbox.type";
@@ -38,10 +39,10 @@ export class InboxService extends BaseAPIService {
 
   updateConversationStatus = (
     conversationId: string,
-    status: "open" | "closed",
+    status: ConversationTicketStatus,
     options?: RequestOptions,
   ) =>
-    this.put(
+    this.patch(
       API_ENDPOINTS.INBOX.UPDATE_CONVERSATION_STATUS(conversationId),
       { status },
       options,

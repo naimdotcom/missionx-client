@@ -1,17 +1,17 @@
-import {
-  Conversation,
-} from "@/api/services/inbox/inbox.type";
+import { Conversation } from "@/api/services/inbox/inbox.type";
 import ConversationLoading from "@/components/shared/ConversationLoading";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { Route } from "@/routes";
 import { useNavigate } from "@tanstack/react-router";
+import { differenceInHours } from "date-fns";
 import { ChevronDown } from "lucide-react";
 import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
 } from "react";
 import { useStickToBottom } from "use-stick-to-bottom";
@@ -22,6 +22,10 @@ import {
   SimplifiedReplier,
   SimplifiedReplierHandle,
 } from "./replier/components/SimplifiedReplier";
+import {
+  DEFAULT_REPLIER_CONFIG,
+  DISABLED_REPLIER_CONFIG,
+} from "./replier/replier.config";
 
 interface ConversationAreaProps {
   className?: string;
@@ -81,7 +85,7 @@ function ConversationArea({
       replierRef.current?.focus();
       return () => clearTimeout(timeout);
     }
-  }, [selectedTicket, isSuccess, scrollToBottom]);
+  }, [selectedTicket, isSuccess, scrollToBottom, setIsChatReady]);
 
   // ── Scroll Management (Pagination) ───────────────────────────────────────
 
@@ -94,26 +98,42 @@ function ConversationArea({
     fetchNextPage();
   }, [fetchNextPage, scrollRef]);
 
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    
-    // Show "scroll down" button if we scroll up
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    setShowScrollButton(distanceFromBottom > 200);
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const el = e.currentTarget;
 
-    // Auto-fetch older messages when scrolling to the top
-    // isChatReady prevents this from triggering on initial load (when scrollTop is briefly 0)
-    if (isChatReady && el.scrollTop < 100 && hasNextPage && !isFetchingNextPage) {
-      handleFetchOlder();
-    }
-  }, [isChatReady, hasNextPage, isFetchingNextPage, handleFetchOlder]);
+      // Show "scroll down" button if we scroll up
+      const distanceFromBottom =
+        el.scrollHeight - el.scrollTop - el.clientHeight;
+      setShowScrollButton(distanceFromBottom > 200);
+
+      // Auto-fetch older messages when scrolling to the top
+      // isChatReady prevents this from triggering on initial load (when scrollTop is briefly 0)
+      if (
+        isChatReady &&
+        el.scrollTop < 100 &&
+        hasNextPage &&
+        !isFetchingNextPage
+      ) {
+        handleFetchOlder();
+      }
+    },
+    [
+      isChatReady,
+      hasNextPage,
+      isFetchingNextPage,
+      handleFetchOlder,
+      setShowScrollButton,
+    ],
+  );
 
   // Restore scroll position so screen doesn't jump to top when older messages load
   useLayoutEffect(() => {
     if (pageCount > 1 && pageCount !== prevPageCountRef.current) {
       const container = scrollRef.current;
       if (container && savedScrollHeightRef.current > 0) {
-        container.scrollTop = container.scrollHeight - savedScrollHeightRef.current;
+        container.scrollTop =
+          container.scrollHeight - savedScrollHeightRef.current;
         savedScrollHeightRef.current = 0;
       }
     }
@@ -122,10 +142,13 @@ function ConversationArea({
 
   // ── Message Actions ────────────────────────────────────────────────────
 
-  const handleReply = useCallback((msg: Conversation) => {
-    setReplyTo(msg);
-    requestAnimationFrame(() => replierRef.current?.focus());
-  }, []);
+  const handleReply = useCallback(
+    (msg: Conversation) => {
+      setReplyTo(msg);
+      requestAnimationFrame(() => replierRef.current?.focus());
+    },
+    [setReplyTo],
+  );
 
   const handleSend = useCallback(
     async (
@@ -150,7 +173,7 @@ function ConversationArea({
       setReplyTo(null);
       requestAnimationFrame(() => replierRef.current?.focus());
     },
-    [selectedTicket, sendMessageMutation, replyTo],
+    [selectedTicket, sendMessageMutation, replyTo, setReplyTo],
   );
 
   // Mark unread as read
@@ -159,6 +182,24 @@ function ConversationArea({
       markAsRead(selectedTicket);
     }
   }, [selectedTicket, unreadCount, markAsRead]);
+
+  // ── Replier Configuration (Meta 24-hour Rule) ──────────────────────────
+  const replierConfig = useMemo(() => {
+    const platform = firstPage?.channel?.platform;
+    if (platform === "facebook" || platform === "instagram") {
+      const lastCustomerMsg = firstPage?.items?.find(
+        (m: Conversation) => m.sender === "customer",
+      );
+      if (lastCustomerMsg?.created_at) {
+        const msgDate = new Date(lastCustomerMsg.created_at);
+        const hoursElapsed = differenceInHours(new Date(), msgDate);
+        if (hoursElapsed > 24) {
+          return DISABLED_REPLIER_CONFIG;
+        }
+      }
+    }
+    return DEFAULT_REPLIER_CONFIG;
+  }, [firstPage]);
 
   if (isLoading) return <ConversationLoading />;
 
@@ -195,10 +236,10 @@ function ConversationArea({
               {isFetchingNextPage ? (
                 <Spinner />
               ) : (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleFetchOlder} 
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleFetchOlder}
                   className="text-muted-foreground text-xs"
                 >
                   Load older messages
@@ -220,9 +261,6 @@ function ConversationArea({
                 key={msg?.id}
                 msgId={msg?.id}
                 senderName={name}
-                avatarUrl={
-                  isCustomer ? customerDetails?.profile_pic_url : undefined
-                }
                 time={msg?.created_at}
                 isCustomer={isCustomer}
                 showAvatar={isCustomer}
@@ -230,6 +268,7 @@ function ConversationArea({
                 repliedTo={msg?.replied_to_content}
                 onReply={() => msg && handleReply(msg)}
                 attachments={msg?.content?.attachments}
+                avatarUrl={customerDetails?.profile_pic_url}
               />
             );
           })}
@@ -250,15 +289,16 @@ function ConversationArea({
 
       <SimplifiedReplier
         ref={replierRef}
-        selectedTicketId={selectedTicket}
         maxLength={2000}
-        placeholder="Type a message..."
-        disabled={sendMessageMutation.isPending}
-        onSend={handleSend}
-        conversationId={selectedTicket}
-        ticketStatus={firstPage?.conversation?.status}
         replyTo={replyTo}
+        onSend={handleSend}
+        config={replierConfig}
+        placeholder="Type a message..."
+        conversationId={selectedTicket}
+        selectedTicketId={selectedTicket}
         onCancelReply={() => setReplyTo(null)}
+        disabled={sendMessageMutation.isPending}
+        ticketStatus={firstPage?.conversation?.status}
       />
     </div>
   );

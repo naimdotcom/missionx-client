@@ -35,6 +35,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { DEFAULT_REPLIER_CONFIG, ReplierConfig } from "../replier.config";
 import { EmojiPicker } from "./emoji-picker";
 
 type UploadStatus = "pending" | "uploading" | "uploaded" | "failed";
@@ -63,6 +64,7 @@ interface SimplifiedReplierProps {
   replyTo?: Conversation | null;
   onCancelReply?: () => void;
   selectedTicketId?: string;
+  config?: ReplierConfig;
 }
 
 export interface SimplifiedReplierHandle {
@@ -95,9 +97,11 @@ export const SimplifiedReplier = forwardRef<
     replyTo,
     onCancelReply,
     selectedTicketId,
+    config = DEFAULT_REPLIER_CONFIG,
   },
   ref,
 ) {
+  const replierConfig = config;
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [attachments, setAttachments] = useState<AttachmentUpload[]>([]);
@@ -165,7 +169,6 @@ export const SimplifiedReplier = forwardRef<
           },
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data = result;
         setAttachments((prev) =>
           prev.map((a) =>
@@ -195,7 +198,7 @@ export const SimplifiedReplier = forwardRef<
         );
       }
     },
-    [fileUploadMutation, selectedApp?.id],
+    [fileUploadMutation, selectedApp?.id, selectedTicketId],
   );
 
   const handleFileSelect = useCallback(
@@ -263,6 +266,7 @@ export const SimplifiedReplier = forwardRef<
       (!message.trim() && uploadedAttachments.length === 0) ||
       isSending ||
       disabled ||
+      replierConfig.disableSend ||
       hasUploadingAttachments
     ) {
       return;
@@ -319,7 +323,7 @@ export const SimplifiedReplier = forwardRef<
       }
       await updateStatusMutation.mutateAsync({
         conversationId,
-        status: "closed",
+        status: "DONE",
       });
     }
   };
@@ -331,7 +335,7 @@ export const SimplifiedReplier = forwardRef<
       }
       await updateStatusMutation.mutateAsync({
         conversationId,
-        status: "open",
+        status: "ONGOING",
       });
     }
   };
@@ -342,12 +346,18 @@ export const SimplifiedReplier = forwardRef<
     (message.trim() || uploadedAttachments.length > 0) &&
     !isSending &&
     !disabled &&
+    !replierConfig.disableSend &&
     !isOverLimit &&
     !hasUploadingAttachments;
 
   return (
     <div className="border-t bg-background shrink-0">
       <div className="p-4">
+        {replierConfig.warningMessage && (
+          <div className="mb-2 rounded text-sm bg-destructive/10 text-destructive p-2">
+            {replierConfig.warningMessage}
+          </div>
+        )}
         {/* Reply-to preview banner */}
         {replyTo && (
           <div className="mb-2 flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
@@ -482,7 +492,7 @@ export const SimplifiedReplier = forwardRef<
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
-            disabled={disabled || isSending}
+            disabled={disabled || isSending || replierConfig.disableInput}
             className={cn(
               "min-h-20 max-h-50 resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0",
               "pr-28 pb-12",
@@ -508,7 +518,7 @@ export const SimplifiedReplier = forwardRef<
             {/* Emoji Picker */}
             <EmojiPicker
               onSelect={handleEmojiSelect}
-              disabled={disabled || isSending}
+              disabled={disabled || isSending || replierConfig.disableEmoji}
             />
 
             {/* File Upload */}
@@ -525,7 +535,9 @@ export const SimplifiedReplier = forwardRef<
               variant="ghost"
               size="icon"
               onClick={() => fileInputRef.current?.click()}
-              disabled={disabled || isSending}
+              disabled={
+                disabled || isSending || replierConfig.disableAttachments
+              }
               title="Attach files"
             >
               <Paperclip className="h-4 w-4" />
@@ -556,7 +568,9 @@ export const SimplifiedReplier = forwardRef<
                     <Button
                       size="icon"
                       className="h-8 w-6 rounded-l-none border-l border-primary-foreground/20"
-                      disabled={disabled || isSending}
+                      disabled={
+                        disabled || isSending || replierConfig.disableSend
+                      }
                     >
                       <ChevronUp className="h-3 w-3" />
                     </Button>

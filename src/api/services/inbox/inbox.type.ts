@@ -1,9 +1,10 @@
 import { ChannelPlatform } from "../channels";
 
+export type ConversationTicketStatus = "ONGOING" | "DONE" | "PENDING";
 export interface ConversationTicketsParams {
   app_id: string;
   "channel-id"?: string;
-  status?: "ONGOING" | "DONE" | "PENDING";
+  status?: ConversationTicketStatus;
   search?: string;
   page?: number;
   limit?: number;
@@ -27,7 +28,7 @@ export interface ConversationTicket {
   customer_name?: string;
   customer_profile_pic?: string;
   customer_platform_id?: string;
-  status?: "ONGOING" | "DONE" | "PENDING";
+  status?: ConversationTicketStatus;
   last_message_text?: string;
   last_message_time?: string;
   unread_count?: number;
@@ -46,6 +47,12 @@ export interface ConversationTickets {
   page: number;
   limit: number;
   total_pages: number;
+  counts?: {
+    ongoing?: number;
+    pending?: number;
+    done?: number;
+    total?: number;
+  };
   conversations: ConversationTicket[];
 }
 
