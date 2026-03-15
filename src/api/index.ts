@@ -12,3 +12,6 @@ export * from "./services/auth/auth.types";
 
 // Channels Domain
 export * from "./services/channels";
+
+// CRM Domain
+export * from "./services/crm";

@@ -25,6 +25,12 @@ export const queryKeys = {
 
   channelsKeys: { channelsList: ["channels", "list"] as const },
   mediaKeys: { allMedia: ["media", "all"] as const },
+
+  crmKeys: {
+    customerList: ["crm", "customer-list"] as const,
+    customerDetails: (id: string) => ["crm", "customer-details", id] as const,
+    queryCustomers: ["crm", "query-customers"] as const,
+  },
 } as const;
 
 export const mutationKeys = {
@@ -53,5 +59,17 @@ export const mutationKeys = {
     channelSubscribeApp: ["channels", "subscribe-app"] as const,
     channelUnsubscribeApp: ["channels", "unsubscribe-app"] as const,
     channelDelete: ["channels", "delete"] as const,
+  },
+
+  crmKeys: {
+    createCustomer: ["crm", "create-customer"] as const,
+    updateCustomer: ["crm", "update-customer"] as const,
+    deleteCustomer: ["crm", "delete-customer"] as const,
+    updateTags: ["crm", "update-tags"] as const,
+    updateNotes: ["crm", "update-notes"] as const,
+    patchAttribute: ["crm", "patch-attribute"] as const,
+    bulkAttributes: ["crm", "bulk-attributes"] as const,
+    exportCustomers: ["crm", "export-customers"] as const,
+    identifyCustomer: ["crm", "identify-customer"] as const,
   },
 } as const;

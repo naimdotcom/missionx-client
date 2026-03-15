@@ -60,6 +60,25 @@ export const API_ENDPOINTS = {
     ALL_MEDIA: "/api/v1/media",
     DELETE: "/api/v1/media",
   },
+
+  // CRM (Customer Service)
+  CRM: {
+    CREATE_CUSTOMER:"/api/v1/customers/",
+    CUSTOMERS: "/api/v1/customers/",
+    CUSTOMER_BY_ID: (id: string) => `/api/v1/customers/${id}`,
+    CUSTOMER_TAGS: (id: string) => `/api/v1/customers/${id}/tags`,
+    CUSTOMER_NOTES: (id: string) => `/api/v1/customers/${id}/notes`,
+    CUSTOMER_ATTRIBUTES: (id: string) =>
+      `/api/v1/customers/${id}/attributes`,
+    CUSTOMER_BULK_ATTRIBUTES: (id: string) =>
+      `/api/v1/customers/${id}/bulk-attributes`,
+    QUERY: "/api/v1/customers/query",
+    EXPORT: "/api/v1/customers/export",
+
+    ///Segment
+    SEGMENT:"/api/v1/segments/",
+    SEGMENT_BY_ID: (id: string) => `/api/v1/segments/${id}`,
+  },
 } as const;
 
 // Public routes that don't require authentication

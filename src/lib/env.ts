@@ -21,4 +21,5 @@ export const env = {
   },
   pusherAppKey: import.meta.env.VITE_PUSHER_APP_KEY,
   pusherHost: import.meta.env.VITE_PUSHER_HOST,
+  crmUrl: import.meta.env.VITE_CRM_URL,
 } as const;
