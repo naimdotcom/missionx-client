@@ -1,6 +1,6 @@
 import { ChannelPlatform } from "../channels";
 
-export type ConversationTicketStatus = "ONGOING" | "DONE" | "PENDING";
+export type ConversationTicketStatus = "ongoing" | "done" | "pending";
 export interface ConversationTicketsParams {
   app_id: string;
   "channel-id"?: string;

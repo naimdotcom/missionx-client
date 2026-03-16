@@ -127,7 +127,7 @@ export const SimplifiedReplier = forwardRef<
   }, [canSend, uploaded, onSend, message, clearAll]);
 
   const handleSendAndUpdateStatus = useCallback(
-    async (status: "DONE" | "ONGOING") => {
+    async (status: "done" | "ongoing") => {
       if (!conversationId) return;
       if (hasContent) await handleSend();
       await updateStatusMutation.mutateAsync({
@@ -162,9 +162,7 @@ export const SimplifiedReplier = forwardRef<
         )}
 
         {/* Reply-to Preview */}
-        {replyTo && (
-          <ReplyPreview replyTo={replyTo} onCancel={onCancelReply} />
-        )}
+        {replyTo && <ReplyPreview replyTo={replyTo} onCancel={onCancelReply} />}
 
         {/* Attachments Preview */}
         {attachments.length > 0 && (
@@ -254,8 +252,8 @@ export const SimplifiedReplier = forwardRef<
               isTicketClosed={isTicketClosed}
               hasMessage={!!message.trim()}
               onSend={handleSend}
-              onSendAndClose={() => handleSendAndUpdateStatus("DONE")}
-              onSendAndKeepOpen={() => handleSendAndUpdateStatus("ONGOING")}
+              onSendAndClose={() => handleSendAndUpdateStatus("done")}
+              onSendAndKeepOpen={() => handleSendAndUpdateStatus("ongoing")}
             />
           </div>
 

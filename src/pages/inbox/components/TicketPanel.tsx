@@ -29,7 +29,7 @@ function TicketsPanel({
 
   const ticketsQuery = useConversationTickets({
     app_id: selectedApp?.id || "",
-    status: status === "active" ? "ONGOING" : "DONE",
+    status: status === "active" ? "ongoing" : "done",
   });
 
   const handleTicketStatus = (status: "active" | "closed") => {
@@ -73,7 +73,7 @@ function TicketsPanel({
             <Inbox className="size-4" />
             <span>Active</span>
             <Badge className="h-5 min-w-5 flex items-center justify-center px-1 rounded-full tabular-nums">
-              {ticketsQuery.data?.pages[0]?.counts?.ongoing}
+              {ticketsQuery.data?.pages[0]?.counts?.ongoing ?? 0}
             </Badge>
           </TabsTrigger>
 
@@ -85,7 +85,7 @@ function TicketsPanel({
             <CheckCircle2 className="size-4" />
             <span>Closed</span>
             <Badge className="h-5 min-w-5 flex items-center justify-center px-1 rounded-full tabular-nums">
-              {ticketsQuery.data?.pages[0]?.counts?.done}
+              {ticketsQuery.data?.pages[0]?.counts?.done ?? 0}
             </Badge>
           </TabsTrigger>
         </TabsList>
