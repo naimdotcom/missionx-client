@@ -1,4 +1,4 @@
-import { Conversation } from "../inbox/inbox.type";
+import { Message } from "../inbox/inbox.type";
 
 export interface SoketiMessageReadPayload {
   conversation_id: string;
@@ -40,7 +40,7 @@ export interface SokетiFeedbackReceivedPayload {
 }
 
 export interface SoketiNewMessagePayload {
-  message: Conversation;
+  message: Message;
   channel?: {
     id: string;
     platform: string;

@@ -3,7 +3,7 @@ import {
   useMarkAsRead,
   useSendMessage,
 } from "@/api/services/inbox/inbox.hook";
-import { Conversation } from "@/api/services/inbox/inbox.type";
+import { Message } from "@/api/services/inbox/inbox.type";
 import { useMemo, useState } from "react";
 
 export function useConversationScroll(selectedTicket: string) {
@@ -21,7 +21,7 @@ export function useConversationScroll(selectedTicket: string) {
   const { mutate: markAsRead } = useMarkAsRead();
 
   // State & Refs
-  const [replyTo, setReplyTo] = useState<Conversation | null>(null);
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isChatReady, setIsChatReady] = useState(false);
 

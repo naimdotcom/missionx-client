@@ -1,12 +1,12 @@
-import { Conversation } from "@/api/services/inbox/inbox.type";
+import { Message } from "@/api/services/inbox/inbox.type";
 import { Reply, X } from "lucide-react";
 
 interface ReplyPreviewProps {
-  replyTo: Conversation;
+  replyTo: Message;
   onCancel?: () => void;
 }
 
-function getSenderName(replyTo: Conversation): string {
+function getSenderName(replyTo: Message): string {
   if (replyTo.sender === "customer") return "Customer";
   if (replyTo.sender === "meta_suite") return "Meta Business Suite";
   return replyTo.attendant?.name || "Agent";

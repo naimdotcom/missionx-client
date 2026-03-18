@@ -1,5 +1,6 @@
 import {
   ConversationAttachment,
+  ConversationTicketStatus,
   ReplyToConversation,
 } from "@/api/services/inbox/inbox.type";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,9 +25,10 @@ interface MessageBubbleProps {
   senderName?: string;
   showAvatar?: boolean;
   isCustomer?: boolean;
-  attachments?: ConversationAttachment[];
-  repliedTo?: ReplyToConversation;
   onReply?: () => void;
+  repliedTo?: ReplyToConversation;
+  status?: ConversationTicketStatus;
+  attachments?: ConversationAttachment[];
 }
 
 function Attachment({
@@ -61,6 +63,7 @@ export function MessageBubble({
   attachments = [],
   repliedTo,
   onReply,
+  status,
 }: MessageBubbleProps) {
   const initials = senderName
     ?.split(" ")
@@ -80,9 +83,6 @@ export function MessageBubble({
     if (!text) return null;
     return linkifyText(text, isCustomer);
   }, [text, isCustomer]);
-
-  // const hasText = !!text?.trim();
-  // const hasAttachments = !!(attachments && attachments.length > 0);
 
   return (
     <div
@@ -197,7 +197,7 @@ export function MessageBubble({
       </div>
 
       {/* Reply button — appears on hover */}
-      {onReply && (
+      {onReply && status !== "done" && (
         <Button
           size="icon"
           title="Reply"

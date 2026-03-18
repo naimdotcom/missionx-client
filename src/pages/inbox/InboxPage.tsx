@@ -15,11 +15,13 @@ function InboxPage() {
   useInboxSoketi();
   const [showSidebar, setShowSidebar] = useState(true);
   const [showDetails, setShowDetails] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState<
+  const [selectedConversation, setSelectedConversation] = useState<
     ConversationTicket | undefined
   >(undefined);
 
-  const { case: selectedCase } = useSearch({ from: "/_private/inbox" });
+  const { case: selectedParamsConversation } = useSearch({
+    from: "/_private/inbox",
+  });
 
   return (
     <div
@@ -29,20 +31,20 @@ function InboxPage() {
       )}
     >
       <TicketsPanel
-        selectedTicket={selectedCase}
-        setSelectedTicket={(ticket) => setSelectedTicket(ticket)}
+        selectedTicket={selectedParamsConversation}
+        setSelectedTicket={(ticket) => setSelectedConversation(ticket)}
       />
 
-      {selectedCase && (
+      {selectedParamsConversation && (
         <ConversationArea
-          selectedTicket={selectedCase}
-          unreadCount={selectedTicket?.unread_count}
+          selectedTicket={selectedConversation}
           onShowDetails={() => setShowDetails(true)}
+          unreadCount={selectedConversation?.unread_count}
           onShowSidebar={() => setShowSidebar((prev) => !prev)}
         />
       )}
 
-      {!selectedCase && (
+      {!selectedParamsConversation && (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
@@ -61,19 +63,19 @@ function InboxPage() {
       <div
         className={cn(
           "hidden xl:block shrink-0 transition-[width] duration-300 overflow-hidden bg-background",
-          showSidebar && selectedCase
+          showSidebar && selectedParamsConversation
             ? "w-87.5 2xl:w-100 border-l"
             : "w-0 border-none",
         )}
       >
-        <WidgetPanel selectedTicket={selectedTicket} />
+        <WidgetPanel selectedTicket={selectedConversation} />
       </div>
 
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent side="right" className="w-[90%] sm:w-100 p-0 pt-10">
           <WidgetPanel
             className="w-full border-0"
-            selectedTicket={selectedTicket}
+            selectedTicket={selectedConversation}
           />
         </SheetContent>
       </Sheet>

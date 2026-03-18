@@ -63,7 +63,7 @@ export interface ConversationHistoryParams {
   before_time?: string;
 }
 
-export interface Conversation {
+export interface Message {
   id: string;
   mid?: string;
   type?: string;
@@ -94,11 +94,12 @@ export interface ReplyToConversation {
 export interface ConversationAttachment {
   type?: string;
   meta_url?: string;
+  attachment_id?: string;
   payload: { url?: string; sticker_id?: string; original_url?: string };
 }
 
 export interface ConversationHistory {
-  items?: Conversation[];
+  items?: Message[];
   channel?: {
     id: string;
     platform: string;

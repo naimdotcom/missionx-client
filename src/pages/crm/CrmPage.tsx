@@ -1,15 +1,15 @@
 import { useCustomers } from "@/api/services/crm/crm.hook";
 import type { CustomerListParams } from "@/api/services/crm/crm.types";
+import { useDataTable } from "@/hooks/use-data-table";
+import { useSearch } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 import { DataTable } from "~/components/data-table/data-table";
 import { DataTableSkeleton } from "~/components/data-table/data-table-skeleton";
 import { DataTableToolbar } from "~/components/data-table/data-table-toolbar";
-import { useDataTable } from "@/hooks/use-data-table";
-import { useSearch } from "@tanstack/react-router";
-import { crmColumns } from "./crm-columns";
 import { Button } from "~/components/ui/button";
-import { Plus } from "lucide-react";
-import { useState } from "react";
 import { CustomerSheet } from "./components/CustomerSheet";
+import { crmColumns } from "./crm-columns";
 
 export default function CrmPage() {
   const search: Record<string, unknown> = useSearch({ strict: false });
@@ -22,9 +22,7 @@ export default function CrmPage() {
     q: (search.q as string) || undefined,
     platform: (search.platform as string) || undefined,
     is_active:
-      search.is_active !== undefined
-        ? search.is_active === "true"
-        : undefined,
+      search.is_active !== undefined ? search.is_active === "true" : undefined,
   };
 
   const { data, isLoading } = useCustomers(params);
@@ -49,18 +47,13 @@ export default function CrmPage() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
-            <p className="text-muted-foreground">
-              Manage your CRM customers
-            </p>
+            <p className="text-muted-foreground">Manage your CRM customers</p>
           </div>
           <Button disabled>
             <Plus className="mr-2 h-4 w-4" /> Add Customer
           </Button>
         </div>
-        <DataTableSkeleton
-          columnCount={crmColumns.length}
-          rowCount={10}
-        />
+        <DataTableSkeleton columnCount={crmColumns.length} rowCount={10} />
       </div>
     );
   }
@@ -70,9 +63,7 @@ export default function CrmPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Customers</h1>
-          <p className="text-muted-foreground">
-            Manage your CRM customers
-          </p>
+          <p className="text-muted-foreground">Manage your CRM customers</p>
         </div>
         <Button onClick={() => setIsCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add Customer
@@ -82,10 +73,7 @@ export default function CrmPage() {
         <DataTableToolbar table={table} />
       </DataTable>
 
-      <CustomerSheet 
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-      />
+      <CustomerSheet open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </div>
   );
 }

@@ -12,9 +12,11 @@ import {
 import { AttachmentUpload } from "./useFileAttachments";
 
 function getFileIcon(file: File) {
-  if (file.type.startsWith("image/")) return ImageIcon;
-  if (file.type.startsWith("video/")) return Video;
-  return FileIcon;
+  if (file.type.startsWith("image/"))
+    return <ImageIcon className="h-4 w-4 shrink-0" />;
+  if (file.type.startsWith("video/"))
+    return <Video className="h-4 w-4 shrink-0" />;
+  return <FileIcon className="h-4 w-4 shrink-0" />;
 }
 
 function formatFileSize(bytes: number): string {
@@ -34,7 +36,6 @@ export function AttachmentItem({
   onRetry,
   onRemove,
 }: AttachmentItemProps) {
-  const FileTypeIcon = getFileIcon(attachment.file);
   const isInProgress =
     attachment.status === "uploading" || attachment.status === "pending";
 
@@ -63,7 +64,7 @@ export function AttachmentItem({
             attachment.status === "failed" ? "bg-destructive/10" : "bg-muted",
           )}
         >
-          <FileTypeIcon className="h-4 w-4 shrink-0" />
+          {getFileIcon(attachment.file)}
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium">{attachment.file.name}</p>
             <p className="text-muted-foreground">

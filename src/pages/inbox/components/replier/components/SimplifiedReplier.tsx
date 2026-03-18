@@ -1,5 +1,5 @@
 import { useUpdateConversationStatus } from "@/api/services/inbox/inbox.hook";
-import { Conversation } from "@/api/services/inbox/inbox.type";
+import { Message } from "@/api/services/inbox/inbox.type";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -29,9 +29,8 @@ interface SimplifiedReplierProps {
   maxLength?: number;
   conversationId?: string;
   ticketStatus?: string;
-  replyTo?: Conversation | null;
+  replyTo?: Message | null;
   onCancelReply?: () => void;
-  selectedTicketId?: string;
   config?: ReplierConfig;
 }
 
@@ -52,7 +51,6 @@ export const SimplifiedReplier = forwardRef<
     ticketStatus,
     replyTo,
     onCancelReply,
-    selectedTicketId,
     config = DEFAULT_REPLIER_CONFIG,
   },
   ref,
@@ -70,7 +68,7 @@ export const SimplifiedReplier = forwardRef<
     clearAll,
     hasUploading,
     uploaded,
-  } = useFileAttachments(selectedTicketId);
+  } = useFileAttachments(conversationId);
 
   const updateStatusMutation = useUpdateConversationStatus();
 

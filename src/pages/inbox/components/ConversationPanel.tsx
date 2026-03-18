@@ -1,4 +1,4 @@
-import { Conversation } from "@/api/services/inbox/inbox.type";
+import { ConversationTicket, Message } from "@/api/services/inbox/inbox.type";
 import ConversationLoading from "@/components/shared/ConversationLoading";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -30,7 +30,7 @@ import {
 interface ConversationAreaProps {
   className?: string;
   unreadCount?: number;
-  selectedTicket: string;
+  selectedTicket?: ConversationTicket;
   onShowDetails?: () => void;
   onShowSidebar?: () => void;
 }
@@ -67,7 +67,7 @@ function ConversationArea({
     firstPage,
     customerDetails,
     pageCount,
-  } = useConversationScroll(selectedTicket);
+  } = useConversationScroll(selectedTicket?.id || "");
 
   const replierRef = useRef<SimplifiedReplierHandle>(null);
   const savedScrollHeightRef = useRef(0);
@@ -143,7 +143,7 @@ function ConversationArea({
   // ── Message Actions ────────────────────────────────────────────────────
 
   const handleReply = useCallback(
-    (msg: Conversation) => {
+    (msg: Message) => {
       setReplyTo(msg);
       requestAnimationFrame(() => replierRef.current?.focus());
     },
@@ -162,7 +162,7 @@ function ConversationArea({
     ) => {
       if (!text.trim() && (!attachments || attachments.length === 0)) return;
       await sendMessageMutation.mutateAsync({
-        conversation_id: selectedTicket,
+        conversation_id: selectedTicket?.id ?? "",
         message_type: "message",
         payload: {
           text: text.trim() || undefined,
@@ -179,7 +179,7 @@ function ConversationArea({
   // Mark unread as read
   useEffect(() => {
     if (selectedTicket && Number(unreadCount) > 0) {
-      markAsRead(selectedTicket);
+      markAsRead(selectedTicket.id ?? "");
     }
   }, [selectedTicket, unreadCount, markAsRead]);
 
@@ -188,7 +188,7 @@ function ConversationArea({
     const platform = firstPage?.channel?.platform;
     if (platform === "facebook" || platform === "instagram") {
       const lastCustomerMsg = firstPage?.items?.find(
-        (m: Conversation) => m.sender === "customer",
+        (m: Message) => m.sender === "customer",
       );
       if (lastCustomerMsg?.created_at) {
         const msgDate = new Date(lastCustomerMsg.created_at);
@@ -265,6 +265,7 @@ function ConversationArea({
                 isCustomer={isCustomer}
                 showAvatar={isCustomer}
                 text={msg?.content?.text}
+                status={selectedTicket?.status}
                 repliedTo={msg?.replied_to_content}
                 onReply={() => msg && handleReply(msg)}
                 attachments={msg?.content?.attachments}
@@ -278,28 +279,31 @@ function ConversationArea({
 
       {showScrollButton && !isAtBottom && (
         <Button
-          variant="outline"
           size="icon"
-          className="absolute bottom-35 left-1/2 -translate-x-1/2 z-20 h-10 w-10 rounded-full shadow-lg border-primary/20 bg-background/80 backdrop-blur-sm hover:bg-background"
+          variant="outline"
+          className={cn(
+            "absolute bottom-35 left-1/2 -translate-x-1/2 z-20 rounded-full shadow-2xl",
+            selectedTicket?.status === "done" && "bottom-20",
+          )}
           onClick={() => scrollToBottom()}
         >
           <ChevronDown className="h-5 w-5" />
         </Button>
       )}
-
-      <SimplifiedReplier
-        ref={replierRef}
-        maxLength={2000}
-        replyTo={replyTo}
-        onSend={handleSend}
-        config={replierConfig}
-        placeholder="Type a message..."
-        conversationId={selectedTicket}
-        selectedTicketId={selectedTicket}
-        onCancelReply={() => setReplyTo(null)}
-        disabled={sendMessageMutation.isPending}
-        ticketStatus={firstPage?.conversation?.status}
-      />
+      {selectedTicket?.status !== "done" && (
+        <SimplifiedReplier
+          ref={replierRef}
+          maxLength={2000}
+          replyTo={replyTo}
+          onSend={handleSend}
+          config={replierConfig}
+          placeholder="Type a message..."
+          conversationId={selectedTicket?.id}
+          onCancelReply={() => setReplyTo(null)}
+          disabled={sendMessageMutation.isPending}
+          ticketStatus={firstPage?.conversation?.status}
+        />
+      )}
     </div>
   );
 }
