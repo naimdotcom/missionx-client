@@ -1,3 +1,5 @@
+import { ChannelPlatform } from "../channels";
+
 export type CustomerResponse = {
   id: string | undefined;
   app_id: string | undefined;
@@ -73,14 +75,14 @@ export type CustomerListParams = {
   page: number | undefined;
   limit: number | undefined;
   app_id: string | undefined;
-  q: string | undefined;
-  platform: string | undefined;
-  platform_id: string | undefined;
-  username: string | undefined;
-  email: string | undefined;
-  phone: string | undefined;
-  is_active: boolean | undefined;
-  filters: string | undefined;
+  q?: string | undefined;
+  platform?: ChannelPlatform;
+  platform_id?: string | undefined;
+  username?: string | undefined;
+  email?: string | undefined;
+  phone?: string | undefined;
+  is_active?: boolean | undefined;
+  filters?: string | undefined;
 };
 
 export type CustomerQueryParams = {
@@ -144,7 +146,13 @@ export type IdentifyCustomerRequest = {
 
 export type SegmentFilter = {
   field: string;
-  operator: "equals" | "contains" | "greater_than" | "less_than" | "in" | "not_in";
+  operator:
+    | "equals"
+    | "contains"
+    | "greater_than"
+    | "less_than"
+    | "in"
+    | "not_in";
   value: any;
 };
 

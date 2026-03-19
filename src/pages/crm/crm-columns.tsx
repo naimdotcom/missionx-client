@@ -1,8 +1,11 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "~/components/ui/badge";
-import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
+import { useDeleteCustomer } from "@/api/services/crm/crm.hook";
 import type { CustomerResponse } from "@/api/services/crm/crm.types";
+import type { ColumnDef } from "@tanstack/react-table";
+import { Eye, MoreHorizontal, Pencil, Trash } from "lucide-react";
 import { useState } from "react";
+import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,11 +14,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Button } from "~/components/ui/button";
-import { MoreHorizontal, Eye, Pencil, Trash } from "lucide-react";
-import { useDeleteCustomer } from "@/api/services/crm/crm.hook";
-import { CustomerSheet } from "./components/CustomerSheet";
 import { CustomerDetailsSheet } from "./components/CustomerDetailsSheet";
+import { CustomerModal } from "./components/CustomerModal";
 
 const CustomerActionsCell = ({ customer }: { customer: CustomerResponse }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -60,7 +60,7 @@ const CustomerActionsCell = ({ customer }: { customer: CustomerResponse }) => {
         onOpenChange={setIsDetailsOpen}
         customer={customer}
       />
-      <CustomerSheet
+      <CustomerModal
         open={isEditOpen}
         onOpenChange={setIsEditOpen}
         customer={customer}
@@ -196,4 +196,3 @@ export const crmColumns: ColumnDef<CustomerResponse>[] = [
     cell: ({ row }) => <CustomerActionsCell customer={row.original} />,
   },
 ];
-

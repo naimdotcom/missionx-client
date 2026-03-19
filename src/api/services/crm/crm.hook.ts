@@ -11,7 +11,7 @@ import type {
 /**
  * Hook to fetch customers list with optional filters
  */
-export const useCustomers = (params?: Partial<CustomerListParams>) => {
+export const useCustomers = (params?: CustomerListParams) => {
   return useQuery({
     queryKey: [...queryKeys.crmKeys.customerList, params],
     queryFn: () => crmService.getCustomers(params),
@@ -26,8 +26,7 @@ export const useCreateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CustomerCreate) =>
-      crmService.createCustomer(payload),
+    mutationFn: (payload: CustomerCreate) => crmService.createCustomer(payload),
     mutationKey: mutationKeys.crmKeys.createCustomer,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -48,13 +47,8 @@ export const useUpdateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: CustomerUpdate;
-    }) => crmService.updateCustomer(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: CustomerUpdate }) =>
+      crmService.updateCustomer(id, payload),
     mutationKey: mutationKeys.crmKeys.updateCustomer,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -90,12 +84,14 @@ export const useDeleteCustomer = () => {
 };
 
 /**
- * 
+ *
  * Segments
- * 
+ *
  */
 
-export const useSegments = (params?: Partial<import("./crm.types").SegmentListParams>) => {
+export const useSegments = (
+  params?: Partial<import("./crm.types").SegmentListParams>,
+) => {
   return useQuery({
     queryKey: ["segments", params],
     queryFn: () => crmService.getSegments(params),
@@ -158,5 +154,13 @@ export const useDeleteSegment = () => {
     onError: () => {
       toast.error("Failed to delete segment");
     },
+  });
+};
+
+export const useCustomer = (id?: string) => {
+  return useQuery({
+    queryKey: [...queryKeys.crmKeys.customerList, id],
+    queryFn: () => id ? crmService.getCustomerById(id) : Promise.resolve(null),
+    enabled: !!id,
   });
 };

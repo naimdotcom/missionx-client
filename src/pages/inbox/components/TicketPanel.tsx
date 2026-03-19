@@ -48,7 +48,9 @@ function TicketsPanel({
         (ticket) => ticket.id === selectedTicket,
       );
 
-      setSelectedTicket?.(ticketExists);
+      if (ticketExists) {
+        setSelectedTicket?.(ticketExists);
+      }
     }
   }, [flattenedTickets, navigate, selectedTicket, setSelectedTicket]);
 

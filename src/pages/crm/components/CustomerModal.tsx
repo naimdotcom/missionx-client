@@ -3,12 +3,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "~/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import {
   Form,
@@ -35,17 +35,17 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface CustomerSheetProps {
+interface CustomerModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   customer?: CustomerResponse | null;
 }
 
-export function CustomerSheet({
+export function CustomerModal({
   open,
   onOpenChange,
   customer,
-}: CustomerSheetProps) {
+}: CustomerModalProps) {
   const isEditing = !!customer;
 
   const createMutation = useCreateCustomer();
@@ -121,16 +121,16 @@ export function CustomerSheet({
   const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="overflow-y-auto sm:max-w-md">
-        <SheetHeader>
-          <SheetTitle>{isEditing ? "Edit Customer" : "Add Customer"}</SheetTitle>
-          <SheetDescription>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="overflow-y-auto sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{isEditing ? "Edit Customer" : "Add Customer"}</DialogTitle>
+          <DialogDescription>
             {isEditing
               ? "Update the details of the customer."
               : "Create a new customer profile manually."}
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -245,7 +245,7 @@ export function CustomerSheet({
             </div>
           </form>
         </Form>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 }

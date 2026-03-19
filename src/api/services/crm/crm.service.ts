@@ -11,7 +11,7 @@ import type {
   CustomerUpdate,
   ExportRequest,
   NotesUpdateRequest,
-  TagUpdateRequest
+  TagUpdateRequest,
 } from "./crm.types";
 
 export class CrmService extends BaseAPIService {
@@ -19,7 +19,7 @@ export class CrmService extends BaseAPIService {
     super(baseURL);
   }
 
-  getCustomers = (params?: Partial<CustomerListParams>) => {
+  getCustomers = (params?: CustomerListParams) => {
     return this.get<CustomerResponse[]>(
       API_ENDPOINTS.CRM.CUSTOMERS,
       params as Record<string, unknown>,
@@ -31,10 +31,7 @@ export class CrmService extends BaseAPIService {
   };
 
   createCustomer = (payload: CustomerCreate) => {
-    return this.post<CustomerResponse>(
-      API_ENDPOINTS.CRM.CUSTOMERS,
-      payload,
-    );
+    return this.post<CustomerResponse>(API_ENDPOINTS.CRM.CUSTOMERS, payload);
   };
 
   updateCustomer = (id: string, payload: CustomerUpdate) => {
@@ -60,10 +57,7 @@ export class CrmService extends BaseAPIService {
     return this.patch(API_ENDPOINTS.CRM.CUSTOMER_ATTRIBUTES(id), payload);
   };
 
-  bulkUpdateAttributes = (
-    id: string,
-    payload: BulkAttributeUpdateRequest,
-  ) => {
+  bulkUpdateAttributes = (id: string, payload: BulkAttributeUpdateRequest) => {
     return this.post(API_ENDPOINTS.CRM.CUSTOMER_BULK_ATTRIBUTES(id), payload);
   };
 
@@ -83,27 +77,30 @@ export class CrmService extends BaseAPIService {
   getSegments = (params?: Partial<import("./crm.types").SegmentListParams>) => {
     return this.get<import("./crm.types").SegmentResponse[]>(
       API_ENDPOINTS.CRM.SEGMENT,
-      params as Record<string, unknown>
+      params as Record<string, unknown>,
     );
   };
 
   getSegmentById = (id: string) => {
     return this.get<import("./crm.types").SegmentResponse>(
-      API_ENDPOINTS.CRM.SEGMENT_BY_ID(id)
+      API_ENDPOINTS.CRM.SEGMENT_BY_ID(id),
     );
   };
 
   createSegment = (payload: import("./crm.types").SegmentCreate) => {
     return this.post<import("./crm.types").SegmentResponse>(
       API_ENDPOINTS.CRM.SEGMENT,
-      payload
+      payload,
     );
   };
 
-  updateSegment = (id: string, payload: import("./crm.types").SegmentUpdate) => {
+  updateSegment = (
+    id: string,
+    payload: import("./crm.types").SegmentUpdate,
+  ) => {
     return this.patch<import("./crm.types").SegmentResponse>(
       API_ENDPOINTS.CRM.SEGMENT_BY_ID(id),
-      payload
+      payload,
     );
   };
 

@@ -1,6 +1,8 @@
+import { ChannelPlatform } from "@/api";
 import { useCustomers } from "@/api/services/crm/crm.hook";
 import type { CustomerListParams } from "@/api/services/crm/crm.types";
 import { useDataTable } from "@/hooks/use-data-table";
+import { useAuthStore } from "@/stores/auth-store";
 import { useSearch } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -8,19 +10,21 @@ import { DataTable } from "~/components/data-table/data-table";
 import { DataTableSkeleton } from "~/components/data-table/data-table-skeleton";
 import { DataTableToolbar } from "~/components/data-table/data-table-toolbar";
 import { Button } from "~/components/ui/button";
-import { CustomerSheet } from "./components/CustomerSheet";
+import { CustomerModal } from "./components/CustomerModal";
 import { crmColumns } from "./crm-columns";
 
 export default function CrmPage() {
+  const { selectedApp } = useAuthStore();
   const search: Record<string, unknown> = useSearch({ strict: false });
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // Build params from URL search
-  const params: Partial<CustomerListParams> = {
+  const params: CustomerListParams = {
     page: search.page ? Number(search.page) : 1,
     limit: search.perPage ? Number(search.perPage) : 10,
     q: (search.q as string) || undefined,
-    platform: (search.platform as string) || undefined,
+    app_id: selectedApp?.id,
+    platform: (search.platform as ChannelPlatform) || undefined,
     is_active:
       search.is_active !== undefined ? search.is_active === "true" : undefined,
   };
@@ -73,7 +77,7 @@ export default function CrmPage() {
         <DataTableToolbar table={table} />
       </DataTable>
 
-      <CustomerSheet open={isCreateOpen} onOpenChange={setIsCreateOpen} />
+      <CustomerModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </div>
   );
 }
