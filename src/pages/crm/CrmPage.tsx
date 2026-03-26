@@ -34,6 +34,26 @@ import { Separator } from "~/components/ui/separator";
 import { CustomerModal } from "./components/CustomerModal";
 import { crmColumns } from "./crm-columns";
 
+const FILTER_KEYS = [
+  "q",
+  "platform",
+  "is_active",
+  "email",
+  "phone",
+  "platform_id",
+] as const;
+
+const toOptional = (value: string | null | undefined) => value || undefined;
+
+const parseIsActive = (value: string | null | undefined) => {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return undefined;
+};
+
+const resolveUpdater = <T,>(updater: T | ((prev: T) => T), prev: T): T =>
+  typeof updater === "function" ? (updater as (prev: T) => T)(prev) : updater;
+
 const filterFields: FilterFieldsConfig = [
   {
     key: "q",
@@ -82,7 +102,6 @@ const filterFields: FilterFieldsConfig = [
 export default function CrmPage() {
   const { selectedApp } = useAuthStore();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   // nuqs search params management
   const [params, setParams] = useQueryStates({
@@ -114,18 +133,13 @@ export default function CrmPage() {
   const apiParams: CustomerListParams = {
     page: params.page,
     limit: params.perPage,
-    q: params.q || undefined,
+    q: toOptional(params.q),
     app_id: selectedApp?.id,
-    platform: (params.platform as ChannelPlatform) || undefined,
-    platform_id: params.platform_id || undefined,
-    email: params.email || undefined,
-    phone: params.phone || undefined,
-    is_active:
-      params.is_active === "true"
-        ? true
-        : params.is_active === "false"
-          ? false
-          : undefined,
+    platform: toOptional(params.platform) as ChannelPlatform | undefined,
+    platform_id: toOptional(params.platform_id),
+    email: toOptional(params.email),
+    phone: toOptional(params.phone),
+    is_active: parseIsActive(params.is_active),
   };
 
   const { data: customers, isLoading } = useCustomers(apiParams);
@@ -143,13 +157,11 @@ export default function CrmPage() {
       columnVisibility,
     },
     onColumnOrderChange: (updater) => {
-      const nextOrder =
-        typeof updater === "function" ? updater(columnOrder) : updater;
+      const nextOrder = resolveUpdater(updater, columnOrder);
       setColumnOrder(nextOrder);
     },
     onColumnVisibilityChange: (updater) => {
-      const nextVisibility =
-        typeof updater === "function" ? updater(columnVisibility) : updater;
+      const nextVisibility = resolveUpdater(updater, columnVisibility);
       setColumnVisibility(nextVisibility);
     },
   });
@@ -174,9 +186,8 @@ export default function CrmPage() {
     const nextParams: Record<string, string | number | null> = { page: 1 };
 
     // Reset all filter fields
-    filterFields.forEach((f) => {
-      const field = f as { key: string };
-      if (field.key) nextParams[field.key] = null;
+    FILTER_KEYS.forEach((key) => {
+      nextParams[key] = null;
     });
 
     // Set updated values
@@ -202,7 +213,7 @@ export default function CrmPage() {
   return (
     <div className="grid h-full grid-rows-[auto_auto_1fr] overflow-hidden">
       {/* Header matching ChannelsPage style */}
-      <div className="flex flex-col gap-4 border-b bg-card px-6 py-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 border-b bg-card px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
             <UserCircle className="size-4 text-primary" />
@@ -215,23 +226,26 @@ export default function CrmPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button size="sm" onClick={() => setIsCreateOpen(true)}>
+        <div className="flex w-full items-center gap-2 md:w-auto">
+          <Button
+            size="sm"
+            className="w-full md:w-auto"
+            onClick={() => setIsCreateOpen(true)}
+          >
             <Plus className="mr-2 h-4 w-4" /> Add Customer
           </Button>
         </div>
       </div>
 
       {/* Toolbar Area */}
-      {/* {showAdvancedFilters && ( */}
-      <div className="flex items-center justify-between border-b bg-muted/30 px-6 py-2">
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-col gap-3 border-b bg-muted/40 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:flex-1">
+          <div className="relative w-full sm:max-w-sm">
+            <Search className="absolute left-2.5 top-1.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search customers..."
-              className="pl-9 bg-background h-8"
+              placeholder="Search customers by name, email, or phone..."
+              className="pl-9 bg-background h-8 w-full border-muted-foreground/20 text-sm shadow-sm transition-colors focus-visible:ring-1"
               value={params.q || ""}
               onChange={(e) =>
                 setParams({ ...params, q: e.target.value || null, page: 1 })
@@ -246,34 +260,41 @@ export default function CrmPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          <Separator orientation="vertical" className="h-6" />
+        <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 flex-1 sm:flex-none"
+              >
                 <Download className="mr-2 h-4 w-4" /> Export
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-40">
               <DropdownMenuItem>Export as CSV</DropdownMenuItem>
               <DropdownMenuItem>Export as JSON</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Separator orientation="vertical" className="hidden h-5 sm:block" />
           <DataGridColumnVisibility
             table={table}
             trigger={
-              <Button variant="ghost" size="sm" className="h-8">
-                <Settings2 className="mr-2 h-4 w-4 text-muted-foreground" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 flex-1 text-muted-foreground hover:text-foreground sm:flex-none"
+              >
+                <Settings2 className="mr-2 h-4 w-4" />
                 Columns
               </Button>
             }
           />
         </div>
       </div>
-      {/* )} */}
 
       {/* Main Grid Area with Fixed Scrolling and Pagination */}
-      <div className="flex flex-col overflow-hidden ">
+      <div className="flex flex-col overflow-hidden">
         <DataGridContainer className="flex flex-1 flex-col overflow-hidden bg-background border-0">
           <DataGrid
             table={table}
