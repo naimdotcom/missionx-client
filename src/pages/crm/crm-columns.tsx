@@ -1,179 +1,117 @@
-import { useDeleteCustomer } from "@/api/services/crm/crm.hook";
 import type { CustomerResponse } from "@/api/services/crm/crm.types";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal, Pencil, Trash } from "lucide-react";
-import { useState } from "react";
-import { DataTableColumnHeader } from "~/components/data-table/data-table-column-header";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { CustomerDetailsSheet } from "./components/CustomerDetailsSheet";
-import { CustomerModal } from "./components/CustomerModal";
-
-const CustomerActionsCell = ({ customer }: { customer: CustomerResponse }) => {
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const deleteMutation = useDeleteCustomer();
-
-  const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this customer?")) {
-      deleteMutation.mutate(customer.id as string);
-    }
-  };
-
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setIsDetailsOpen(true)}>
-            <Eye className="mr-2 h-4 w-4" /> View Details
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
-            <Pencil className="mr-2 h-4 w-4" /> Edit Customer
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={handleDelete}
-            className="text-destructive focus:bg-destructive focus:text-destructive-foreground"
-          >
-            <Trash className="mr-2 h-4 w-4" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <CustomerDetailsSheet
-        open={isDetailsOpen}
-        onOpenChange={setIsDetailsOpen}
-        customer={customer}
-      />
-      <CustomerModal
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-        customer={customer}
-      />
-    </>
-  );
-};
 
 export const crmColumns: ColumnDef<CustomerResponse>[] = [
   {
-    accessorKey: "username",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Username" />
-    ),
-    cell: ({ row }) => row.original.username || "—",
-  },
-  {
-    id: "full_name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Name" />
-    ),
+    id: "customer",
+    header: "Customer",
+    enableHiding: false,
     cell: ({ row }) => {
-      const first = row.original.first_name || "";
-      const last = row.original.last_name || "";
-      const name = `${first} ${last}`.trim();
-      return name || "—";
+      const customer = row.original;
+      const customMetadata = (customer.custom_metadata as any) || {};
+
+      // Try to get name and pic from top level first, then custom_metadata
+      const firstName = customer.first_name || customMetadata.first_name || "";
+      const lastName = customer.last_name || customMetadata.last_name || "";
+      const fullName =
+        `${firstName} ${lastName}`.trim() || customer.username || "Unknown";
+
+      const profilePic =
+        customer.profile_pic_url || customMetadata.profile_pic_url;
+
+      return (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={profilePic} alt={fullName} />
+            <AvatarFallback className="text-[10px]">
+              {fullName
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="font-medium text-foreground line-clamp-1">
+              {fullName}
+            </span>
+            {customer.username && customer.username !== fullName && (
+              <span className="text-xs text-muted-foreground line-clamp-1">
+                @{customer.username}
+              </span>
+            )}
+          </div>
+        </div>
+      );
     },
+    size: 200,
   },
   {
+    id: "email",
     accessorKey: "email",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Email" />
-    ),
+    header: "Email",
     cell: ({ row }) => row.original.email || "—",
   },
   {
+    id: "phone",
     accessorKey: "phone",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Phone" />
-    ),
+    header: "Phone",
     cell: ({ row }) => row.original.phone || "—",
   },
   {
+    id: "platform",
     accessorKey: "platform",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Platform" />
-    ),
+    header: "Platform",
     cell: ({ row }) => {
       const platform = row.original.platform;
       if (!platform) return "—";
       return (
-        <Badge variant="outline" className="capitalize">
+        <Badge variant="secondary" className="capitalize">
           {platform}
         </Badge>
       );
     },
-    enableColumnFilter: true,
-    meta: {
-      label: "Platform",
-      variant: "select" as const,
-      options: [
-        { label: "Instagram", value: "instagram" },
-        { label: "Facebook", value: "facebook" },
-      ],
-    },
   },
   {
+    id: "tags",
     accessorKey: "tags",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Tags" />
-    ),
+    header: "Tags",
     cell: ({ row }) => {
       const tags = row.original.tags;
       if (!tags || tags.length === 0) return "—";
       return (
         <div className="flex flex-wrap gap-1">
           {tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs">
+            <StatusBadge key={tag} variant="outline" className="text-xs">
               {tag}
-            </Badge>
+            </StatusBadge>
           ))}
         </div>
       );
     },
   },
   {
+    id: "is_active",
     accessorKey: "is_active",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Status" />
-    ),
+    header: "Status",
     cell: ({ row }) => {
       const isActive = row.original.is_active;
       return (
-        <Badge variant={isActive ? "default" : "destructive"}>
-          {isActive ? "Active" : "Inactive"}
-        </Badge>
+        <StatusBadge
+          variant="secondary"
+          status={isActive ? "active" : "inactive"}
+        />
       );
-    },
-    enableColumnFilter: true,
-    meta: {
-      label: "Status",
-      variant: "select" as const,
-      options: [
-        { label: "Active", value: "true" },
-        { label: "Inactive", value: "false" },
-      ],
     },
   },
   {
+    id: "source",
     accessorKey: "source",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Source" />
-    ),
+    header: "Source",
     cell: ({ row }) => {
       const source = row.original.source;
       if (!source) return "—";
@@ -181,18 +119,13 @@ export const crmColumns: ColumnDef<CustomerResponse>[] = [
     },
   },
   {
+    id: "created_at",
     accessorKey: "created_at",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} label="Created" />
-    ),
+    header: "Created",
     cell: ({ row }) => {
       const date = row.original.created_at;
       if (!date) return "—";
       return new Date(date).toLocaleDateString();
     },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <CustomerActionsCell customer={row.original} />,
   },
 ];

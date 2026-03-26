@@ -55,9 +55,7 @@ export function useFileAttachments(selectedTicketId?: string) {
           options: {
             onUploadProgress: (progressEvent: ProgressEvent) => {
               const progress = progressEvent.total
-                ? Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total,
-                  )
+                ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
                 : 0;
               updateAttachment(attachment.id, { progress });
             },

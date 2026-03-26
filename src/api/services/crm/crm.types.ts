@@ -14,7 +14,9 @@ export type CustomerResponse = {
   locale: string | undefined;
   timezone: number | undefined;
   gender: string | undefined;
-  custom_metadata: Record<string, unknown> | undefined;
+  custom_metadata:
+    | { id?: string; name?: string; profile_pic?: string }
+    | undefined;
   attributes: Record<string, unknown> | undefined;
   tags: string[] | undefined;
   source: string | undefined;

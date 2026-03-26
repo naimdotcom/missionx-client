@@ -134,6 +134,14 @@ interface StatusBadgeProps {
   showDot?: boolean;
   /** Extra classes forwarded to the Badge */
   className?: string;
+
+  variant?:
+    | "default"
+    | "secondary"
+    | "destructive"
+    | "outline"
+    | null
+    | undefined;
 }
 
 // ─── Component ────────────────────────────────────────────────────
@@ -143,16 +151,25 @@ export function StatusBadge({
   children,
   showDot = true,
   className,
+  variant,
 }: StatusBadgeProps) {
   const style = status ? STATUS_STYLES[status] : null;
 
+  // If a specific variant is provided (like "secondary" or "outline"),
+  // we let the standard Badge colors take over, except we still show the status dot.
+  // We only apply the custom status background and text colors if no variant is provided
+  // or if it's explicitly "default".
+  const applyCustomColors = !variant || variant === "default";
+
   return (
     <Badge
+      variant={variant}
       className={cn(
+        "inline-flex items-center gap-1 shadow-none text-[11px]",
+        applyCustomColors && style?.bg,
+        applyCustomColors && style?.text,
+        applyCustomColors && "hover:bg-current/5", // Only apply hover effect for custom styles
         className,
-        style?.bg,
-        style?.text,
-        "inline-flex items-center gap-1 shadow-none text-[11px] hover:bg-current/5",
       )}
     >
       {showDot && style && (

@@ -13,9 +13,9 @@ import type {
  */
 export const useCustomers = (params?: CustomerListParams) => {
   return useQuery({
-    queryKey: [...queryKeys.crmKeys.customerList, params],
-    queryFn: () => crmService.getCustomers(params),
     staleTime: 30_000,
+    queryFn: () => crmService.getCustomers(params),
+    queryKey: [...queryKeys.crmKeys.customerList, params],
   });
 };
 
@@ -160,7 +160,8 @@ export const useDeleteSegment = () => {
 export const useCustomer = (id?: string) => {
   return useQuery({
     queryKey: [...queryKeys.crmKeys.customerList, id],
-    queryFn: () => id ? crmService.getCustomerById(id) : Promise.resolve(null),
+    queryFn: () =>
+      id ? crmService.getCustomerById(id) : Promise.resolve(null),
     enabled: !!id,
   });
 };

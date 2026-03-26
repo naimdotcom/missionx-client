@@ -17,7 +17,6 @@ import { Route as PrivateSettingsRouteImport } from './routes/_private/settings'
 import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
 import { Route as PrivateCrmRouteImport } from './routes/_private/crm'
 import { Route as PrivateChannelsRouteImport } from './routes/_private/channels'
-import { Route as PrivateAppsRouteImport } from './routes/_private/apps'
 import { Route as PrivateSettingsSlugRouteImport } from './routes/_private/settings.$slug'
 
 const PublicRoute = PublicRouteImport.update({
@@ -58,11 +57,6 @@ const PrivateChannelsRoute = PrivateChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => PrivateRoute,
 } as any)
-const PrivateAppsRoute = PrivateAppsRouteImport.update({
-  id: '/apps',
-  path: '/apps',
-  getParentRoute: () => PrivateRoute,
-} as any)
 const PrivateSettingsSlugRoute = PrivateSettingsSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -71,7 +65,6 @@ const PrivateSettingsSlugRoute = PrivateSettingsSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/apps': typeof PrivateAppsRoute
   '/channels': typeof PrivateChannelsRoute
   '/crm': typeof PrivateCrmRoute
   '/inbox': typeof PrivateInboxRoute
@@ -81,7 +74,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/apps': typeof PrivateAppsRoute
   '/channels': typeof PrivateChannelsRoute
   '/crm': typeof PrivateCrmRoute
   '/inbox': typeof PrivateInboxRoute
@@ -94,7 +86,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_private': typeof PrivateRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
-  '/_private/apps': typeof PrivateAppsRoute
   '/_private/channels': typeof PrivateChannelsRoute
   '/_private/crm': typeof PrivateCrmRoute
   '/_private/inbox': typeof PrivateInboxRoute
@@ -106,7 +97,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/apps'
     | '/channels'
     | '/crm'
     | '/inbox'
@@ -116,7 +106,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/apps'
     | '/channels'
     | '/crm'
     | '/inbox'
@@ -128,7 +117,6 @@ export interface FileRouteTypes {
     | '/'
     | '/_private'
     | '/_public'
-    | '/_private/apps'
     | '/_private/channels'
     | '/_private/crm'
     | '/_private/inbox'
@@ -201,13 +189,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateChannelsRouteImport
       parentRoute: typeof PrivateRoute
     }
-    '/_private/apps': {
-      id: '/_private/apps'
-      path: '/apps'
-      fullPath: '/apps'
-      preLoaderRoute: typeof PrivateAppsRouteImport
-      parentRoute: typeof PrivateRoute
-    }
     '/_private/settings/$slug': {
       id: '/_private/settings/$slug'
       path: '/$slug'
@@ -231,7 +212,6 @@ const PrivateSettingsRouteWithChildren = PrivateSettingsRoute._addFileChildren(
 )
 
 interface PrivateRouteChildren {
-  PrivateAppsRoute: typeof PrivateAppsRoute
   PrivateChannelsRoute: typeof PrivateChannelsRoute
   PrivateCrmRoute: typeof PrivateCrmRoute
   PrivateInboxRoute: typeof PrivateInboxRoute
@@ -239,7 +219,6 @@ interface PrivateRouteChildren {
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
-  PrivateAppsRoute: PrivateAppsRoute,
   PrivateChannelsRoute: PrivateChannelsRoute,
   PrivateCrmRoute: PrivateCrmRoute,
   PrivateInboxRoute: PrivateInboxRoute,

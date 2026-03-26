@@ -36,7 +36,7 @@ interface UseDataTableProps<TData>
       | "manualFiltering"
       | "manualPagination"
       | "manualSorting"
-      | "onPaginationChange"
+      // Note: We don't omit onPaginationChange here because we want to allow it to be passed
     >,
     Required<Pick<TableOptions<TData>, "pageCount">> {
   initialState?: Omit<Partial<TableState>, "sorting"> & {
@@ -68,6 +68,10 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
+
+  const [columnOrder, setColumnOrder] = React.useState<string[]>(
+    initialState?.columnOrder ?? [],
+  );
 
   // Pagination state initialized from URL or defaults
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -120,13 +124,17 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
       setPagination(newPagination);
 
-      // Pagination changes are immediate
-      updateUrl({
-        page: newPagination.pageIndex + 1,
-        perPage: newPagination.pageSize,
-      });
+      if (!tableProps.onPaginationChange) {
+        // Only update URL if external onPaginationChange is not provided
+        updateUrl({
+          page: newPagination.pageIndex + 1,
+          perPage: newPagination.pageSize,
+        });
+      } else {
+        tableProps.onPaginationChange(updaterOrValue);
+      }
     },
-    [pagination, updateUrl],
+    [pagination, updateUrl, tableProps],
   );
 
   const onSortingChange = React.useCallback(
@@ -136,8 +144,9 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
           ? updaterOrValue(sorting)
           : updaterOrValue;
       setSorting(newSorting);
+      tableProps.onSortingChange?.(updaterOrValue);
     },
-    [sorting],
+    [sorting, tableProps],
   );
 
   const onColumnFiltersChange = React.useCallback(
@@ -149,27 +158,30 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
       setColumnFilters(newFilters);
 
-      // Convert filters to object
-      const filterObj = newFilters.reduce<Record<string, unknown>>((acc, f) => {
-        acc[f.id] = Array.isArray(f.value) ? f.value[0] : f.value;
-        return acc;
-      }, {});
+      if (!tableProps.onColumnFiltersChange) {
+        // Convert filters to object
+        const filterObj = newFilters.reduce<Record<string, unknown>>((acc, f) => {
+          acc[f.id] = Array.isArray(f.value) ? f.value[0] : f.value;
+          return acc;
+        }, {});
 
-      // Handle removed filters properly by setting them to undefined in the update
-      columnFilters.forEach((f) => {
-        if (!newFilters.some((nf) => nf.id === f.id)) {
-          filterObj[f.id] = undefined;
-        }
-      });
+        // Handle removed filters properly by setting them to undefined in the update
+        columnFilters.forEach((f) => {
+          if (!newFilters.some((nf) => nf.id === f.id)) {
+            filterObj[f.id] = undefined;
+          }
+        });
 
-      // Reset to page 1 on filter change
-      // Use debounce for filters to prevent rapid URL updates on typing
-      debouncedUpdateUrl({
-        ...filterObj,
-        page: 1,
-      });
+        // Reset to page 1 on filter change
+        debouncedUpdateUrl({
+          ...filterObj,
+          page: 1,
+        });
+      } else {
+        tableProps.onColumnFiltersChange(updaterOrValue);
+      }
     },
-    [columnFilters, debouncedUpdateUrl],
+    [columnFilters, debouncedUpdateUrl, tableProps],
   );
 
   // Sync from URL changes (back button support)
@@ -191,6 +203,8 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       columnVisibility,
       rowSelection,
       columnFilters,
+      columnOrder,
+      ...tableProps.state,
     },
     defaultColumn: {
       ...tableProps.defaultColumn,
@@ -201,7 +215,14 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     onPaginationChange,
     onSortingChange,
     onColumnFiltersChange,
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnVisibilityChange: (updater) => {
+      setColumnVisibility(updater);
+      tableProps.onColumnVisibilityChange?.(updater);
+    },
+    onColumnOrderChange: (updater) => {
+      setColumnOrder(updater);
+      tableProps.onColumnOrderChange?.(updater);
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
