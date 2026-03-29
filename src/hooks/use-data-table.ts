@@ -160,10 +160,13 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
 
       if (!tableProps.onColumnFiltersChange) {
         // Convert filters to object
-        const filterObj = newFilters.reduce<Record<string, unknown>>((acc, f) => {
-          acc[f.id] = Array.isArray(f.value) ? f.value[0] : f.value;
-          return acc;
-        }, {});
+        const filterObj = newFilters.reduce<Record<string, unknown>>(
+          (acc, f) => {
+            acc[f.id] = Array.isArray(f.value) ? f.value[0] : f.value;
+            return acc;
+          },
+          {},
+        );
 
         // Handle removed filters properly by setting them to undefined in the update
         columnFilters.forEach((f) => {
@@ -204,7 +207,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       rowSelection,
       columnFilters,
       columnOrder,
-      ...tableProps.state,
+      ...tableProps,
     },
     defaultColumn: {
       ...tableProps.defaultColumn,

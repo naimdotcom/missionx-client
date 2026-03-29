@@ -1,5 +1,6 @@
 import type { CustomerResponse } from "@/api/services/crm/crm.types";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
@@ -9,6 +10,7 @@ export const crmColumns: ColumnDef<CustomerResponse>[] = [
     id: "customer",
     header: "Customer",
     enableHiding: false,
+    enableResizing: true,
     cell: ({ row }) => {
       const customer = row.original;
       const customMetadata = (customer.custom_metadata as any) || {};
@@ -49,23 +51,36 @@ export const crmColumns: ColumnDef<CustomerResponse>[] = [
       );
     },
     size: 200,
+    meta: {
+      skeleton: (
+        <div className="flex gap-4 items-center">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+      ),
+    },
   },
   {
     id: "email",
-    accessorKey: "email",
     header: "Email",
+    enableResizing: true,
+    accessorKey: "email",
     cell: ({ row }) => row.original.email || "—",
+    meta: { skeleton: <Skeleton className="h-10 w-30" /> },
   },
   {
     id: "phone",
-    accessorKey: "phone",
     header: "Phone",
+    enableResizing: true,
+    accessorKey: "phone",
     cell: ({ row }) => row.original.phone || "—",
+    meta: { skeleton: <Skeleton className="h-10 w-30" /> },
   },
   {
     id: "platform",
-    accessorKey: "platform",
     header: "Platform",
+    enableResizing: true,
+    accessorKey: "platform",
     cell: ({ row }) => {
       const platform = row.original.platform;
       if (!platform) return "—";
@@ -75,11 +90,13 @@ export const crmColumns: ColumnDef<CustomerResponse>[] = [
         </Badge>
       );
     },
+    meta: { skeleton: <Skeleton className="h-10 w-30" /> },
   },
   {
     id: "tags",
-    accessorKey: "tags",
     header: "Tags",
+    accessorKey: "tags",
+    enableResizing: true,
     cell: ({ row }) => {
       const tags = row.original.tags;
       if (!tags || tags.length === 0) return "—";
@@ -93,11 +110,13 @@ export const crmColumns: ColumnDef<CustomerResponse>[] = [
         </div>
       );
     },
+    meta: { skeleton: <Skeleton className="h-10 w-30" /> },
   },
   {
     id: "is_active",
-    accessorKey: "is_active",
     header: "Status",
+    enableResizing: true,
+    accessorKey: "is_active",
     cell: ({ row }) => {
       const isActive = row.original.is_active;
       return (
@@ -107,25 +126,30 @@ export const crmColumns: ColumnDef<CustomerResponse>[] = [
         />
       );
     },
+    meta: { skeleton: <Skeleton className="h-10 w-30" /> },
   },
   {
     id: "source",
-    accessorKey: "source",
     header: "Source",
+    enableResizing: true,
+    accessorKey: "source",
     cell: ({ row }) => {
       const source = row.original.source;
       if (!source) return "—";
       return <span className="capitalize">{source}</span>;
     },
+    meta: { skeleton: <Skeleton className="h-10 w-30" /> },
   },
   {
     id: "created_at",
-    accessorKey: "created_at",
     header: "Created",
+    enableResizing: true,
+    accessorKey: "created_at",
     cell: ({ row }) => {
       const date = row.original.created_at;
       if (!date) return "—";
       return new Date(date).toLocaleDateString();
     },
+    meta: { skeleton: <Skeleton className="h-10 w-30" /> },
   },
 ];

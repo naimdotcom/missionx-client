@@ -72,7 +72,7 @@ export function PageLoader({ size = "lg", className, ...props }: LoaderProps) {
       )}
       {...props}
     >
-      <div className="flex flex-col items-center gap-6 rounded-2xl border border-border bg-card px-12 py-10 shadow-2xl">
+      <div className="flex flex-col items-center gap-6 rounded-2xl bg-card px-12 py-10">
         <Loader size={size} />
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           Loading

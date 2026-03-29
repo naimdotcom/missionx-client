@@ -405,11 +405,11 @@ function FilterRemoveButton({
 }: FilterRemoveButtonProps) {
   const context = useFilterContext();
 
-  const sizeMap = {
-    sm: "sm" as const,
-    default: "sm" as const,
-    lg: "default" as const,
-  };
+  // const sizeMap = {
+  //   sm: "sm" as const,
+  //   default: "sm" as const,
+  //   lg: "default" as const,
+  // };
 
   return (
     <Button
