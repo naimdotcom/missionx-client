@@ -34,6 +34,19 @@ import { Separator } from "~/components/ui/separator";
 import { CustomerModal } from "./components/CustomerModal";
 import { crmColumns } from "./crm-columns";
 
+type CrmFilterKey = (typeof FILTER_KEYS)[number];
+
+type CrmQueryState = {
+  page: number;
+  perPage: number;
+  q: string | null;
+  platform: string | null;
+  is_active: string | null;
+  email: string | null;
+  phone: string | null;
+  platform_id: string | null;
+};
+
 const FILTER_KEYS = [
   "q",
   "platform",
@@ -42,6 +55,13 @@ const FILTER_KEYS = [
   "phone",
   "platform_id",
 ] as const;
+
+const TEXT_FILTER_KEYS = new Set<CrmFilterKey>([
+  "q",
+  "email",
+  "phone",
+  "platform_id",
+]);
 
 const toOptional = (value: string | null | undefined) => value || undefined;
 
@@ -53,6 +73,65 @@ const parseIsActive = (value: string | null | undefined) => {
 
 const resolveUpdater = <T,>(updater: T | ((prev: T) => T), prev: T): T =>
   typeof updater === "function" ? (updater as (prev: T) => T)(prev) : updater;
+
+const isCrmFilterKey = (value: string): value is CrmFilterKey =>
+  FILTER_KEYS.includes(value as CrmFilterKey);
+
+const buildApiParams = (
+  params: CrmQueryState,
+  selectedAppId?: string,
+): CustomerListParams => ({
+  page: params.page,
+  limit: params.perPage,
+  q: toOptional(params.q),
+  app_id: selectedAppId,
+  platform: toOptional(params.platform) as ChannelPlatform | undefined,
+  platform_id: toOptional(params.platform_id),
+  email: toOptional(params.email),
+  phone: toOptional(params.phone),
+  is_active: parseIsActive(params.is_active),
+});
+
+const buildReuiFilters = (params: CrmQueryState): Filter[] => {
+  return FILTER_KEYS.flatMap((key) => {
+    const value = params[key];
+    if (value === null || value === undefined) {
+      return [];
+    }
+
+    return [
+      {
+        id: key,
+        field: key,
+        operator: TEXT_FILTER_KEYS.has(key) ? "contains" : "is",
+        values: [value],
+      } as Filter,
+    ];
+  });
+};
+
+const buildParamsFromFilters = (filters: Filter[]) => {
+  const nextParams: Record<"page" | CrmFilterKey, string | number | null> = {
+    page: 1,
+    q: null,
+    platform: null,
+    is_active: null,
+    email: null,
+    phone: null,
+    platform_id: null,
+  };
+
+  filters.forEach((filter) => {
+    if (!isCrmFilterKey(filter.field)) {
+      return;
+    }
+
+    // Keep empty string values so text filters stay open in the UI.
+    nextParams[filter.field] = (filter.values[0] as string) ?? "";
+  });
+
+  return nextParams;
+};
 
 const filterFields: FilterFieldsConfig = [
   {
@@ -99,6 +178,30 @@ const filterFields: FilterFieldsConfig = [
   },
 ];
 
+function CrmHeader({ onAddCustomer }: { onAddCustomer: () => void }) {
+  return (
+    <div className="flex flex-col gap-4 border-b bg-card px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center gap-3">
+        <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
+          <UserCircle className="size-4 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-base font-semibold leading-tight">Customers</h1>
+          <p className="text-xs text-muted-foreground">
+            Manage your customer relationships
+          </p>
+        </div>
+      </div>
+
+      <div className="flex w-full items-center gap-2 md:w-auto">
+        <Button size="sm" className="w-full md:w-auto" onClick={onAddCustomer}>
+          <Plus className="mr-2 h-4 w-4" /> Add Customer
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function CrmPage() {
   const { selectedApp } = useAuthStore();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -129,18 +232,7 @@ export default function CrmPage() {
     ).withDefault({}),
   );
 
-  // Build API params
-  const apiParams: CustomerListParams = {
-    page: params.page,
-    limit: params.perPage,
-    q: toOptional(params.q),
-    app_id: selectedApp?.id,
-    platform: toOptional(params.platform) as ChannelPlatform | undefined,
-    platform_id: toOptional(params.platform_id),
-    email: toOptional(params.email),
-    phone: toOptional(params.phone),
-    is_active: parseIsActive(params.is_active),
-  };
+  const apiParams = buildApiParams(params as CrmQueryState, selectedApp?.id);
 
   const { data: customers, isLoading } = useCustomers(apiParams);
 
@@ -166,37 +258,13 @@ export default function CrmPage() {
     },
   });
 
-  // Map URL params to REUI Filters
-  const reuiFilters: Filter[] = useMemo(() => {
-    return filterFields
-      .map((f) => f as { key: string; type: string }) // bypass group types since we are using flat config
-      .filter((field) => {
-        const value = params[field.key as keyof typeof params];
-        return value !== null && value !== undefined;
-      })
-      .map((field) => ({
-        id: field.key,
-        field: field.key,
-        operator: field.type === "text" ? "contains" : "is",
-        values: [params[field.key as keyof typeof params]],
-      }));
-  }, [params]);
+  const reuiFilters = useMemo(
+    () => buildReuiFilters(params as CrmQueryState),
+    [params],
+  );
 
   const handleFiltersChange = (newFilters: Filter[]) => {
-    const nextParams: Record<string, string | number | null> = { page: 1 };
-
-    // Reset all filter fields
-    FILTER_KEYS.forEach((key) => {
-      nextParams[key] = null;
-    });
-
-    // Set updated values
-    newFilters.forEach((f) => {
-      // Allow empty strings for text types to enable the input to stay open
-      nextParams[f.field] = (f.values[0] as string) ?? "";
-    });
-
-    setParams(nextParams as Partial<typeof params>);
+    setParams(buildParamsFromFilters(newFilters) as Partial<typeof params>);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -212,32 +280,8 @@ export default function CrmPage() {
 
   return (
     <div className="grid h-full grid-rows-[auto_auto_1fr] overflow-hidden">
-      {/* Header matching ChannelsPage style */}
-      <div className="flex flex-col gap-4 border-b bg-card px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
-            <UserCircle className="size-4 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-base font-semibold leading-tight">Customers</h1>
-            <p className="text-xs text-muted-foreground">
-              Manage your customer relationships
-            </p>
-          </div>
-        </div>
+      <CrmHeader onAddCustomer={() => setIsCreateOpen(true)} />
 
-        <div className="flex w-full items-center gap-2 md:w-auto">
-          <Button
-            size="sm"
-            className="w-full md:w-auto"
-            onClick={() => setIsCreateOpen(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" /> Add Customer
-          </Button>
-        </div>
-      </div>
-
-      {/* Toolbar Area */}
       <div className="flex flex-col gap-3 border-b bg-muted/40 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:flex-1">
           <div className="relative w-full sm:max-w-sm">
@@ -245,13 +289,14 @@ export default function CrmPage() {
             <Input
               type="search"
               placeholder="Search customers by name, email, or phone..."
-              className="pl-9 bg-background h-8 w-full border-muted-foreground/20 text-sm shadow-sm transition-colors focus-visible:ring-1"
+              className="h-8 w-full border-muted-foreground/20 bg-background pl-9 text-sm shadow-sm transition-colors focus-visible:ring-1"
               value={params.q || ""}
               onChange={(e) =>
-                setParams({ ...params, q: e.target.value || null, page: 1 })
+                setParams({ q: e.target.value || null, page: 1 })
               }
             />
           </div>
+
           <Filters
             size="sm"
             filters={reuiFilters}
@@ -276,7 +321,9 @@ export default function CrmPage() {
               <DropdownMenuItem>Export as JSON</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
           <Separator orientation="vertical" className="hidden h-5 sm:block" />
+
           <DataGridColumnVisibility
             table={table}
             trigger={
@@ -293,9 +340,8 @@ export default function CrmPage() {
         </div>
       </div>
 
-      {/* Main Grid Area with Fixed Scrolling and Pagination */}
       <div className="flex flex-col overflow-hidden">
-        <DataGridContainer className="flex flex-1 flex-col overflow-hidden bg-background border-0">
+        <DataGridContainer className="flex flex-1 flex-col overflow-hidden border-0 bg-background">
           <DataGrid
             table={table}
             isLoading={isLoading}
@@ -310,7 +356,7 @@ export default function CrmPage() {
             <div className="flex-1 overflow-auto">
               <DataGridTableDnd handleDragEnd={handleDragEnd} />
             </div>
-            <div className="border-t px-4 py-3 bg-background">
+            <div className="border-t bg-background px-4 py-3">
               <DataGridPagination />
             </div>
           </DataGrid>
