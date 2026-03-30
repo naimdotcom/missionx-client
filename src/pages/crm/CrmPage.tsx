@@ -15,6 +15,7 @@ import {
   useQueryStates,
 } from "nuqs";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   DataGrid,
   DataGridContainer,
@@ -32,7 +33,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
 import { CustomerModal } from "./components/CustomerModal";
-import { crmColumns } from "./crm-columns";
+import { getCrmColumns } from "./crm-columns";
 
 type CrmFilterKey = (typeof FILTER_KEYS)[number];
 
@@ -133,6 +134,23 @@ const buildParamsFromFilters = (filters: Filter[]) => {
   return nextParams;
 };
 
+const buildExportFilters = (
+  params: CrmQueryState,
+): Record<string, string> | undefined => {
+  const activeFilters = FILTER_KEYS.reduce<Record<string, string>>(
+    (acc, key) => {
+      const value = params[key];
+      if (value !== null && value !== undefined && value !== "") {
+        acc[key] = value;
+      }
+      return acc;
+    },
+    {},
+  );
+
+  return Object.keys(activeFilters).length > 0 ? activeFilters : undefined;
+};
+
 const filterFields: FilterFieldsConfig = [
   {
     key: "q",
@@ -205,6 +223,7 @@ function CrmHeader({ onAddCustomer }: { onAddCustomer: () => void }) {
 export default function CrmPage() {
   const { selectedApp } = useAuthStore();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const exportCustomers = useExportCustomers();
 
   // nuqs search params management
   const [params, setParams] = useQueryStates({
@@ -220,9 +239,7 @@ export default function CrmPage() {
 
   const [columnOrder, setColumnOrder] = useQueryState(
     "order",
-    parseAsJson<string[]>((val) => val as string[]).withDefault(
-      crmColumns.map((c) => c.id!),
-    ),
+    parseAsJson<string[]>((val) => val as string[]).withDefault([]),
   );
 
   const [columnVisibility, setColumnVisibility] = useQueryState(
@@ -235,9 +252,10 @@ export default function CrmPage() {
   const apiParams = buildApiParams(params as CrmQueryState, selectedApp?.id);
 
   const { data: customers, isLoading } = useCustomers(apiParams);
+  const columns = useMemo(() => getCrmColumns(customers ?? []), [customers]);
 
   const { table } = useDataTable({
-    columns: crmColumns,
+    columns,
     data: customers ?? [],
     pageCount: -1,
     initialState: {
@@ -278,6 +296,26 @@ export default function CrmPage() {
     }
   };
 
+  const handleExport = (format: "csv" | "json") => {
+    if (!selectedApp?.id) {
+      toast.error("Please select an app before exporting customers");
+      return;
+    }
+
+    const visibleColumns = table
+      .getAllLeafColumns()
+      .filter((column) => column.getIsVisible())
+      .map((column) => column.id);
+
+    exportCustomers.mutate({
+      app_id: selectedApp.id,
+      format,
+      filters: buildExportFilters(params as CrmQueryState),
+      columns: visibleColumns,
+      fields: visibleColumns,
+    });
+  };
+
   return (
     <div className="grid h-full grid-rows-[auto_auto_1fr] overflow-hidden">
       <CrmHeader onAddCustomer={() => setIsCreateOpen(true)} />
@@ -306,7 +344,10 @@ export default function CrmPage() {
         </div>
 
         <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-end">
-          <ExportButton />
+          <ExportButton
+            isExporting={exportCustomers.isPending}
+            onExport={handleExport}
+          />
 
           <Separator orientation="vertical" className="hidden h-5 sm:block" />
 
@@ -354,18 +395,38 @@ export default function CrmPage() {
   );
 }
 
-function ExportButton() {
-  const exportCustomers = useExportCustomers();
+function ExportButton({
+  onExport,
+  isExporting,
+}: {
+  onExport: (format: "csv" | "json") => void;
+  isExporting: boolean;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 flex-1 sm:flex-none">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 flex-1 sm:flex-none"
+          disabled={isExporting}
+        >
           <Download className="mr-2 h-4 w-4" /> Export
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem>Export as CSV</DropdownMenuItem>
-        <DropdownMenuItem>Export as JSON</DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={isExporting}
+          onClick={() => onExport("csv")}
+        >
+          Export as CSV
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={isExporting}
+          onClick={() => onExport("json")}
+        >
+          Export as JSON
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

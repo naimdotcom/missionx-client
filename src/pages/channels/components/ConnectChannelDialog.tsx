@@ -97,7 +97,7 @@ function DialogChannelContent(props: ConnectChannelDialogProps) {
     );
   };
   return (
-    <DialogContent className="w-[95vw] max-w-[540px] gap-0 overflow-hidden rounded-2xl p-0">
+    <DialogContent className="w-[95vw] max-w-[135 gap-0 overflow-hidden rounded-2xl p-0">
       <DialogHeader
         className={cn(
           "px-5 py-4",
@@ -160,7 +160,7 @@ function DialogChannelContent(props: ConnectChannelDialogProps) {
               <LinkIcon className={cn("size-5")} />
             </div>
             <p className="text-sm font-medium">No accounts found</p>
-            <p className="max-w-[280px] text-center text-xs text-muted-foreground">
+            <p className="max-w-70 text-center text-xs text-muted-foreground">
               Connect your {props.type} account using the button below, then
               come back to link your pages.
             </p>
@@ -168,7 +168,7 @@ function DialogChannelContent(props: ConnectChannelDialogProps) {
         )}
 
         {channelsQuery.isSuccess && channels.length > 0 && (
-          <ScrollArea className="min-h-[340px] max-h-[340px]">
+          <ScrollArea className="min-h-85 max-h-85">
             <div className="divide-y">
               {channels.map((channel) => (
                 <AccountRow
@@ -287,7 +287,7 @@ function AccountRow({ channel, appId, refetchChannels }: AccountRowProps) {
         >
           {subscribeMutation.isPending && <Spinner className="size-3" />}
           {!subscribeMutation.isPending && <LinkIcon className="size-3" />}
-          Connect
+          Subscribe
         </Button>
       )}
 
@@ -295,12 +295,13 @@ function AccountRow({ channel, appId, refetchChannels }: AccountRowProps) {
         <Button
           size="sm"
           variant="destructive"
+          className="text-white"
           onClick={handleUnsubscribe}
           disabled={unSubscribeMutation.isPending}
         >
           {unSubscribeMutation.isPending && <Spinner className="size-3" />}
           {!unSubscribeMutation.isPending && <Trash2 className="size-3" />}
-          {unSubscribeMutation.isPending ? "Deleting..." : "Delete"}
+          {unSubscribeMutation.isPending ? "Unsubscribing..." : "Unsubscribe"}
         </Button>
       )}
     </div>

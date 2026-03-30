@@ -20,6 +20,7 @@ services:
       - VITE_APP_URL=${VITE_APP_URL}
       - VITE_CHANNEL_URL=${VITE_CHANNEL_URL}
       - VITE_META_APP_ID=${VITE_META_APP_ID}
+      - VITE_CRM_URL=${VITE_CRM_URL}
     restart: unless-stopped
     networks:
       - missionx-network

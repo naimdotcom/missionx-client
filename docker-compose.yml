@@ -16,6 +16,7 @@ services:
         - VITE_META_APP_ID=${VITE_META_APP_ID}
         - VITE_PUSHER_APP_KEY=${VITE_PUSHER_APP_KEY}
         - VITE_PUSHER_HOST=${VITE_PUSHER_HOST}
+        - VITE_CRM_URL=${VITE_CRM_URL}
     container_name: missionx-client
     ports:
       - "80:80"

@@ -1,10 +1,7 @@
 import type { CustomerResponse } from "@/api/services/crm/crm.types";
-import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ReactNode } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Badge } from "~/components/ui/badge";
 
 const defaultSkeleton = <Skeleton className="h-10 w-30" />;
 
@@ -39,7 +36,7 @@ const customerColumn: ColumnDef<CustomerResponse> = {
   header: "Customer",
   enableHiding: false,
   enableResizing: true,
-  size: 200,
+  size: 220,
   meta: { skeleton: customerSkeleton },
   cell: ({ row }) => {
     const customer = row.original;
@@ -62,7 +59,7 @@ const customerColumn: ColumnDef<CustomerResponse> = {
             {getInitials(fullName)}
           </AvatarFallback>
         </Avatar>
-        <div className="flex flex-col">
+        <div className="flex min-w-0 flex-col">
           <span className="line-clamp-1 font-medium text-foreground">
             {fullName}
           </span>
@@ -77,90 +74,52 @@ const customerColumn: ColumnDef<CustomerResponse> = {
   },
 };
 
-type DynamicColumnConfig = {
-  id:
-    | "email"
-    | "phone"
-    | "platform"
-    | "tags"
-    | "is_active"
-    | "source"
-    | "created_at";
-  header: string;
-  render: (customer: CustomerResponse) => ReactNode;
+const toHeaderLabel = (key: string) =>
+  key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
+const toDisplayValue = (key: string, value: unknown) => {
+  if (value === null || value === undefined || value === "") {
+    return "—";
+  }
+
+  if (key.toLowerCase().includes("at")) {
+    const date = new Date(String(value));
+    if (!Number.isNaN(date.getTime())) {
+      return date.toLocaleString();
+    }
+  }
+
+  if (Array.isArray(value)) {
+    return value.length ? value.join(", ") : "—";
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
 };
 
-const dynamicColumnConfigs: DynamicColumnConfig[] = [
-  { id: "email", header: "Email", render: (customer) => customer.email || "—" },
-  { id: "phone", header: "Phone", render: (customer) => customer.phone || "—" },
-  {
-    id: "platform",
-    header: "Platform",
-    render: (customer) => {
-      if (!customer.platform) {
-        return "—";
-      }
+export const getCrmColumns = (
+  rows: CustomerResponse[],
+): ColumnDef<CustomerResponse>[] => {
+  const keySet = new Set<string>();
 
-      return (
-        <Badge variant="secondary" className="capitalize">
-          {customer.platform}
-        </Badge>
-      );
-    },
-  },
-  {
-    id: "tags",
-    header: "Tags",
-    render: (customer) => {
-      if (!customer.tags || customer.tags.length === 0) {
-        return "—";
-      }
+  rows.forEach((row) => {
+    Object.keys(row).forEach((key) => keySet.add(key));
+  });
 
-      return (
-        <div className="flex flex-wrap gap-1">
-          {customer.tags.map((tag) => (
-            <StatusBadge key={tag} variant="outline" className="text-xs">
-              {tag}
-            </StatusBadge>
-          ))}
-        </div>
-      );
-    },
-  },
-  {
-    id: "source",
-    header: "Source",
-    render: (customer) =>
-      customer.source ? (
-        <span className="capitalize">{customer.source}</span>
-      ) : (
-        "—"
-      ),
-  },
-  {
-    id: "created_at",
-    header: "Created",
-    render: (customer) =>
-      customer.created_at
-        ? new Date(customer.created_at).toLocaleDateString()
-        : "—",
-  },
-];
+  const dynamicColumns: ColumnDef<CustomerResponse>[] = Array.from(keySet)
+    .filter((key) => key !== "customer")
+    .map((key) => ({
+      id: key,
+      accessorKey: key,
+      header: toHeaderLabel(key),
+      enableResizing: true,
+      cell: ({ row }) =>
+        toDisplayValue(key, row.original[key as keyof CustomerResponse]),
+      meta: { skeleton: defaultSkeleton },
+    }));
 
-const createDynamicColumn = ({
-  id,
-  header,
-  render,
-}: DynamicColumnConfig): ColumnDef<CustomerResponse> => ({
-  id,
-  header,
-  accessorKey: id,
-  enableResizing: true,
-  cell: ({ row }) => render(row.original),
-  meta: { skeleton: defaultSkeleton },
-});
-
-export const crmColumns: ColumnDef<CustomerResponse>[] = [
-  customerColumn,
-  ...dynamicColumnConfigs.map(createDynamicColumn),
-];
+  return [customerColumn, ...dynamicColumns];
+};

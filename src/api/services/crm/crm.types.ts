@@ -134,6 +134,7 @@ export type ExportRequest = {
   app_id: string | undefined;
   format: "csv" | "json" | undefined;
   filters: Record<string, unknown> | undefined;
+  columns?: string[] | undefined;
   fields: string[] | undefined;
 };
 
