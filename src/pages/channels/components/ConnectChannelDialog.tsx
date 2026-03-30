@@ -271,9 +271,9 @@ function AccountRow({ channel, appId, refetchChannels }: AccountRowProps) {
 
       <div className="min-w-0 flex flex-col gap-0.5 flex-1">
         <p className="truncate text-sm font-medium">{channel.account_name}</p>
-        {channel.platform_page_id && (
+        {channel.app_name && (
           <span className="truncate text-[10px] font-mono text-muted-foreground">
-            {channel.platform_page_id}
+            {channel.app_name}
           </span>
         )}
       </div>

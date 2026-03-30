@@ -35,6 +35,7 @@ export type Channel = {
   is_subscribed?: boolean;
   channel_id?: string;
   app_id?: string | null;
+  app_name?: string | null;
   linked_instagram: {
     platform_page_id?: string;
     platform?: ChannelPlatform;

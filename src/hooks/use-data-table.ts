@@ -45,6 +45,9 @@ interface UseDataTableProps<TData>
   debounceMs?: number;
   throttleMs?: number;
   enableAdvancedFilter?: boolean;
+  manualPagination?: boolean;
+  manualSorting?: boolean;
+  manualFiltering?: boolean;
 }
 
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
@@ -55,6 +58,9 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     debounceMs = DEBOUNCE_MS,
     throttleMs = THROTTLE_MS,
     enableAdvancedFilter = false,
+    manualPagination = true,
+    manualSorting = true,
+    manualFiltering = true,
     ...tableProps
   } = props;
 
@@ -233,9 +239,10 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
-    manualPagination: true,
-    manualSorting: true,
-    manualFiltering: true,
+    columnResizeMode: "onChange",
+    manualPagination,
+    manualSorting,
+    manualFiltering,
   });
 
   return React.useMemo(

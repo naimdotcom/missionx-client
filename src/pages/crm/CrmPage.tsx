@@ -14,7 +14,7 @@ import {
   useQueryState,
   useQueryStates,
 } from "nuqs";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   DataGrid,
@@ -35,11 +35,13 @@ import { Separator } from "~/components/ui/separator";
 import { CustomerModal } from "./components/CustomerModal";
 import { getCrmColumns } from "./crm-columns";
 
+type FilterMode = "and" | "or";
 type CrmFilterKey = (typeof FILTER_KEYS)[number];
 
 type CrmQueryState = {
   page: number;
   perPage: number;
+  filterMode: FilterMode;
   q: string | null;
   platform: string | null;
   is_active: string | null;
@@ -64,7 +66,22 @@ const TEXT_FILTER_KEYS = new Set<CrmFilterKey>([
   "platform_id",
 ]);
 
+const EMPTY_FILTER_PARAMS: Pick<
+  CrmQueryState,
+  "q" | "platform" | "is_active" | "email" | "phone" | "platform_id"
+> = {
+  q: null,
+  platform: null,
+  is_active: null,
+  email: null,
+  phone: null,
+  platform_id: null,
+};
+
 const toOptional = (value: string | null | undefined) => value || undefined;
+
+const normalizeFilterMode = (value: string | null | undefined): FilterMode =>
+  value === "or" ? "or" : "and";
 
 const parseIsActive = (value: string | null | undefined) => {
   if (value === "true") return true;
@@ -72,29 +89,60 @@ const parseIsActive = (value: string | null | undefined) => {
   return undefined;
 };
 
-const resolveUpdater = <T,>(updater: T | ((prev: T) => T), prev: T): T =>
-  typeof updater === "function" ? (updater as (prev: T) => T)(prev) : updater;
+const resolveUpdater = <T,>(updater: T | ((prev: T) => T), prev: T): T => {
+  return typeof updater === "function"
+    ? (updater as (prev: T) => T)(prev)
+    : updater;
+};
 
-const isCrmFilterKey = (value: string): value is CrmFilterKey =>
-  FILTER_KEYS.includes(value as CrmFilterKey);
+const getActiveFilters = (params: CrmQueryState): Record<string, string> => {
+  const activeFilters: Record<string, string> = {};
+
+  FILTER_KEYS.forEach((key) => {
+    const value = params[key];
+    if (value !== null && value !== undefined && value !== "") {
+      activeFilters[key] = value;
+    }
+  });
+
+  return activeFilters;
+};
 
 const buildApiParams = (
   params: CrmQueryState,
   selectedAppId?: string,
-): CustomerListParams => ({
-  page: params.page,
-  limit: params.perPage,
-  q: toOptional(params.q),
-  app_id: selectedAppId,
-  platform: toOptional(params.platform) as ChannelPlatform | undefined,
-  platform_id: toOptional(params.platform_id),
-  email: toOptional(params.email),
-  phone: toOptional(params.phone),
-  is_active: parseIsActive(params.is_active),
-});
+): CustomerListParams => {
+  const activeFilters = getActiveFilters(params);
+  const filterMode = normalizeFilterMode(params.filterMode);
 
-const buildFilters = (params: CrmQueryState): Filter[] => {
-  return FILTER_KEYS.flatMap((key) => {
+  const serializedFilters =
+    Object.keys(activeFilters).length > 0
+      ? JSON.stringify({
+          condition: filterMode,
+          filters: activeFilters,
+        })
+      : undefined;
+
+  const useFieldParams = filterMode === "and";
+
+  return {
+    page: params.page,
+    limit: params.perPage,
+    q: useFieldParams ? toOptional(params.q) : undefined,
+    app_id: selectedAppId,
+    platform: useFieldParams
+      ? (toOptional(params.platform) as ChannelPlatform | undefined)
+      : undefined,
+    platform_id: useFieldParams ? toOptional(params.platform_id) : undefined,
+    email: useFieldParams ? toOptional(params.email) : undefined,
+    phone: useFieldParams ? toOptional(params.phone) : undefined,
+    is_active: useFieldParams ? parseIsActive(params.is_active) : undefined,
+    filters: serializedFilters,
+  };
+};
+
+const buildFilters = (params: CrmQueryState): Filter[] =>
+  FILTER_KEYS.flatMap((key) => {
     const value = params[key];
     if (value === null || value === undefined) {
       return [];
@@ -109,26 +157,22 @@ const buildFilters = (params: CrmQueryState): Filter[] => {
       } as Filter,
     ];
   });
-};
 
 const buildParamsFromFilters = (filters: Filter[]) => {
   const nextParams: Record<"page" | CrmFilterKey, string | number | null> = {
     page: 1,
-    q: null,
-    platform: null,
-    is_active: null,
-    email: null,
-    phone: null,
-    platform_id: null,
+    ...EMPTY_FILTER_PARAMS,
   };
 
   filters.forEach((filter) => {
-    if (!isCrmFilterKey(filter.field)) {
+    const isKnownField = FILTER_KEYS.includes(filter.field as CrmFilterKey);
+    if (!isKnownField) {
       return;
     }
 
     // Keep empty string values so text filters stay open in the UI.
-    nextParams[filter.field] = (filter.values[0] as string) ?? "";
+    nextParams[filter.field as CrmFilterKey] =
+      (filter.values[0] as string) ?? "";
   });
 
   return nextParams;
@@ -136,19 +180,17 @@ const buildParamsFromFilters = (filters: Filter[]) => {
 
 const buildExportFilters = (
   params: CrmQueryState,
-): Record<string, string> | undefined => {
-  const activeFilters = FILTER_KEYS.reduce<Record<string, string>>(
-    (acc, key) => {
-      const value = params[key];
-      if (value !== null && value !== undefined && value !== "") {
-        acc[key] = value;
-      }
-      return acc;
-    },
-    {},
-  );
+): Record<string, unknown> | undefined => {
+  const activeFilters = getActiveFilters(params);
 
-  return Object.keys(activeFilters).length > 0 ? activeFilters : undefined;
+  if (Object.keys(activeFilters).length === 0) {
+    return undefined;
+  }
+
+  return {
+    condition: normalizeFilterMode(params.filterMode),
+    filters: activeFilters,
+  };
 };
 
 const filterFields: FilterFieldsConfig = [
@@ -229,6 +271,7 @@ export default function CrmPage() {
   const [params, setParams] = useQueryStates({
     page: parseAsInteger.withDefault(1),
     perPage: parseAsInteger.withDefault(10),
+    filterMode: parseAsString.withDefault("and"),
     q: parseAsString,
     platform: parseAsString,
     is_active: parseAsString,
@@ -249,15 +292,37 @@ export default function CrmPage() {
     ).withDefault({}),
   );
 
-  const apiParams = buildApiParams(params as CrmQueryState, selectedApp?.id);
+  const query = params as CrmQueryState;
+  const apiParams = buildApiParams(query, selectedApp?.id);
 
   const { data: customers, isLoading } = useCustomers(apiParams);
   const columns = useMemo(() => getCrmColumns(customers ?? []), [customers]);
+  const columnIds = useMemo(
+    () => columns.map((column) => String(column.id)),
+    [columns],
+  );
+
+  useEffect(() => {
+    setColumnOrder((prev) => {
+      const prevOrder = prev ?? [];
+      const validIds = new Set(columnIds);
+      const kept = prevOrder.filter((id) => validIds.has(id));
+      const missing = columnIds.filter((id) => !kept.includes(id));
+      const nextOrder = [...kept, ...missing];
+
+      const isSame =
+        prevOrder.length === nextOrder.length &&
+        prevOrder.every((id, index) => id === nextOrder[index]);
+
+      return isSame ? prevOrder : nextOrder;
+    });
+  }, [columnIds, setColumnOrder]);
 
   const { table } = useDataTable({
     columns,
     data: customers ?? [],
     pageCount: -1,
+    manualSorting: false,
     initialState: {
       pagination: {
         pageIndex: params.page - 1,
@@ -276,23 +341,47 @@ export default function CrmPage() {
     },
   });
 
-  const addedFilters = useMemo(
-    () => buildFilters(params as CrmQueryState),
-    [params],
-  );
+  const addedFilters = useMemo(() => buildFilters(query), [query]);
+  const filterMode = normalizeFilterMode(query.filterMode);
+  const activeFilterCount = addedFilters.length;
 
   const handleFiltersChange = (newFilters: Filter[]) => {
     setParams(buildParamsFromFilters(newFilters) as Partial<typeof params>);
   };
 
+  const handleFilterModeChange = (nextMode: FilterMode) => {
+    setParams({ filterMode: nextMode, page: 1 });
+  };
+
+  const clearAllFilters = () => {
+    setParams({
+      page: 1,
+      ...EMPTY_FILTER_PARAMS,
+    });
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
-      setColumnOrder((prev) => {
-        const oldIndex = prev.indexOf(active.id as string);
-        const newIndex = prev.indexOf(over.id as string);
-        return arrayMove(prev, oldIndex, newIndex);
-      });
+      const currentOrder =
+        table.getState().columnOrder.length > 0
+          ? table.getState().columnOrder
+          : table.getAllLeafColumns().map((column) => column.id);
+
+      const oldIndex = currentOrder.indexOf(active.id as string);
+      const newIndex = currentOrder.indexOf(over.id as string);
+
+      if (oldIndex === -1 || newIndex === -1) {
+        return;
+      }
+
+      const nextOrder = arrayMove(currentOrder, oldIndex, newIndex);
+
+      // Update table state immediately so DnD feels responsive.
+      table.setColumnOrder(nextOrder);
+
+      // Persist order in URL state.
+      setColumnOrder(nextOrder);
     }
   };
 
@@ -310,7 +399,7 @@ export default function CrmPage() {
     exportCustomers.mutate({
       app_id: selectedApp.id,
       format,
-      filters: buildExportFilters(params as CrmQueryState),
+      filters: buildExportFilters(query),
       columns: visibleColumns,
       fields: visibleColumns,
     });
@@ -341,6 +430,41 @@ export default function CrmPage() {
             fields={filterFields}
             onChange={handleFiltersChange}
           />
+
+          <div className="flex items-center gap-2">
+            <div className="inline-flex rounded-md border bg-background p-1">
+              <Button
+                size="sm"
+                variant={filterMode === "and" ? "default" : "ghost"}
+                className="h-7 px-3"
+                onClick={() => handleFilterModeChange("and")}
+              >
+                AND
+              </Button>
+              <Button
+                size="sm"
+                variant={filterMode === "or" ? "default" : "ghost"}
+                className="h-7 px-3"
+                onClick={() => handleFilterModeChange("or")}
+              >
+                OR
+              </Button>
+            </div>
+
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2 text-muted-foreground"
+              disabled={activeFilterCount === 0}
+              onClick={clearAllFilters}
+            >
+              Clear
+            </Button>
+
+            <span className="text-xs text-muted-foreground">
+              {filterMode === "and" ? "Match all filters" : "Match any filter"}
+            </span>
+          </div>
         </div>
 
         <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-end">
@@ -378,6 +502,8 @@ export default function CrmPage() {
               rowBorder: true,
               stripped: false,
               headerSticky: true,
+              columnsResizable: true,
+              columnsDraggable: true,
             }}
           >
             <div className="flex-1 overflow-auto">

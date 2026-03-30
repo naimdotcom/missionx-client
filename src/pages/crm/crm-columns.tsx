@@ -1,6 +1,7 @@
 import type { CustomerResponse } from "@/api/services/crm/crm.types";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ColumnDef } from "@tanstack/react-table";
+import { DataGridColumnHeader } from "~/components/reui/data-grid/data-grid-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 const defaultSkeleton = <Skeleton className="h-10 w-30" />;
@@ -33,8 +34,11 @@ const getInitials = (fullName: string) =>
 
 const customerColumn: ColumnDef<CustomerResponse> = {
   id: "customer",
-  header: "Customer",
+  header: ({ column }) => (
+    <DataGridColumnHeader column={column} title="Customer" />
+  ),
   enableHiding: false,
+  enableSorting: false,
   enableResizing: true,
   size: 220,
   meta: { skeleton: customerSkeleton },
@@ -127,7 +131,10 @@ export const getCrmColumns = (
     .map((key) => ({
       id: key,
       accessorKey: key,
-      header: toHeaderLabel(key),
+      enableSorting: false,
+      header: ({ column }) => (
+        <DataGridColumnHeader column={column} title={toHeaderLabel(key)} />
+      ),
       enableResizing: true,
       cell: ({ row }) =>
         toDisplayValue(key, row.original[key as keyof CustomerResponse]),
