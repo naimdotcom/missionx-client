@@ -171,7 +171,7 @@ export const useExportCustomers = () => {
   return useMutation({
     mutationFn: (payload: ExportRequest) => crmService.exportCustomers(payload),
     mutationKey: mutationKeys.crmKeys.exportCustomers,
-    onSuccess: (data) => {
+    onSuccess: () => {
       // const url = window.URL.createObjectURL(new Blob([data]));
       // const link = document.createElement("a");
       // link.href = url;
