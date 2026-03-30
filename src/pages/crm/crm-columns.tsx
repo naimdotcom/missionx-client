@@ -77,6 +77,9 @@ const customerColumn: ColumnDef<CustomerResponse> = {
 const toHeaderLabel = (key: string) =>
   key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 
+const isPlainObjectValue = (value: unknown) =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
 const toDisplayValue = (key: string, value: unknown) => {
   if (value === null || value === undefined || value === "") {
     return "—";
@@ -110,7 +113,17 @@ export const getCrmColumns = (
   });
 
   const dynamicColumns: ColumnDef<CustomerResponse>[] = Array.from(keySet)
-    .filter((key) => key !== "customer")
+    .filter((key) => {
+      if (key === "customer") {
+        return false;
+      }
+
+      const hasObjectValue = rows.some((row) =>
+        isPlainObjectValue(row[key as keyof CustomerResponse]),
+      );
+
+      return !hasObjectValue;
+    })
     .map((key) => ({
       id: key,
       accessorKey: key,
