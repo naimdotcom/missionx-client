@@ -91,16 +91,8 @@ type DynamicColumnConfig = {
 };
 
 const dynamicColumnConfigs: DynamicColumnConfig[] = [
-  {
-    id: "email",
-    header: "Email",
-    render: (customer) => customer.email || "—",
-  },
-  {
-    id: "phone",
-    header: "Phone",
-    render: (customer) => customer.phone || "—",
-  },
+  { id: "email", header: "Email", render: (customer) => customer.email || "—" },
+  { id: "phone", header: "Phone", render: (customer) => customer.phone || "—" },
   {
     id: "platform",
     header: "Platform",

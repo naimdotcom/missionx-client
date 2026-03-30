@@ -1,5 +1,5 @@
 import { ChannelPlatform } from "@/api";
-import { useCustomers } from "@/api/services/crm/crm.hook";
+import { useCustomers, useExportCustomers } from "@/api/services/crm/crm.hook";
 import type { CustomerListParams } from "@/api/services/crm/crm.types";
 import { Input } from "@/components/ui/input";
 import { useDataTable } from "@/hooks/use-data-table";
@@ -92,7 +92,7 @@ const buildApiParams = (
   is_active: parseIsActive(params.is_active),
 });
 
-const buildReuiFilters = (params: CrmQueryState): Filter[] => {
+const buildFilters = (params: CrmQueryState): Filter[] => {
   return FILTER_KEYS.flatMap((key) => {
     const value = params[key];
     if (value === null || value === undefined) {
@@ -258,8 +258,8 @@ export default function CrmPage() {
     },
   });
 
-  const reuiFilters = useMemo(
-    () => buildReuiFilters(params as CrmQueryState),
+  const addedFilters = useMemo(
+    () => buildFilters(params as CrmQueryState),
     [params],
   );
 
@@ -299,28 +299,14 @@ export default function CrmPage() {
 
           <Filters
             size="sm"
-            filters={reuiFilters}
+            filters={addedFilters}
             fields={filterFields}
             onChange={handleFiltersChange}
           />
         </div>
 
         <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 flex-1 sm:flex-none"
-              >
-                <Download className="mr-2 h-4 w-4" /> Export
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem>Export as CSV</DropdownMenuItem>
-              <DropdownMenuItem>Export as JSON</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ExportButton />
 
           <Separator orientation="vertical" className="hidden h-5 sm:block" />
 
@@ -365,5 +351,22 @@ export default function CrmPage() {
 
       <CustomerModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </div>
+  );
+}
+
+function ExportButton() {
+  const exportCustomers = useExportCustomers();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="h-8 flex-1 sm:flex-none">
+          <Download className="mr-2 h-4 w-4" /> Export
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem>Export as CSV</DropdownMenuItem>
+        <DropdownMenuItem>Export as JSON</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

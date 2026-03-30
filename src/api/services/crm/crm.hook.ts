@@ -6,6 +6,7 @@ import type {
   CustomerCreate,
   CustomerListParams,
   CustomerUpdate,
+  ExportRequest,
 } from "./crm.types";
 
 /**
@@ -163,5 +164,24 @@ export const useCustomer = (id?: string) => {
     queryFn: () =>
       id ? crmService.getCustomerById(id) : Promise.resolve(null),
     enabled: !!id,
+  });
+};
+
+export const useExportCustomers = () => {
+  return useMutation({
+    mutationFn: (payload: ExportRequest) => crmService.exportCustomers(payload),
+    mutationKey: mutationKeys.crmKeys.exportCustomers,
+    onSuccess: (data) => {
+      // const url = window.URL.createObjectURL(new Blob([data]));
+      // const link = document.createElement("a");
+      // link.href = url;
+      // link.setAttribute("download", `customers_${Date.now()}.csv`);
+      // document.body.appendChild(link);
+      // link.click();
+      toast.success("Customers exported successfully");
+    },
+    onError: () => {
+      toast.error("Failed to export customers");
+    },
   });
 };
