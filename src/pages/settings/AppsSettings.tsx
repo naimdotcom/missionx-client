@@ -105,7 +105,7 @@ export function AppsSettings() {
         </div>
       </div>
 
-      <div className="w-full border rounded-lg flex flex-col overflow-hidden h-96 md:h-[500px]">
+      <div className="w-full border rounded-lg flex flex-col overflow-hidden min-h-[300px] md:h-[500px]">
         {isLoading ? (
           <div className="p-4 space-y-4 flex-1 overflow-auto">
             {[1, 2, 3, 4, 5].map((i) => (

@@ -12,21 +12,21 @@ export function AppearanceForm() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-lg font-medium">Appearance</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="text-base sm:text-lg font-medium">Appearance</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Quickly switch app theme.
           </p>
         </div>
-        <Palette />
+        <Palette className="shrink-0 mt-1" />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <button
           type="button"
           onClick={() => handleSetTheme("light")}
-          className={`rounded-lg border p-4 text-left hover:shadow-sm ${theme === "light" ? "ring-2 ring-primary" : ""}`}
+          className={`rounded-lg border p-3 sm:p-4 text-left hover:shadow-sm transition-shadow ${theme === "light" ? "ring-2 ring-primary" : ""}`}
         >
           <LightThemePreview />
         </button>
@@ -34,7 +34,7 @@ export function AppearanceForm() {
         <button
           type="button"
           onClick={() => handleSetTheme("dark")}
-          className={`rounded-lg border p-4 text-left hover:shadow-sm ${theme === "dark" ? "ring-2 ring-primary" : ""}`}
+          className={`rounded-lg border p-3 sm:p-4 text-left hover:shadow-sm transition-shadow ${theme === "dark" ? "ring-2 ring-primary" : ""}`}
         >
           <DarkThemePreview />
         </button>
@@ -42,10 +42,10 @@ export function AppearanceForm() {
         <button
           type="button"
           onClick={() => handleSetTheme("system")}
-          className={`rounded-lg border p-4 text-left hover:shadow-sm ${theme === "system" ? "ring-2 ring-primary" : ""}`}
+          className={`rounded-lg border p-3 sm:p-4 text-left hover:shadow-sm transition-shadow ${theme === "system" ? "ring-2 ring-primary" : ""}`}
         >
-          <div className="font-medium">System</div>
-          <div className="text-sm text-muted-foreground">
+          <div className="font-medium text-sm">System</div>
+          <div className="text-xs text-muted-foreground">
             Follow your OS preference.
           </div>
         </button>

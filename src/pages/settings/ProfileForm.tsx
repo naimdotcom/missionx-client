@@ -7,7 +7,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/stores/auth-store";
 import { useForm } from "@tanstack/react-form";
 import { Camera, Loader } from "lucide-react";
-import { ReactNode, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export function ProfileForm() {
   const updateProfileMutation = useUpdateUserProfile();
@@ -57,31 +57,45 @@ export function ProfileForm() {
       className="space-y-8"
       onChange={(e) => console.log(e.currentTarget.name)}
     >
-      {/* Form Fields Section */}
-      <div className="grid grid-cols-3 gap-6 items-start ">
-        <div className="space-y-6 col-span-2">
-          <form.Field
-            name="first_name"
-            children={(field) => (
-              <TextField
-                field={field}
-                label="First Name"
-                placeholder="John"
-                description="Your first name"
-              />
-            )}
-          />
-          <form.Field
-            name="last_name"
-            children={(field) => (
-              <TextField
-                field={field}
-                label="Last Name"
-                placeholder="Doe"
-                description="Your last name"
-              />
-            )}
-          />
+      {/* Avatar — centered on mobile, top-right column on desktop */}
+      <div className="flex flex-col items-center gap-2 md:hidden">
+        <h3 className="text-sm font-medium text-muted-foreground">Profile Picture</h3>
+        <FileUpload
+          userID={userProfile?.user.id || "profile"}
+          userName={displayName}
+          onUploadSuccess={(fileUrl) => form.setFieldValue("avatar_url", fileUrl)}
+          currentAvatarUrl={form.state.values.avatar_url}
+        />
+      </div>
+
+      {/* Form Fields + Avatar (desktop side-by-side) */}
+      <div className="flex flex-col gap-6 md:grid md:grid-cols-3 md:items-start">
+        {/* Form fields — full width on mobile, 2/3 on desktop */}
+        <div className="space-y-5 md:col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <form.Field
+              name="first_name"
+              children={(field) => (
+                <TextField
+                  field={field}
+                  label="First Name"
+                  placeholder="John"
+                  description="Your first name"
+                />
+              )}
+            />
+            <form.Field
+              name="last_name"
+              children={(field) => (
+                <TextField
+                  field={field}
+                  label="Last Name"
+                  placeholder="Doe"
+                  description="Your last name"
+                />
+              )}
+            />
+          </div>
 
           <form.Field
             name="bio"
@@ -96,14 +110,13 @@ export function ProfileForm() {
           />
         </div>
 
-        <div>
-          <h3 className="text-lg font-semibold">Profile Picture</h3>
+        {/* Avatar column — hidden on mobile (shown above), visible on desktop */}
+        <div className="hidden md:flex flex-col items-start gap-2">
+          <h3 className="text-sm font-medium text-muted-foreground">Profile Picture</h3>
           <FileUpload
             userID={userProfile?.user.id || "profile"}
             userName={displayName}
-            onUploadSuccess={(fileUrl) =>
-              form.setFieldValue("avatar_url", fileUrl)
-            }
+            onUploadSuccess={(fileUrl) => form.setFieldValue("avatar_url", fileUrl)}
             currentAvatarUrl={form.state.values.avatar_url}
           />
         </div>
@@ -115,7 +128,7 @@ export function ProfileForm() {
         className="w-full sm:w-auto"
         disabled={updateProfileMutation.isPending}
       >
-        {updateProfileMutation.isPending && <Spinner />}
+        {updateProfileMutation.isPending && <Spinner className="mr-2" />}
         {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
       </Button>
     </form>
@@ -128,7 +141,6 @@ interface FileUploadProps {
   userID: string;
   onUploadSuccess: (fileUrl: string) => void;
   onUploadError?: (error: Error) => void;
-  children?: ReactNode;
 }
 
 export function FileUpload({
@@ -137,7 +149,6 @@ export function FileUpload({
   userID,
   onUploadSuccess,
   onUploadError,
-  children,
 }: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileUploadMutation = useFileUpload();
@@ -203,31 +214,30 @@ export function FileUpload({
   };
 
   return (
-    <div className="flex items-center justify-between gap-8">
-      {/* Profile Picture Section */}
-      <div className="relative shrink-0">
-        {/* Large circular avatar */}
-        <div className="relative w-40 h-40">
-          <Avatar className="w-full h-full ring-2 ring-border shadow-lg">
+    <div className="flex flex-col items-center gap-3">
+      {/* Avatar circle */}
+      <div className="relative">
+        <div className="relative w-28 h-28 sm:w-32 sm:h-32">
+          <Avatar className="w-full h-full ring-2 ring-border shadow-md">
             <AvatarImage src={preview || currentAvatarUrl} alt={userName} />
             <AvatarFallback className="text-2xl font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
 
-          {/* Camera button at bottom-left */}
+          {/* Camera button */}
           <Button
             type="button"
-            size={"icon"}
-            variant={"secondary"}
+            size="icon"
+            variant="secondary"
             onClick={() => inputRef.current?.click()}
             disabled={fileUploadMutation.isPending}
-            className="absolute bottom-0 left-1 rounded-full"
+            className="absolute bottom-0 left-0 rounded-full shadow"
           >
             {fileUploadMutation.isPending ? (
-              <Loader className="h-5 w-5 animate-spin" />
+              <Loader className="h-4 w-4 animate-spin" />
             ) : (
-              <Camera className="h-5 w-5" />
+              <Camera className="h-4 w-4" />
             )}
           </Button>
 
@@ -250,8 +260,9 @@ export function FileUpload({
         )}
       </div>
 
-      {/* Info section (right side with form fields) */}
-      <div className="flex-1">{children}</div>
+      <p className="text-xs text-muted-foreground text-center">
+        Click the camera icon to upload
+      </p>
     </div>
   );
 }
