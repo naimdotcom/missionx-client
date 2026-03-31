@@ -59,11 +59,15 @@ export function ProfileForm() {
     >
       {/* Avatar — centered on mobile, top-right column on desktop */}
       <div className="flex flex-col items-center gap-2 md:hidden">
-        <h3 className="text-sm font-medium text-muted-foreground">Profile Picture</h3>
+        <h3 className="text-sm font-medium text-muted-foreground">
+          Profile Picture
+        </h3>
         <FileUpload
           userID={userProfile?.user.id || "profile"}
           userName={displayName}
-          onUploadSuccess={(fileUrl) => form.setFieldValue("avatar_url", fileUrl)}
+          onUploadSuccess={(fileUrl) =>
+            form.setFieldValue("avatar_url", fileUrl)
+          }
           currentAvatarUrl={form.state.values.avatar_url}
         />
       </div>
@@ -112,11 +116,15 @@ export function ProfileForm() {
 
         {/* Avatar column — hidden on mobile (shown above), visible on desktop */}
         <div className="hidden md:flex flex-col items-start gap-2">
-          <h3 className="text-sm font-medium text-muted-foreground">Profile Picture</h3>
+          <h3 className="text-sm font-medium text-muted-foreground">
+            Profile Picture
+          </h3>
           <FileUpload
             userID={userProfile?.user.id || "profile"}
             userName={displayName}
-            onUploadSuccess={(fileUrl) => form.setFieldValue("avatar_url", fileUrl)}
+            onUploadSuccess={(fileUrl) =>
+              form.setFieldValue("avatar_url", fileUrl)
+            }
             currentAvatarUrl={form.state.values.avatar_url}
           />
         </div>

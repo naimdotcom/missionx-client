@@ -8,7 +8,9 @@ import "./styles/globals.css";
 
 const router = createRouter({ routeTree });
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 60 * 1000, retry: 1 } },
+  defaultOptions: {
+    queries: { staleTime: 5 * 60 * 1000, retry: 1, refetchOnWindowFocus: false },
+  },
 });
 
 declare module "@tanstack/react-router" {
