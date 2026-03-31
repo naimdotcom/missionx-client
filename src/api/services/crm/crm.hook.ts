@@ -90,33 +90,33 @@ export const useDeleteCustomer = () => {
  *
  */
 
-export const useSegments = (
-  params?: Partial<import("./crm.types").SegmentListParams>,
-) => {
-  return useQuery({
-    queryKey: ["segments", params],
-    queryFn: () => crmService.getSegments(params),
-    staleTime: 30_000,
-  });
-};
+// export const useSegments = (
+//   params?: Partial<import("./crm.types").SegmentListParams>,
+// ) => {
+//   return useQuery({
+//     queryKey: ["segments", params],
+//     queryFn: () => crmService.getSegments(params),
+//     staleTime: 30_000,
+//   });
+// };
 
-export const useCreateSegment = () => {
-  const queryClient = useQueryClient();
+// export const useCreateSegment = () => {
+//   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (payload: import("./crm.types").SegmentCreate) =>
-      crmService.createSegment(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["segments"],
-      });
-      toast.success("Segment created successfully");
-    },
-    onError: () => {
-      toast.error("Failed to create segment");
-    },
-  });
-};
+//   return useMutation({
+//     mutationFn: (payload: import("./crm.types").SegmentCreate) =>
+//       crmService.createSegment(payload),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({
+//         queryKey: ["segments"],
+//       });
+//       toast.success("Segment created successfully");
+//     },
+//     onError: () => {
+//       toast.error("Failed to create segment");
+//     },
+//   });
+// };
 
 export const useUpdateSegment = () => {
   const queryClient = useQueryClient();
