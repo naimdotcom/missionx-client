@@ -63,20 +63,17 @@ export const API_ENDPOINTS = {
 
   // CRM (Customer Service)
   CRM: {
-    CREATE_CUSTOMER: "/api/v1/customers/",
     CUSTOMERS: "/api/v1/customers/",
-    CUSTOMER_BY_ID: (id: string) => `/api/v1/customers/${id}`,
-    CUSTOMER_TAGS: (id: string) => `/api/v1/customers/${id}/tags`,
-    CUSTOMER_NOTES: (id: string) => `/api/v1/customers/${id}/notes`,
-    CUSTOMER_ATTRIBUTES: (id: string) => `/api/v1/customers/${id}/attributes`,
-    CUSTOMER_BULK_ATTRIBUTES: (id: string) =>
-      `/api/v1/customers/${id}/bulk-attributes`,
-    QUERY: "/api/v1/customers/query",
     EXPORT: "/api/v1/customers/export",
+    APP_FIELDS: "/api/v1/customers/app-fields/{app_id}",
+    CUSTOMER_BY_ID: (id: string) => `/api/v1/customers/${id}`,
+    INBOX_CUSTOMER: (id: string) => `/api/v1/customers/${id}/inbox`,
 
     ///Segment
-    SEGMENT: "/api/v1/segments/",
+    LIST_SEGMENT: "/api/v1/segments/",
+    UPSERT_SEGMENT: "/api/v1/segments/upsert",
     SEGMENT_BY_ID: (id: string) => `/api/v1/segments/${id}`,
+    EVALUATE_SEGMENT: (id: string) => `/api/v1/segments/${id}/evaluate`,
   },
 } as const;
 

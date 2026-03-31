@@ -31,7 +31,9 @@ export function CustomerDetailsSheet({
       <SheetContent className="w-full sm:max-w-md">
         <SheetHeader>
           <SheetTitle>Customer Details</SheetTitle>
-          <SheetDescription>View complete customer information.</SheetDescription>
+          <SheetDescription>
+            View complete customer information.
+          </SheetDescription>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-120px)] mt-4 pr-4">
           <div className="space-y-6 pb-6">
@@ -70,7 +72,9 @@ export function CustomerDetailsSheet({
                   <span className="text-sm font-medium text-muted-foreground">
                     Platform
                   </span>
-                  <p className="text-sm capitalize">{customer.platform || "—"}</p>
+                  <p className="text-sm capitalize">
+                    {customer.platform || "—"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <span className="text-sm font-medium text-muted-foreground">
@@ -92,7 +96,9 @@ export function CustomerDetailsSheet({
                       </Badge>
                     ))
                   ) : (
-                    <span className="text-sm text-muted-foreground">No tags</span>
+                    <span className="text-sm text-muted-foreground">
+                      No tags
+                    </span>
                   )}
                 </div>
               </div>

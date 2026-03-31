@@ -136,6 +136,7 @@ export const getCrmColumns = (
         <DataGridColumnHeader column={column} title={toHeaderLabel(key)} />
       ),
       enableResizing: true,
+
       cell: ({ row }) =>
         toDisplayValue(key, row.original[key as keyof CustomerResponse]),
       meta: { skeleton: defaultSkeleton },

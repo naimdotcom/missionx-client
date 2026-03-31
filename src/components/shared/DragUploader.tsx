@@ -44,7 +44,7 @@ function DragUploader(props: Props) {
         console.error("Unexpected error during upload:", error);
       }
     },
-    [props, mediaUploadMutation, userProfile?.profile?.user_id]
+    [props, mediaUploadMutation, userProfile?.profile?.user_id],
   );
 
   const [state, actions] = useFileUpload({
@@ -72,11 +72,11 @@ function DragUploader(props: Props) {
           "relative flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-8 transition-colors",
           state.isDragging
             ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25 hover:border-primary/50"
+            : "border-muted-foreground/25 hover:border-primary/50",
         )}
       >
         <input {...actions.getInputProps()} className="sr-only" />
-        
+
         <div className="flex flex-col items-center gap-1 text-center">
           <div className="flex items-center justify-center rounded-full border p-2.5">
             <Upload className="size-6 text-muted-foreground" />
@@ -115,7 +115,7 @@ function DragUploader(props: Props) {
                   <FileIcon className="size-5 text-muted-foreground" />
                 )}
               </div>
-              
+
               <div className="flex flex-1 flex-col min-w-0">
                 <p className="truncate text-sm font-medium">
                   {fileWithPreview.file.name}

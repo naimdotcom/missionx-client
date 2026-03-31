@@ -12,6 +12,7 @@ function RouteComponent() {
     "profile",
     "appearance",
     "media",
+    "apps",
     "cx-solutions",
     "notifications",
     "security",

@@ -45,4 +45,3 @@ export class UploadService extends BaseAPIService {
 }
 
 export const uploadService = new UploadService(env.appUrl || "");
-

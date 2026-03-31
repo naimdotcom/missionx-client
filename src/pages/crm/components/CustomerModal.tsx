@@ -20,8 +20,15 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Switch } from "~/components/ui/switch";
-import { useCreateCustomer, useUpdateCustomer } from "@/api/services/crm/crm.hook";
-import type { CustomerCreate, CustomerResponse, CustomerUpdate } from "@/api/services/crm/crm.types";
+import {
+  useCreateCustomer,
+  useUpdateCustomer,
+} from "@/api/services/crm/crm.hook";
+import type {
+  CustomerCreate,
+  CustomerResponse,
+  CustomerUpdate,
+} from "@/api/services/crm/crm.types";
 
 const formSchema = z.object({
   first_name: z.string().optional(),
@@ -107,7 +114,7 @@ export function CustomerModal({
           onSuccess: () => {
             onOpenChange(false);
           },
-        }
+        },
       );
     } else {
       createMutation.mutate(basePayload as unknown as CustomerCreate, {
@@ -124,7 +131,9 @@ export function CustomerModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Customer" : "Add Customer"}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? "Edit Customer" : "Add Customer"}
+          </DialogTitle>
           <DialogDescription>
             {isEditing
               ? "Update the details of the customer."
@@ -171,7 +180,11 @@ export function CustomerModal({
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="john@example.com" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="john@example.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -211,7 +224,11 @@ export function CustomerModal({
                   <FormItem>
                     <FormLabel>Platform / Source</FormLabel>
                     <FormControl>
-                      <Input placeholder="manual" {...field} disabled={isEditing} />
+                      <Input
+                        placeholder="manual"
+                        {...field}
+                        disabled={isEditing}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
