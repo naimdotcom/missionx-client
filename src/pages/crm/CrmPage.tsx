@@ -1,12 +1,11 @@
-import { ChannelPlatform } from "@/api";
-import { useCustomers, useExportCustomers } from "@/api/services/crm/crm.hook";
-import type { CustomerListParams } from "@/api/services/crm/crm.types";
+import { useCustomers } from "@/api/services/crm/crm.hook";
 import { Input } from "@/components/ui/input";
 import { useDataTable } from "@/hooks/use-data-table";
+import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { useAuthStore } from "@/stores/auth-store";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Download, Plus, Search, Settings2, UserCircle } from "lucide-react";
+import { Plus, Search, Settings2, UserCircle } from "lucide-react";
 import {
   parseAsInteger,
   parseAsJson,
@@ -14,8 +13,7 @@ import {
   useQueryState,
   useQueryStates,
 } from "nuqs";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
 import {
   DataGrid,
   DataGridContainer,
@@ -23,220 +21,24 @@ import {
 import { DataGridColumnVisibility } from "~/components/reui/data-grid/data-grid-column-visibility";
 import { DataGridPagination } from "~/components/reui/data-grid/data-grid-pagination";
 import { DataGridTableDnd } from "~/components/reui/data-grid/data-grid-table-dnd";
-import { Filter, FilterFieldsConfig, Filters } from "~/components/reui/filters";
+import { Filter, Filters } from "~/components/reui/filters";
 import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
 import { CustomerModal } from "./components/CustomerModal";
-import { getCrmColumns } from "./crm-columns";
-
-type FilterMode = "and" | "or";
-type CrmFilterKey = (typeof FILTER_KEYS)[number];
-
-type CrmQueryState = {
-  page: number;
-  perPage: number;
-  filterMode: FilterMode;
-  q: string | null;
-  platform: string | null;
-  is_active: string | null;
-  email: string | null;
-  phone: string | null;
-  platform_id: string | null;
-};
-
-const FILTER_KEYS = [
-  "q",
-  "platform",
-  "is_active",
-  "email",
-  "phone",
-  "platform_id",
-] as const;
-
-const TEXT_FILTER_KEYS = new Set<CrmFilterKey>([
-  "q",
-  "email",
-  "phone",
-  "platform_id",
-]);
-
-const EMPTY_FILTER_PARAMS: Pick<
+import {
+  buildApiParams,
+  buildFilters,
+  buildParamsFromFilters,
   CrmQueryState,
-  "q" | "platform" | "is_active" | "email" | "phone" | "platform_id"
-> = {
-  q: null,
-  platform: null,
-  is_active: null,
-  email: null,
-  phone: null,
-  platform_id: null,
-};
-
-const toOptional = (value: string | null | undefined) => value || undefined;
-
-const normalizeFilterMode = (value: string | null | undefined): FilterMode =>
-  value === "or" ? "or" : "and";
-
-const parseIsActive = (value: string | null | undefined) => {
-  if (value === "true") return true;
-  if (value === "false") return false;
-  return undefined;
-};
-
-const resolveUpdater = <T,>(updater: T | ((prev: T) => T), prev: T): T => {
-  return typeof updater === "function"
-    ? (updater as (prev: T) => T)(prev)
-    : updater;
-};
-
-const getActiveFilters = (params: CrmQueryState): Record<string, string> => {
-  const activeFilters: Record<string, string> = {};
-
-  FILTER_KEYS.forEach((key) => {
-    const value = params[key];
-    if (value !== null && value !== undefined && value !== "") {
-      activeFilters[key] = value;
-    }
-  });
-
-  return activeFilters;
-};
-
-const buildApiParams = (
-  params: CrmQueryState,
-  selectedAppId?: string,
-): CustomerListParams => {
-  const activeFilters = getActiveFilters(params);
-  const filterMode = normalizeFilterMode(params.filterMode);
-
-  const serializedFilters =
-    Object.keys(activeFilters).length > 0
-      ? JSON.stringify({
-          condition: filterMode,
-          filters: activeFilters,
-        })
-      : undefined;
-
-  const useFieldParams = filterMode === "and";
-
-  return {
-    page: params.page,
-    limit: params.perPage,
-    q: useFieldParams ? toOptional(params.q) : undefined,
-    app_id: selectedAppId,
-    platform: useFieldParams
-      ? (toOptional(params.platform) as ChannelPlatform | undefined)
-      : undefined,
-    platform_id: useFieldParams ? toOptional(params.platform_id) : undefined,
-    email: useFieldParams ? toOptional(params.email) : undefined,
-    phone: useFieldParams ? toOptional(params.phone) : undefined,
-    is_active: useFieldParams ? parseIsActive(params.is_active) : undefined,
-    filters: serializedFilters,
-  };
-};
-
-const buildFilters = (params: CrmQueryState): Filter[] =>
-  FILTER_KEYS.flatMap((key) => {
-    const value = params[key];
-    if (value === null || value === undefined) {
-      return [];
-    }
-
-    return [
-      {
-        id: key,
-        field: key,
-        operator: TEXT_FILTER_KEYS.has(key) ? "contains" : "is",
-        values: [value],
-      } as Filter,
-    ];
-  });
-
-const buildParamsFromFilters = (filters: Filter[]) => {
-  const nextParams: Record<"page" | CrmFilterKey, string | number | null> = {
-    page: 1,
-    ...EMPTY_FILTER_PARAMS,
-  };
-
-  filters.forEach((filter) => {
-    const isKnownField = FILTER_KEYS.includes(filter.field as CrmFilterKey);
-    if (!isKnownField) {
-      return;
-    }
-
-    // Keep empty string values so text filters stay open in the UI.
-    nextParams[filter.field as CrmFilterKey] =
-      (filter.values[0] as string) ?? "";
-  });
-
-  return nextParams;
-};
-
-const buildExportFilters = (
-  params: CrmQueryState,
-): Record<string, unknown> | undefined => {
-  const activeFilters = getActiveFilters(params);
-
-  if (Object.keys(activeFilters).length === 0) {
-    return undefined;
-  }
-
-  return {
-    condition: normalizeFilterMode(params.filterMode),
-    filters: activeFilters,
-  };
-};
-
-const filterFields: FilterFieldsConfig = [
-  {
-    key: "q",
-    label: "Search",
-    type: "text",
-    placeholder: "Search name, username...",
-  },
-  {
-    key: "platform",
-    label: "Platform",
-    type: "select",
-    options: [
-      { label: "Instagram", value: "instagram" },
-      { label: "Facebook", value: "facebook" },
-    ],
-  },
-  {
-    key: "is_active",
-    label: "Status",
-    type: "select",
-    options: [
-      { label: "Active", value: "true" },
-      { label: "Inactive", value: "false" },
-    ],
-  },
-  {
-    key: "email",
-    label: "Email",
-    type: "text",
-    placeholder: "Filter by email...",
-  },
-  {
-    key: "phone",
-    label: "Phone",
-    type: "text",
-    placeholder: "Filter by phone...",
-  },
-  {
-    key: "platform_id",
-    label: "Platform ID",
-    type: "text",
-    placeholder: "Filter by platform ID...",
-  },
-];
+  EMPTY_FILTER_PARAMS,
+  FILTER_FIELDS,
+  normalizeFilterMode,
+  QUERY_STATE_PARSERS,
+  resolveUpdater,
+  SEARCH_DEBOUNCE_MS,
+  type FilterMode,
+} from "./const";
+import { getCrmColumns } from "./crm-columns";
 
 function CrmHeader({ onAddCustomer }: { onAddCustomer: () => void }) {
   return (
@@ -265,13 +67,12 @@ function CrmHeader({ onAddCustomer }: { onAddCustomer: () => void }) {
 export default function CrmPage() {
   const { selectedApp } = useAuthStore();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const exportCustomers = useExportCustomers();
 
   // nuqs search params management
   const [params, setParams] = useQueryStates({
-    page: parseAsInteger.withDefault(1),
-    perPage: parseAsInteger.withDefault(10),
-    filterMode: parseAsString.withDefault("and"),
+    page: parseAsInteger.withDefault(QUERY_STATE_PARSERS.page),
+    perPage: parseAsInteger.withDefault(QUERY_STATE_PARSERS.perPage),
+    filterMode: parseAsString.withDefault(QUERY_STATE_PARSERS.filterMode),
     q: parseAsString,
     platform: parseAsString,
     is_active: parseAsString,
@@ -292,31 +93,15 @@ export default function CrmPage() {
     ).withDefault({}),
   );
 
+  const debouncedSetSearchQuery = useDebouncedCallback((value: string) => {
+    void setParams({ q: value || null, page: 1 });
+  }, SEARCH_DEBOUNCE_MS);
+
   const query = params as CrmQueryState;
   const apiParams = buildApiParams(query, selectedApp?.id);
 
   const { data: customers, isLoading } = useCustomers(apiParams);
   const columns = useMemo(() => getCrmColumns(customers ?? []), [customers]);
-  const columnIds = useMemo(
-    () => columns.map((column) => String(column.id)),
-    [columns],
-  );
-
-  useEffect(() => {
-    setColumnOrder((prev) => {
-      const prevOrder = prev ?? [];
-      const validIds = new Set(columnIds);
-      const kept = prevOrder.filter((id) => validIds.has(id));
-      const missing = columnIds.filter((id) => !kept.includes(id));
-      const nextOrder = [...kept, ...missing];
-
-      const isSame =
-        prevOrder.length === nextOrder.length &&
-        prevOrder.every((id, index) => id === nextOrder[index]);
-
-      return isSame ? prevOrder : nextOrder;
-    });
-  }, [columnIds, setColumnOrder]);
 
   const { table } = useDataTable({
     columns,
@@ -346,7 +131,10 @@ export default function CrmPage() {
   const activeFilterCount = addedFilters.length;
 
   const handleFiltersChange = (newFilters: Filter[]) => {
-    setParams(buildParamsFromFilters(newFilters) as Partial<typeof params>);
+    const nextParams = buildParamsFromFilters(newFilters) as Partial<
+      typeof params
+    >;
+    setParams(nextParams);
   };
 
   const handleFilterModeChange = (nextMode: FilterMode) => {
@@ -354,10 +142,7 @@ export default function CrmPage() {
   };
 
   const clearAllFilters = () => {
-    setParams({
-      page: 1,
-      ...EMPTY_FILTER_PARAMS,
-    });
+    setParams({ page: 1, ...EMPTY_FILTER_PARAMS });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -385,26 +170,6 @@ export default function CrmPage() {
     }
   };
 
-  const handleExport = (format: "csv" | "json") => {
-    if (!selectedApp?.id) {
-      toast.error("Please select an app before exporting customers");
-      return;
-    }
-
-    const visibleColumns = table
-      .getAllLeafColumns()
-      .filter((column) => column.getIsVisible())
-      .map((column) => column.id);
-
-    exportCustomers.mutate({
-      app_id: selectedApp.id,
-      format,
-      filters: buildExportFilters(query),
-      columns: visibleColumns,
-      fields: visibleColumns,
-    });
-  };
-
   return (
     <div className="grid h-full grid-rows-[auto_auto_1fr] overflow-hidden">
       <CrmHeader onAddCustomer={() => setIsCreateOpen(true)} />
@@ -417,61 +182,60 @@ export default function CrmPage() {
               type="search"
               placeholder="Search customers by name, email, or phone..."
               className="h-8 w-full border-muted-foreground/20 bg-background pl-9 text-sm shadow-sm transition-colors focus-visible:ring-1"
-              value={params.q || ""}
-              onChange={(e) =>
-                setParams({ q: e.target.value || null, page: 1 })
-              }
+              defaultValue={params.q || ""}
+              onChange={(e) => {
+                const value = e.target.value;
+                debouncedSetSearchQuery(value);
+              }}
             />
           </div>
 
           <Filters
             size="sm"
             filters={addedFilters}
-            fields={filterFields}
+            fields={FILTER_FIELDS}
             onChange={handleFiltersChange}
           />
 
-          <div className="flex items-center gap-2">
-            <div className="inline-flex rounded-md border bg-background p-1">
+          {activeFilterCount > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="inline-flex rounded-md border bg-background p-1">
+                <Button
+                  size="sm"
+                  variant={filterMode === "and" ? "default" : "ghost"}
+                  className="h-7 px-3"
+                  onClick={() => handleFilterModeChange("and")}
+                >
+                  AND
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filterMode === "or" ? "default" : "ghost"}
+                  className="h-7 px-3"
+                  onClick={() => handleFilterModeChange("or")}
+                >
+                  OR
+                </Button>
+              </div>
+
               <Button
                 size="sm"
-                variant={filterMode === "and" ? "default" : "ghost"}
-                className="h-7 px-3"
-                onClick={() => handleFilterModeChange("and")}
+                variant="ghost"
+                className="h-7 px-2 text-muted-foreground"
+                disabled={activeFilterCount === 0}
+                onClick={clearAllFilters}
               >
-                AND
-              </Button>
-              <Button
-                size="sm"
-                variant={filterMode === "or" ? "default" : "ghost"}
-                className="h-7 px-3"
-                onClick={() => handleFilterModeChange("or")}
-              >
-                OR
+                Clear
               </Button>
             </div>
-
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 px-2 text-muted-foreground"
-              disabled={activeFilterCount === 0}
-              onClick={clearAllFilters}
-            >
-              Clear
-            </Button>
-
-            <span className="text-xs text-muted-foreground">
-              {filterMode === "and" ? "Match all filters" : "Match any filter"}
-            </span>
-          </div>
+          )}
         </div>
 
         <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-end">
-          <ExportButton
-            isExporting={exportCustomers.isPending}
+          {/* <ExportButton
             onExport={handleExport}
-          />
+            isExporting={exportCustomers.isPending}
+          /> */}
 
           <Separator orientation="vertical" className="hidden h-5 sm:block" />
 
@@ -518,42 +282,5 @@ export default function CrmPage() {
 
       <CustomerModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </div>
-  );
-}
-
-function ExportButton({
-  onExport,
-  isExporting,
-}: {
-  onExport: (format: "csv" | "json") => void;
-  isExporting: boolean;
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 flex-1 sm:flex-none"
-          disabled={isExporting}
-        >
-          <Download className="mr-2 h-4 w-4" /> Export
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem
-          disabled={isExporting}
-          onClick={() => onExport("csv")}
-        >
-          Export as CSV
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          disabled={isExporting}
-          onClick={() => onExport("json")}
-        >
-          Export as JSON
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }

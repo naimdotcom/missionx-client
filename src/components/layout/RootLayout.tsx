@@ -1,5 +1,4 @@
 import { Outlet } from "@tanstack/react-router";
-import { ScreenSizeIndicator } from "../debug/screen-size-indicator";
 import { Toaster } from "../ui/sonner";
 
 function RootComponent() {
@@ -7,7 +6,7 @@ function RootComponent() {
     <div className="grid grid-rows-[auto_1fr] overflow-hidden h-screen w-screen">
       <Outlet />
       <Toaster />
-      <ScreenSizeIndicator />
+      {/* <ScreenSizeIndicator /> */}
       {/* <TanStackRouterDevtools /> */}
     </div>
   );

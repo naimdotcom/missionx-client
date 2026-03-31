@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  Cell,
+  Column,
+  flexRender,
+  Header,
+  HeaderGroup,
+  Row,
+  Table,
+} from "@tanstack/react-table";
+import { cva } from "class-variance-authority";
+import {
   CSSProperties,
   Fragment,
   memo,
@@ -11,20 +21,10 @@ import {
   useMemo,
 } from "react";
 import { useDataGrid } from "~/components/reui/data-grid/data-grid";
-import {
-  Cell,
-  Column,
-  flexRender,
-  Header,
-  HeaderGroup,
-  Row,
-  Table,
-} from "@tanstack/react-table";
-import { cva } from "class-variance-authority";
 
-import { cn } from "~/lib/utils";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Spinner } from "~/components/ui/spinner";
+import { cn } from "~/lib/utils";
 
 const headerCellSpacingVariants = cva("", {
   variants: {
@@ -331,7 +331,7 @@ function DataGridTableHeadRowCell<TData>({
         isLastLeftPinned ? "left" : isFirstRightPinned ? "right" : undefined
       }
       className={cn(
-        "text-secondary-foreground/80 h-9 relative text-left align-middle font-normal rtl:text-right [&:has([role=checkbox])]:pe-0",
+        "group text-secondary-foreground/80 h-9 relative text-left align-middle font-normal rtl:text-right [&:has([role=checkbox])]:pe-0",
         headerCellSpacing,
         props.tableLayout?.cellBorder && "border-e",
         props.tableLayout?.columnsResizable &&
@@ -386,7 +386,7 @@ function DataGridTableHeadRowCellResize<TData>({
         onMouseDown: handleMouseDown,
         onTouchStart: handleTouchStart,
         className: cn(
-          "absolute top-0 h-full cursor-col-resize user-select-none touch-none z-10 flex",
+          "absolute top-0 h-full cursor-col-resize user-select-none touch-none z-10 flex opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100",
           isLastVisibleColumn
             ? "end-0 w-5 justify-end before:hidden"
             : "-end-2 w-5 justify-center before:absolute before:inset-y-0 before:w-px before:-translate-x-px before:bg-border",
@@ -1023,19 +1023,19 @@ export {
   DataGridTableBodyRow,
   DataGridTableBodyRowCell,
   DataGridTableBodyRowExpandded,
-  DataGridTableRenderedRow,
   DataGridTableBodyRowSkeleton,
   DataGridTableBodyRowSkeletonCell,
   DataGridTableEmpty,
   DataGridTableFoot,
   DataGridTableFootRow,
   DataGridTableFootRowCell,
-  DataGridTableHeader,
   DataGridTableHead,
+  DataGridTableHeader,
   DataGridTableHeadRow,
   DataGridTableHeadRowCell,
   DataGridTableHeadRowCellResize,
   DataGridTableLoader,
+  DataGridTableRenderedRow,
   DataGridTableRowPin,
   DataGridTableRowSelect,
   DataGridTableRowSelectAll,

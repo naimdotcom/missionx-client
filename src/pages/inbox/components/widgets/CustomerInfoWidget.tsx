@@ -11,18 +11,20 @@ interface CustomerInfoWidgetProps {
 export function CustomerInfoWidget({
   selectedTicket,
 }: CustomerInfoWidgetProps) {
-  const {selectedApp} = useAuthStore()
+  const { selectedApp } = useAuthStore();
   const initials = selectedTicket?.customer_name
     ?.split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
-  
-  const customerInfo = useInboxCustomer({customer_id: selectedTicket?.customer_platform_id ?? '',app_id:selectedApp?.id ?? '',})
 
-  console.log(customerInfo);
-  
+  const customerInfo = useInboxCustomer({
+    customer_id: "71650e38-41d6-41c7-86eb-df540044dd03",
+    app_id: selectedApp?.id ?? "",
+  });
+
+  console.log(customerInfo.data);
 
   return (
     <Card className="border shadow-none overflow-hidden">
