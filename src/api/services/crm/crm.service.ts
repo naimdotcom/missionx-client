@@ -7,6 +7,7 @@ import type {
   CustomerResponse,
   CustomerUpdate,
   ExportRequest,
+  InboxCustomerPayload,
 } from "./crm.types";
 
 export class CrmService extends BaseAPIService {
@@ -43,6 +44,14 @@ export class CrmService extends BaseAPIService {
   exportCustomers = (payload: ExportRequest) => {
     return this.post(API_ENDPOINTS.CRM.EXPORT, payload);
   };
+
+  inboxCustomer=(payload: InboxCustomerPayload)=>{
+    return this.get(API_ENDPOINTS.CRM.INBOX_CUSTOMER(payload.customer_id),{
+      app_id:payload.app_id,
+      page:payload.page,
+      limit:payload.limit
+    })
+  }
 
   // Segments
 

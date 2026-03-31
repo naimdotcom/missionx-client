@@ -7,6 +7,7 @@ import type {
   CustomerListParams,
   CustomerUpdate,
   ExportRequest,
+  InboxCustomerPayload,
 } from "./crm.types";
 
 /**
@@ -84,39 +85,13 @@ export const useDeleteCustomer = () => {
   });
 };
 
-/**
- *
- * Segments
- *
- */
-
-// export const useSegments = (
-//   params?: Partial<import("./crm.types").SegmentListParams>,
-// ) => {
-//   return useQuery({
-//     queryKey: ["segments", params],
-//     queryFn: () => crmService.getSegments(params),
-//     staleTime: 30_000,
-//   });
-// };
-
-// export const useCreateSegment = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: (payload: import("./crm.types").SegmentCreate) =>
-//       crmService.createSegment(payload),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({
-//         queryKey: ["segments"],
-//       });
-//       toast.success("Segment created successfully");
-//     },
-//     onError: () => {
-//       toast.error("Failed to create segment");
-//     },
-//   });
-// };
+export const useInboxCustomer = (payload: InboxCustomerPayload) => {
+  return useQuery({
+    queryKey: ["inbox-customer", payload],
+    queryFn: () => crmService.inboxCustomer(payload),
+    enabled: !!payload.customer_id && !!payload.app_id,
+  });
+}
 
 export const useUpdateSegment = () => {
   const queryClient = useQueryClient();

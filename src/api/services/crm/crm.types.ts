@@ -185,3 +185,11 @@ export type SegmentListParams = {
   q?: string;
   is_active?: boolean;
 };
+
+
+export interface InboxCustomerPayload  {
+  customer_id: string;
+  app_id: string;
+  page?: string;
+  limit?: string
+}
