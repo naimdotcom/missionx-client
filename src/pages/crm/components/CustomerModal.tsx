@@ -3,8 +3,8 @@ import {
   useUpdateCustomer,
 } from "@/api/services/crm/crm.hook";
 import type {
+  Customer,
   CustomerCreate,
-  CustomerResponse,
   CustomerUpdate,
 } from "@/api/services/crm/crm.types";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,7 +44,7 @@ type FormValues = z.infer<typeof formSchema>;
 interface CustomerModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  customer?: CustomerResponse | null;
+  customer?: Customer | null;
 }
 
 export function CustomerModal({

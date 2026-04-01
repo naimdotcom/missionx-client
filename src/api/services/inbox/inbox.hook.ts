@@ -13,7 +13,6 @@ import {
 
 export function useConversationTickets(params: ConversationTicketsParams) {
   return useInfiniteQuery({
-    staleTime: 1000 * 60, // 1 minute
     refetchOnWindowFocus: false,
     enabled: !!params?.app_id,
     queryKey: [...queryKeys.inboxKeys.conversationList, params],

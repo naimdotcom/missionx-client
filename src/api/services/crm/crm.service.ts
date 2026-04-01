@@ -2,9 +2,10 @@ import { API_ENDPOINTS } from "@/api";
 import { BaseAPIService } from "@/api/core/base.service";
 import { env } from "@/lib/env";
 import type {
+  Customer,
   CustomerCreate,
   CustomerListParams,
-  CustomerResponse,
+  Customers,
   CustomerUpdate,
   ExportRequest,
   InboxCustomerPayload,
@@ -16,25 +17,19 @@ export class CrmService extends BaseAPIService {
   }
 
   getCustomers = (params?: CustomerListParams) => {
-    return this.get<CustomerResponse[]>(
-      API_ENDPOINTS.CRM.CUSTOMERS,
-      params as Record<string, unknown>,
-    );
+    return this.get<Customers>(API_ENDPOINTS.CRM.CUSTOMERS, params);
   };
 
   getCustomerById = (id: string) => {
-    return this.get<CustomerResponse>(API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id));
+    return this.get<Customer>(API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id));
   };
 
   createCustomer = (payload: CustomerCreate) => {
-    return this.post<CustomerResponse>(API_ENDPOINTS.CRM.CUSTOMERS, payload);
+    return this.post<Customer>(API_ENDPOINTS.CRM.CUSTOMERS, payload);
   };
 
   updateCustomer = (id: string, payload: CustomerUpdate) => {
-    return this.put<CustomerResponse>(
-      API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id),
-      payload,
-    );
+    return this.put<Customer>(API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id), payload);
   };
 
   deleteCustomer = (id: string) => {
@@ -45,13 +40,13 @@ export class CrmService extends BaseAPIService {
     return this.post(API_ENDPOINTS.CRM.EXPORT, payload);
   };
 
-  inboxCustomer=(payload: InboxCustomerPayload)=>{
-    return this.get(API_ENDPOINTS.CRM.INBOX_CUSTOMER(payload.customer_id),{
-      app_id:payload.app_id,
-      page:payload.page,
-      limit:payload.limit
-    })
-  }
+  inboxCustomer = (payload: InboxCustomerPayload) => {
+    return this.get(API_ENDPOINTS.CRM.INBOX_CUSTOMER(payload.customer_id), {
+      app_id: payload.app_id,
+      page: payload.page,
+      limit: payload.limit,
+    });
+  };
 
   // Segments
 

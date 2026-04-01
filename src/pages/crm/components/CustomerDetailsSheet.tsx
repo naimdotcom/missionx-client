@@ -1,3 +1,6 @@
+import type { Customer } from "@/api/services/crm/crm.types";
+import { Badge } from "~/components/ui/badge";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -5,14 +8,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from "~/components/ui/sheet";
-import { Badge } from "~/components/ui/badge";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import type { CustomerResponse } from "@/api/services/crm/crm.types";
 
 interface CustomerDetailsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  customer: CustomerResponse | null;
+  customer: Customer | null;
 }
 
 export function CustomerDetailsSheet({

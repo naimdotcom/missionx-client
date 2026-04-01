@@ -9,7 +9,7 @@ import "./styles/globals.css";
 const router = createRouter({ routeTree });
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { staleTime: 5 * 60 * 1000, retry: 1, refetchOnWindowFocus: false },
+    queries: { staleTime: 0, retry: 1, refetchOnWindowFocus: false },
   },
 });
 

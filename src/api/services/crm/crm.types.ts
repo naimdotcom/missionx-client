@@ -1,6 +1,28 @@
 import { ChannelPlatform } from "../channels";
 
-export type CustomerResponse = {
+export type Customers = {
+  app_fields: APPField;
+  customers: Customer[];
+};
+
+export type APPField = {
+  app_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  fields: Array<{
+    key?: string;
+    locked?: boolean;
+    name?: string;
+    position?: number;
+    required?: boolean;
+    source?: string;
+    type?: string;
+    visible?: boolean;
+    width?: number;
+  }>;
+};
+
+export type Customer = {
   id: string | undefined;
   app_id: string | undefined;
   platform_id: string | undefined;
@@ -186,10 +208,9 @@ export type SegmentListParams = {
   is_active?: boolean;
 };
 
-
-export interface InboxCustomerPayload  {
+export interface InboxCustomerPayload {
   customer_id: string;
   app_id: string;
   page?: string;
-  limit?: string
+  limit?: string;
 }
