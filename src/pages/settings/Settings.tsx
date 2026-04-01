@@ -4,7 +4,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { AppWindow, Image, Palette, User } from "lucide-react";
 import { useState } from "react";
 import { AppearanceForm } from "./AppearanceForm";
-import { AppsSettings } from "./AppsSettings";
 import { MediaSettings } from "./MediaSettings";
 import { ProfileForm } from "./ProfileForm";
 
@@ -79,10 +78,6 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
 
           <TabsContent value="media" className="m-0 space-y-6">
             <MediaSettings />
-          </TabsContent>
-
-          <TabsContent value="apps" className="m-0 space-y-6">
-            <AppsSettings />
           </TabsContent>
 
           <TabsContent value="notifications" className="m-0 space-y-6">

@@ -91,7 +91,7 @@ export const useInboxCustomer = (payload: InboxCustomerPayload) => {
     queryFn: () => crmService.inboxCustomer(payload),
     enabled: !!payload.customer_id && !!payload.app_id,
   });
-}
+};
 
 export const useUpdateSegment = () => {
   const queryClient = useQueryClient();

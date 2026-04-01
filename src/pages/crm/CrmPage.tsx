@@ -6,13 +6,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Plus, Search, Settings2, UserCircle } from "lucide-react";
-import {
-  parseAsInteger,
-  parseAsJson,
-  parseAsString,
-  useQueryState,
-  useQueryStates,
-} from "nuqs";
+import { parseAsJson, useQueryState, useQueryStates } from "nuqs";
 import { useMemo, useState } from "react";
 import {
   DataGrid,
@@ -21,24 +15,19 @@ import {
 import { DataGridColumnVisibility } from "~/components/reui/data-grid/data-grid-column-visibility";
 import { DataGridPagination } from "~/components/reui/data-grid/data-grid-pagination";
 import { DataGridTableDnd } from "~/components/reui/data-grid/data-grid-table-dnd";
-import { Filter, Filters } from "~/components/reui/filters";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
+import { AdvancedFilters } from "./components/AdvancedFilters";
 import { CustomerModal } from "./components/CustomerModal";
 import {
   buildApiParams,
-  buildFilters,
-  buildParamsFromFilters,
+  type CrmFilter,
   CrmQueryState,
-  EMPTY_FILTER_PARAMS,
-  FILTER_FIELDS,
-  normalizeFilterMode,
   QUERY_STATE_PARSERS,
   resolveUpdater,
   SEARCH_DEBOUNCE_MS,
-  type FilterMode,
 } from "./const";
-import { getCrmColumns } from "./crm-columns";
+import { fixedCrmColumns } from "./crm-columns.tsx";
 
 function CrmHeader({ onAddCustomer }: { onAddCustomer: () => void }) {
   return (
@@ -69,17 +58,7 @@ export default function CrmPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // nuqs search params management
-  const [params, setParams] = useQueryStates({
-    page: parseAsInteger.withDefault(QUERY_STATE_PARSERS.page),
-    perPage: parseAsInteger.withDefault(QUERY_STATE_PARSERS.perPage),
-    filterMode: parseAsString.withDefault(QUERY_STATE_PARSERS.filterMode),
-    q: parseAsString,
-    platform: parseAsString,
-    is_active: parseAsString,
-    email: parseAsString,
-    phone: parseAsString,
-    platform_id: parseAsString,
-  });
+  const [params, setParams] = useQueryStates(QUERY_STATE_PARSERS);
 
   const [columnOrder, setColumnOrder] = useQueryState(
     "order",
@@ -101,11 +80,21 @@ export default function CrmPage() {
   const apiParams = buildApiParams(query, selectedApp?.id);
 
   const { data: customers, isLoading } = useCustomers(apiParams);
-  const columns = useMemo(() => getCrmColumns(customers ?? []), [customers]);
+  const dynamicColumns = useMemo(
+    () =>
+      customers?.app_fields.fields
+        .filter((field) => field.visible)
+        .map((field) => ({
+          id: field.key || field.name || "",
+          accessorKey: field.key || field.name || "",
+          header: field.name || (field.key || "").replace(/_/g, " "),
+        })) ?? [],
+    [customers],
+  );
 
   const { table } = useDataTable({
-    columns,
-    data: customers ?? [],
+    columns: [...fixedCrmColumns, ...dynamicColumns],
+    data: customers?.customers ?? [],
     pageCount: -1,
     manualSorting: false,
     initialState: {
@@ -116,6 +105,7 @@ export default function CrmPage() {
       columnOrder,
       columnVisibility,
     },
+    columnResizeMode: "onChange",
     onColumnOrderChange: (updater) => {
       const nextOrder = resolveUpdater(updater, columnOrder);
       setColumnOrder(nextOrder);
@@ -126,28 +116,23 @@ export default function CrmPage() {
     },
   });
 
-  const addedFilters = useMemo(() => buildFilters(query), [query]);
-  const filterMode = normalizeFilterMode(query.filterMode);
-  const activeFilterCount = addedFilters.length;
-
-  const handleFiltersChange = (newFilters: Filter[]) => {
-    const nextParams = buildParamsFromFilters(newFilters) as Partial<
-      typeof params
-    >;
-    setParams(nextParams);
-  };
-
-  const handleFilterModeChange = (nextMode: FilterMode) => {
-    setParams({ filterMode: nextMode, page: 1 });
-  };
+  const activeFiltersObj = params.filters || { condition: "and", items: [] };
 
   const clearAllFilters = () => {
-    setParams({ page: 1, ...EMPTY_FILTER_PARAMS });
+    setParams({ page: 1, filters: null });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
+      const fixedColumnIds = new Set(["select", "customer"]);
+      if (
+        fixedColumnIds.has(String(active.id)) ||
+        fixedColumnIds.has(String(over.id))
+      ) {
+        return;
+      }
+
       const currentOrder =
         table.getState().columnOrder.length > 0
           ? table.getState().columnOrder
@@ -190,45 +175,20 @@ export default function CrmPage() {
             />
           </div>
 
-          <Filters
-            size="sm"
-            filters={addedFilters}
-            fields={FILTER_FIELDS}
-            onChange={handleFiltersChange}
+          <AdvancedFilters
+            filters={activeFiltersObj.items}
+            filterMode={activeFiltersObj.condition}
+            onApply={(newFilters, mode) => {
+              setParams({
+                filters: {
+                  condition: mode,
+                  items: newFilters as CrmFilter[],
+                },
+                page: 1,
+              });
+            }}
+            onClear={clearAllFilters}
           />
-
-          {activeFilterCount > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="inline-flex rounded-md border bg-background p-1">
-                <Button
-                  size="sm"
-                  variant={filterMode === "and" ? "default" : "ghost"}
-                  className="h-7 px-3"
-                  onClick={() => handleFilterModeChange("and")}
-                >
-                  AND
-                </Button>
-                <Button
-                  size="sm"
-                  variant={filterMode === "or" ? "default" : "ghost"}
-                  className="h-7 px-3"
-                  onClick={() => handleFilterModeChange("or")}
-                >
-                  OR
-                </Button>
-              </div>
-
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 text-muted-foreground"
-                disabled={activeFilterCount === 0}
-                onClick={clearAllFilters}
-              >
-                Clear
-              </Button>
-            </div>
-          )}
         </div>
 
         <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-end">
@@ -261,12 +221,13 @@ export default function CrmPage() {
             table={table}
             isLoading={isLoading}
             loadingMode="skeleton"
-            recordCount={customers?.length || 0}
+            recordCount={customers?.customers.length || 0}
             tableLayout={{
               rowBorder: true,
               stripped: false,
               headerSticky: true,
               columnsResizable: true,
+              columnsPinnable: true,
               columnsDraggable: true,
             }}
           >

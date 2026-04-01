@@ -36,9 +36,7 @@ export type Customer = {
   locale: string | undefined;
   timezone: number | undefined;
   gender: string | undefined;
-  custom_metadata:
-    | { id?: string; name?: string; profile_pic?: string }
-    | undefined;
+  custom_metadata: { id?: string; name?: string; profile_pic?: string };
   attributes: Record<string, unknown> | undefined;
   tags: string[] | undefined;
   source: string | undefined;
@@ -51,6 +49,7 @@ export type Customer = {
   updated_at: string | undefined;
   last_interaction_at: string | undefined;
   last_seen_at: string | undefined;
+  [key: string]: any;
 };
 
 export type CustomerCreate = {

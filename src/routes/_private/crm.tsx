@@ -7,6 +7,7 @@ type CrmSearch = {
   q?: string;
   platform?: string;
   is_active?: string;
+  filters?: unknown;
 };
 
 export const Route = createFileRoute("/_private/crm")({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_private/crm")({
       q: search.q as string | undefined,
       platform: search.platform as string | undefined,
       is_active: search.is_active as string | undefined,
+      filters: search.filters,
     };
   },
 });

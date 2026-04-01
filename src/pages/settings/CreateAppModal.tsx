@@ -123,7 +123,11 @@ export function CreateAppModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full sm:w-auto"
+            >
               {isPending && <Spinner className="mr-2 h-4 w-4" />}
               {isEditing ? "Save Changes" : "Create App"}
             </Button>
