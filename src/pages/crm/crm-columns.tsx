@@ -1,5 +1,6 @@
 import type { Customer } from "@/api/services/crm/crm.types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "@tanstack/react-router";
 import type { ColumnDef } from "@tanstack/react-table";
 import { DataGridColumnHeader } from "~/components/reui/data-grid/data-grid-column-header";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -80,9 +81,20 @@ export const customerColumn: DraggableColumnDef<Customer> = {
         </Avatar>
 
         <div className="flex min-w-0 flex-col">
-          <span className="line-clamp-1 font-medium text-foreground">
-            {customerName}
-          </span>
+          {customer.id ? (
+            <Link
+              to="/crm/$customerId"
+              params={{ customerId: customer.id }}
+              onClick={(event) => event.stopPropagation()}
+              className="line-clamp-1 font-medium text-foreground transition-colors hover:text-primary hover:underline"
+            >
+              {customerName}
+            </Link>
+          ) : (
+            <span className="line-clamp-1 font-medium text-foreground">
+              {customerName}
+            </span>
+          )}
         </div>
       </div>
     );

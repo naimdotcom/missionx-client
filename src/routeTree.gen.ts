@@ -18,6 +18,7 @@ import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
 import { Route as PrivateCrmRouteImport } from './routes/_private/crm'
 import { Route as PrivateChannelsRouteImport } from './routes/_private/channels'
 import { Route as PrivateSettingsSlugRouteImport } from './routes/_private/settings.$slug'
+import { Route as PrivateCrmCustomerIdRouteImport } from './routes/_private/crm.$customerId'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -62,23 +63,30 @@ const PrivateSettingsSlugRoute = PrivateSettingsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => PrivateSettingsRoute,
 } as any)
+const PrivateCrmCustomerIdRoute = PrivateCrmCustomerIdRouteImport.update({
+  id: '/$customerId',
+  path: '/$customerId',
+  getParentRoute: () => PrivateCrmRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/channels': typeof PrivateChannelsRoute
-  '/crm': typeof PrivateCrmRoute
+  '/crm': typeof PrivateCrmRouteWithChildren
   '/inbox': typeof PrivateInboxRoute
   '/settings': typeof PrivateSettingsRouteWithChildren
   '/login': typeof PublicLoginRoute
+  '/crm/$customerId': typeof PrivateCrmCustomerIdRoute
   '/settings/$slug': typeof PrivateSettingsSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/channels': typeof PrivateChannelsRoute
-  '/crm': typeof PrivateCrmRoute
+  '/crm': typeof PrivateCrmRouteWithChildren
   '/inbox': typeof PrivateInboxRoute
   '/settings': typeof PrivateSettingsRouteWithChildren
   '/login': typeof PublicLoginRoute
+  '/crm/$customerId': typeof PrivateCrmCustomerIdRoute
   '/settings/$slug': typeof PrivateSettingsSlugRoute
 }
 export interface FileRoutesById {
@@ -87,10 +95,11 @@ export interface FileRoutesById {
   '/_private': typeof PrivateRouteWithChildren
   '/_public': typeof PublicRouteWithChildren
   '/_private/channels': typeof PrivateChannelsRoute
-  '/_private/crm': typeof PrivateCrmRoute
+  '/_private/crm': typeof PrivateCrmRouteWithChildren
   '/_private/inbox': typeof PrivateInboxRoute
   '/_private/settings': typeof PrivateSettingsRouteWithChildren
   '/_public/login': typeof PublicLoginRoute
+  '/_private/crm/$customerId': typeof PrivateCrmCustomerIdRoute
   '/_private/settings/$slug': typeof PrivateSettingsSlugRoute
 }
 export interface FileRouteTypes {
@@ -102,6 +111,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/settings'
     | '/login'
+    | '/crm/$customerId'
     | '/settings/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/settings'
     | '/login'
+    | '/crm/$customerId'
     | '/settings/$slug'
   id:
     | '__root__'
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/_private/inbox'
     | '/_private/settings'
     | '/_public/login'
+    | '/_private/crm/$customerId'
     | '/_private/settings/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -196,8 +208,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateSettingsSlugRouteImport
       parentRoute: typeof PrivateSettingsRoute
     }
+    '/_private/crm/$customerId': {
+      id: '/_private/crm/$customerId'
+      path: '/$customerId'
+      fullPath: '/crm/$customerId'
+      preLoaderRoute: typeof PrivateCrmCustomerIdRouteImport
+      parentRoute: typeof PrivateCrmRoute
+    }
   }
 }
+
+interface PrivateCrmRouteChildren {
+  PrivateCrmCustomerIdRoute: typeof PrivateCrmCustomerIdRoute
+}
+
+const PrivateCrmRouteChildren: PrivateCrmRouteChildren = {
+  PrivateCrmCustomerIdRoute: PrivateCrmCustomerIdRoute,
+}
+
+const PrivateCrmRouteWithChildren = PrivateCrmRoute._addFileChildren(
+  PrivateCrmRouteChildren,
+)
 
 interface PrivateSettingsRouteChildren {
   PrivateSettingsSlugRoute: typeof PrivateSettingsSlugRoute
@@ -213,14 +244,14 @@ const PrivateSettingsRouteWithChildren = PrivateSettingsRoute._addFileChildren(
 
 interface PrivateRouteChildren {
   PrivateChannelsRoute: typeof PrivateChannelsRoute
-  PrivateCrmRoute: typeof PrivateCrmRoute
+  PrivateCrmRoute: typeof PrivateCrmRouteWithChildren
   PrivateInboxRoute: typeof PrivateInboxRoute
   PrivateSettingsRoute: typeof PrivateSettingsRouteWithChildren
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
   PrivateChannelsRoute: PrivateChannelsRoute,
-  PrivateCrmRoute: PrivateCrmRoute,
+  PrivateCrmRoute: PrivateCrmRouteWithChildren,
   PrivateInboxRoute: PrivateInboxRoute,
   PrivateSettingsRoute: PrivateSettingsRouteWithChildren,
 }

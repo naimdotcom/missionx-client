@@ -65,7 +65,7 @@ export const API_ENDPOINTS = {
   CRM: {
     CUSTOMERS: "/api/v1/customers/",
     EXPORT: "/api/v1/customers/export",
-    APP_FIELDS: "/api/v1/customers/app-fields/{app_id}",
+    APP_FIELDS: (app_id: string) => `/api/v1/customers/app-fields/${app_id}`,
     CUSTOMER_BY_ID: (id: string) => `/api/v1/customers/${id}`,
     INBOX_CUSTOMER: (id: string) => `/api/v1/customers/${id}/inbox`,
 

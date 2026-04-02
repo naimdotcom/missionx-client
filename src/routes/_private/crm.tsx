@@ -1,4 +1,4 @@
-import CrmPage from "@/pages/crm/CrmPage";
+import CrmRouteContent from "@/pages/crm/CrmRouteContent";
 import { createFileRoute } from "@tanstack/react-router";
 
 type CrmSearch = {
@@ -11,7 +11,7 @@ type CrmSearch = {
 };
 
 export const Route = createFileRoute("/_private/crm")({
-  component: CrmPage,
+  component: CrmRouteContent,
   validateSearch: (search: Record<string, unknown>): CrmSearch => {
     return {
       page: search.page ? Number(search.page) : undefined,

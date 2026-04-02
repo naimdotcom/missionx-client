@@ -5,6 +5,7 @@ import { useUserProfileFull } from "@/api/services/users/users.hooks";
 import { AppSidebar } from "@/components/nav-menu/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { env } from "@/lib/env";
+import { useSaveAppField } from "@/pages/crm/hook/useSaveAppField";
 import { useAuthStore } from "@/stores/auth-store";
 import { Outlet } from "@tanstack/react-router";
 import { NuqsAdapter } from "nuqs/adapters/tanstack-router";
@@ -16,6 +17,7 @@ import { PageLoader } from "../ui/loader";
 
 function PrivateLayout() {
   const { setUserProfile, selectedApp, setSelectedApp } = useAuthStore();
+  useSaveAppField();
 
   const refreshTokenMutation = useRefreshToken();
   const verifyTokenQuery = useVerifyToken();

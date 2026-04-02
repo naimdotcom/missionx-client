@@ -15,7 +15,6 @@ import type {
  */
 export const useCustomers = (params?: CustomerListParams) => {
   return useQuery({
-    staleTime: 30_000,
     queryFn: () => crmService.getCustomers(params),
     queryKey: [...queryKeys.crmKeys.customerList, params],
   });
@@ -133,11 +132,16 @@ export const useDeleteSegment = () => {
   });
 };
 
-export const useCustomer = (id?: string) => {
+export const useCustomer = (id: string, app_id: string) => {
   return useQuery({
+    queryFn: () => {
+      if (!id) {
+        throw new Error("Customer ID is required");
+      } else {
+        return crmService.getCustomerById(id, app_id);
+      }
+    },
     queryKey: [...queryKeys.crmKeys.customerList, id],
-    queryFn: () =>
-      id ? crmService.getCustomerById(id) : Promise.resolve(null),
     enabled: !!id,
   });
 };
@@ -158,5 +162,13 @@ export const useExportCustomers = () => {
     onError: () => {
       toast.error("Failed to export customers");
     },
+  });
+};
+
+export const useAppFields = (app_id: string) => {
+  return useQuery({
+    enabled: !!app_id,
+    queryFn: () => crmService.appFields(app_id),
+    queryKey: [queryKeys.crmKeys.appFields(app_id)],
   });
 };
