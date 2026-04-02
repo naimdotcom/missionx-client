@@ -5,7 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_APP_URL?: string;
   readonly VITE_CHANNEL_URL?: string;
   readonly VITE_API_URL?: string;
-  readonly VITE_MEDIA_URL?: string;
+  readonly VITE_MEDIA_SERVICE_URL?: string;
   readonly VITE_META_APP_ID?: string;
   readonly VITE_API_TIMEOUT?: string;
   readonly VITE_ENABLE_API_LOGGING?: string;
