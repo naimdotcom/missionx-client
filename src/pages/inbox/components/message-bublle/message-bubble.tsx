@@ -43,7 +43,6 @@ function Attachment({
   const url = attachment.payload.url
     ? (env.mediaServiceUrl ?? "") + attachment.payload.url
     : attachment.meta_url;
-  console.log(env.mediaServiceUrl);
 
   if (!url) return null;
   if (type === "image")
