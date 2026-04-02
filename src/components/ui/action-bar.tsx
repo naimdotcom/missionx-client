@@ -28,7 +28,6 @@ export function ActionBar({ open, children, className }: ActionBarProps) {
       data-state={open ? "open" : "closed"}
       className={cn(
         "fixed inset-x-0 bottom-6 z-50 mx-auto flex w-fit items-center gap-2 rounded-full border bg-background px-4 py-2 shadow-lg",
-        // Animate in/out
         "transition-all duration-200 ease-in-out",
         open
           ? "translate-y-0 opacity-100 pointer-events-auto"

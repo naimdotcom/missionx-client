@@ -1,12 +1,22 @@
 import { useCustomers } from "@/api/services/crm/crm.hook";
-import { DataTableActionBar } from "@/components/reui/data-grid/data-table-action-bar.tsx";
+import {
+  DataTableActionBar,
+  type ActionBarAction,
+} from "@/components/reui/data-grid/data-table-action-bar";
 import { Input } from "@/components/ui/input";
 import { useDataTable } from "@/hooks/use-data-table";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { useAuthStore } from "@/stores/auth-store";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Plus, Search, Settings2, UserCircle } from "lucide-react";
+import {
+  Archive,
+  Plus,
+  Search,
+  Settings2,
+  Trash2,
+  UserCircle,
+} from "lucide-react";
 import { parseAsJson, useQueryState, useQueryStates } from "nuqs";
 import { useMemo, useState } from "react";
 import {
@@ -22,13 +32,57 @@ import { AdvancedFilters } from "./components/AdvancedFilters";
 import { CustomerModal } from "./components/CustomerModal";
 import {
   buildApiParams,
-  type CrmFilter,
   CrmQueryState,
   QUERY_STATE_PARSERS,
   resolveUpdater,
   SEARCH_DEBOUNCE_MS,
+  type CrmFilter,
 } from "./const";
 import { fixedCrmColumns } from "./crm-columns.tsx";
+
+const crmActions: ActionBarAction<any>[] = [
+  {
+    id: "delete",
+    label: "Delete selected rows",
+    icon: Trash2,
+    variant: "destructive",
+    separatorBefore: true,
+    onClick: (rows) => {
+      const ids = rows.map((r) => r.original.id);
+      console.log("Deleting:", ids);
+    },
+  },
+  {
+    id: "archive",
+    label: "Archive selected rows",
+    icon: Archive,
+    onClick: (rows) => {
+      console.log(
+        "Archiving:",
+        rows.map((r) => r.original),
+      );
+    },
+    disabled: (rows) => rows.some((r) => r.original.status === "archived"),
+  },
+  // {
+  //   id: "export",
+  //   label: "Export selected to CSV",
+  //   icon: Download,
+  //   separatorBefore: true,
+  //   onClick: (rows) => {
+  //     const csv = rows
+  //       .map((r) => Object.values(r.original).join(","))
+  //       .join("\n");
+  //     const blob = new Blob([csv], { type: "text/csv" });
+  //     const url = URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = "selected-rows.csv";
+  //     a.click();
+  //     URL.revokeObjectURL(url);
+  //   },
+  // },
+];
 
 function CrmHeader({ onAddCustomer }: { onAddCustomer: () => void }) {
   return (
@@ -240,7 +294,7 @@ export default function CrmPage() {
             </div>
           </DataGrid>
         </DataGridContainer>
-        <DataTableActionBar table={table} />
+        <DataTableActionBar table={table} actions={crmActions} />
       </div>
 
       <CustomerModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
