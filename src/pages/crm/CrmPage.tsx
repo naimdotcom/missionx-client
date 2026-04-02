@@ -1,4 +1,5 @@
 import { useCustomers } from "@/api/services/crm/crm.hook";
+import { DataTableActionBar } from "@/components/reui/data-grid/data-table-action-bar.tsx";
 import { Input } from "@/components/ui/input";
 import { useDataTable } from "@/hooks/use-data-table";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
@@ -239,6 +240,7 @@ export default function CrmPage() {
             </div>
           </DataGrid>
         </DataGridContainer>
+        <DataTableActionBar table={table} />
       </div>
 
       <CustomerModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />
