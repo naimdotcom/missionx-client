@@ -39,13 +39,11 @@ function Attachment({
   total: number;
 }) {
   const type = getAttachmentType(attachment.type || "", attachment.payload.url);
-  const normalizedPayloadUrl = (attachment.payload.url ?? "").replace(
-    /^\//,
-    "",
-  );
-  const url = normalizedPayloadUrl
-    ? (env.mediaUrl ?? "") + normalizedPayloadUrl
+
+  const url = attachment.payload.url
+    ? (env.mediaUrl ?? "") + attachment.payload.url
     : attachment.meta_url;
+
   if (!url) return null;
   if (type === "image")
     return <ImageAttachment totalImage={total} attachmentUrl={url} />;

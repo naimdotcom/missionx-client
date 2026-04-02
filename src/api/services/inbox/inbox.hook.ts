@@ -13,7 +13,6 @@ import {
 
 export function useConversationTickets(params: ConversationTicketsParams) {
   return useInfiniteQuery({
-    refetchOnWindowFocus: false,
     enabled: !!params?.app_id,
     queryKey: [...queryKeys.inboxKeys.conversationList, params],
     initialPageParam: 1,
@@ -41,7 +40,6 @@ interface HistoryCursor {
 
 export function useConversationHistory(conversationId: string) {
   return useInfiniteQuery({
-    staleTime: 1000 * 60,
     refetchOnWindowFocus: false,
     enabled: !!conversationId,
     queryKey: [...queryKeys.inboxKeys.conversationHistory(conversationId)],
