@@ -10,6 +10,8 @@ import type {
   CustomerUpdate,
   ExportRequest,
   InboxCustomerPayload,
+  UpdateAppFieldAction,
+  UpdateAppFieldPayload,
 } from "./crm.types";
 
 export class CrmService extends BaseAPIService {
@@ -71,6 +73,17 @@ export class CrmService extends BaseAPIService {
 
   appFields = (app_id: string) => {
     return this.get<APPField>(API_ENDPOINTS.CRM.APP_FIELDS(app_id));
+  };
+
+  updateAppFields = (
+    app_id: string,
+    action: UpdateAppFieldAction,
+    payload: UpdateAppFieldPayload,
+  ) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("action", action);
+    const endpoint = `${API_ENDPOINTS.CRM.APP_FIELDS(app_id)}?${queryParams.toString()}`;
+    return this.put(endpoint, payload);
   };
 }
 

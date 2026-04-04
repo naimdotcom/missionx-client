@@ -1,8 +1,8 @@
 "use client";
 
+import { type Row, type Table } from "@tanstack/react-table";
+import { X } from "lucide-react";
 import * as React from "react";
-import { type Table, type Row } from "@tanstack/react-table";
-import { X, Columns2 } from "lucide-react";
 
 import { ActionBar } from "@/components/ui/action-bar";
 import { Button } from "@/components/ui/button";
@@ -12,14 +12,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 // Shape for each injected action button
 export interface ActionBarAction<TData> {
@@ -56,7 +48,7 @@ export function DataTableActionBar<TData>({
     (open: boolean) => {
       if (!open) table.toggleAllRowsSelected(false);
     },
-    [table]
+    [table],
   );
 
   // Determine which columns to show in the dropdown
@@ -76,41 +68,6 @@ export function DataTableActionBar<TData>({
       </span>
 
       <Separator orientation="vertical" className="h-5" />
-
-      {/* Built-in: Select Columns dropdown — shows selected rows' data per column */}
-      <DropdownMenu>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-7 gap-1.5 px-2 text-xs">
-                <Columns2 className="size-3.5" />
-                Columns
-              </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent>View data by column for selected rows</TooltipContent>
-        </Tooltip>
-
-        <DropdownMenuContent align="center" className="max-h-72 overflow-y-auto w-56">
-          {displayColumns.map((col) => (
-            <React.Fragment key={col.id}>
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal py-1">
-                {/* Use column header string if available, else fall back to id */}
-                {typeof col.columnDef.header === "string"
-                  ? col.columnDef.header
-                  : (col.columnDef.meta as any)?.label ?? col.id}
-              </DropdownMenuLabel>
-              {rows.map((row) => (
-                <DropdownMenuItem key={row.id} className="text-xs py-1">
-                  {/* Render the cell value for this column */}
-                  {String(row.getValue(col.id) ?? "—")}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-            </React.Fragment>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
 
       {/* Injected custom actions */}
       {actions.map((action) => (

@@ -26,7 +26,7 @@ const getInitials = (fullName: string) =>
     .toUpperCase()
     .slice(0, 2);
 
-export const selectColumn: DraggableColumnDef<Customer> = {
+const selectColumn: DraggableColumnDef<Customer> = {
   id: "select",
   header: ({ table }) => (
     <Checkbox
@@ -53,7 +53,7 @@ export const selectColumn: DraggableColumnDef<Customer> = {
   size: 48,
 };
 
-export const customerColumn: DraggableColumnDef<Customer> = {
+const customerColumn: DraggableColumnDef<Customer> = {
   id: "customer",
   header: ({ column }) => (
     <DataGridColumnHeader column={column} title="Customer" />
@@ -67,9 +67,8 @@ export const customerColumn: DraggableColumnDef<Customer> = {
   cell: ({ row }) => {
     const customer = row.original;
     const customerName =
-      customer.custom_metadata?.name || customer.username || "Unknown";
-    const profilePic =
-      customer.profile_pic_url || customer.custom_metadata?.profile_pic || "";
+      customer?.attributes?.customer?.customer_name || "Unknown";
+    const profilePic = customer?.attributes?.customer?.customer_profile_pic;
 
     return (
       <div className="flex items-center gap-3">

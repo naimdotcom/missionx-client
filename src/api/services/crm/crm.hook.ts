@@ -8,6 +8,8 @@ import type {
   CustomerUpdate,
   ExportRequest,
   InboxCustomerPayload,
+  UpdateAppFieldAction,
+  UpdateAppFieldPayload,
 } from "./crm.types";
 
 /**
@@ -170,5 +172,20 @@ export const useAppFields = (app_id: string) => {
     enabled: !!app_id,
     queryFn: () => crmService.appFields(app_id),
     queryKey: [queryKeys.crmKeys.appFields(app_id)],
+  });
+};
+
+export const useUpdateAppField = () => {
+  return useMutation({
+    mutationFn: (payload: {
+      app_id: string;
+      action: UpdateAppFieldAction;
+      payload: UpdateAppFieldPayload;
+    }) =>
+      crmService.updateAppFields(
+        payload.app_id,
+        payload.action,
+        payload.payload,
+      ),
   });
 };

@@ -36,8 +36,11 @@ export type Customer = {
   locale: string | undefined;
   timezone: number | undefined;
   gender: string | undefined;
-  custom_metadata: { id?: string; name?: string; profile_pic?: string };
-  attributes: Record<string, unknown> | undefined;
+  custom_metadata?: { id?: string; name?: string; profile_pic?: string };
+  attributes?: {
+    customer?: { customer_name?: string; customer_profile_pic?: string };
+    channel: { channel_type?: string; channel_platform_name?: string };
+  };
   tags: string[] | undefined;
   source: string | undefined;
   notes: string | undefined;
@@ -213,3 +216,21 @@ export interface InboxCustomerPayload {
   page?: string;
   limit?: string;
 }
+
+export interface UpdateAppFieldPayload {
+  field: {
+    key: string;
+    name?: string;
+    type?: string;
+    width?: number;
+    source?: string;
+    visible?: boolean;
+    position?: number;
+    required?: boolean;
+  };
+  move_key?: string;
+  after_key?: string;
+  before_key?: string;
+}
+
+export type UpdateAppFieldAction = "add" | "update" | "delete" | "move";
