@@ -1,16 +1,18 @@
+import { APIErrorResponse } from "@/api/core/api.types";
 import { queryKeys } from "@/api/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
-  createApp,
-  listApps,
-  listMyApps,
-  listAppUsers,
-  getAppDetails,
-  updateApp,
-  deleteApp,
-  roleList,
   assignAppRole,
+  createApp,
+  deleteApp,
   deleteAppRole,
+  getAppDetails,
+  listApps,
+  listAppUsers,
+  listMyApps,
+  roleList,
+  updateApp,
   updateRole,
 } from "./apps.service";
 import {
@@ -37,8 +39,8 @@ export const useCreateApp = () => {
         queryKey: queryKeys.appsQueryKeys.listMyApps,
       });
     },
-    onError: (error) => {
-      console.error("Error creating app:", error);
+    onError: (error: APIErrorResponse) => {
+      toast.error(error?.detail || error?.message || "Failed to create app");
     },
   });
 };

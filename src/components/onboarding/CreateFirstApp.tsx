@@ -32,17 +32,12 @@ export function CreateFirstApp() {
         return;
       }
 
-      try {
-        const newApp = await createApp.mutateAsync(values.value);
-        toast.success("App created successfully! 🎉");
+      const newApp = await createApp.mutateAsync(values.value);
+      toast.success("App created successfully! 🎉");
 
-        // Set as selected app automatically
-        if (newApp) {
-          setSelectedApp(newApp);
-        }
-      } catch (error) {
-        toast.error("Failed to create app");
-        console.error(error);
+      // Set as selected app automatically
+      if (newApp) {
+        setSelectedApp(newApp);
       }
     },
   });

@@ -103,15 +103,10 @@ function AddAppButton() {
       short_id: "",
     },
     onSubmit: async (values) => {
-      try {
-        await createApp.mutateAsync(values.value);
-        toast.success("App created successfully");
-        setCreateOpen(false);
-        form.reset();
-      } catch (error) {
-        toast.error("Failed to create app");
-        console.error(error);
-      }
+      await createApp.mutateAsync(values.value);
+      toast.success("App created successfully");
+      setCreateOpen(false);
+      form.reset();
     },
   });
 

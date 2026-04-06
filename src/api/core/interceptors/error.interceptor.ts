@@ -97,8 +97,8 @@
 import axios from "axios";
 
 /**
- * Error response interceptor - logs errors and returns the raw AxiosError
- * This gives consumers full flexibility to handle status codes and data.
+ * Error response interceptor - returns the actual API error response object
+ * This gives consumers direct access to the server's error response.
  */
 export const errorInterceptor = (error: unknown): Promise<never> => {
   if (!axios.isAxiosError(error)) {
@@ -118,5 +118,17 @@ export const errorInterceptor = (error: unknown): Promise<never> => {
     },
   );
 
-  return Promise.reject(error);
+  // Return the actual API error response object if available
+  if (response?.data) {
+    return Promise.reject(response.data);
+  }
+
+  // Fallback to network error object if no response data
+  return Promise.reject({
+    status: response?.status ?? 0,
+    message: error.message,
+    detail: response?.status
+      ? `HTTP ${response.status} error`
+      : "Network error",
+  });
 };

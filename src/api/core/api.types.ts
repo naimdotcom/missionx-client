@@ -87,3 +87,15 @@ export interface SortParams {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type QueryParams = Record<string, any>;
+
+/**
+ * Type for API error responses returned from the API
+ * This represents the actual error object returned by the server
+ */
+export interface APIErrorResponse {
+  detail?: string;
+  message?: string;
+  error?: string;
+  code?: string;
+  [key: string]: unknown;
+}
