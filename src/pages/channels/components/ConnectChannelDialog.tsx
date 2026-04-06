@@ -22,7 +22,6 @@ import { cn } from "@/lib/utils";
 import { ExternalLink, LinkIcon, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { useFacebookSdk } from "../../../hooks/useFacebookSdk";
 import { ChannelIcon } from "./ChannelIcons";
 
 interface ConnectChannelDialogProps {
@@ -60,7 +59,6 @@ export function ConnectChannelDialog(props: ConnectChannelDialogProps) {
 }
 
 function DialogChannelContent(props: ConnectChannelDialogProps) {
-  useFacebookSdk();
   const chanelLoginMutation = useChannelConnect();
   const channelsQuery = useChannelsList({ platform: props.type });
   const channels =
@@ -301,7 +299,7 @@ function AccountRow({ channel, appId, refetchChannels }: AccountRowProps) {
         >
           {unSubscribeMutation.isPending && <Spinner className="size-3" />}
           {!unSubscribeMutation.isPending && <Trash2 className="size-3" />}
-          {unSubscribeMutation.isPending ? "Unsubscribing..." : "Unsubscribe"}
+          {unSubscribeMutation.isPending ? "Disconnecting..." : "Disconnect"}
         </Button>
       )}
     </div>

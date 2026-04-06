@@ -52,7 +52,7 @@ function NavHeader() {
               size="lg"
               className="w-full h-10 shadow-xs rounded-xl gap-2 bg-background border"
             >
-              <div className="bg-border ml-[3px] flex aspect-square size-6 items-center justify-center rounded-lg">
+              <div className="bg-border ml-0.75 flex aspect-square size-6 items-center justify-center rounded-lg">
                 <Globe2 className="size-4" />
               </div>
               <span className="flex-1 text-left truncate text-foreground/80">

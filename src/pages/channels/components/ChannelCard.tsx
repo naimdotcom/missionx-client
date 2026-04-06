@@ -1,19 +1,19 @@
-import type { Channel } from "@/api/services/channels";
+import { useChannelConnect, type Channel } from "@/api/services/channels";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, RefreshCw, XCircle } from "lucide-react";
-import { useState } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
-import { DeleteUrlChannelBtn } from "./DeleteDialog";
 
 interface ChannelCardProps {
   channel: Channel;
+  refetchChannels?: () => void;
 }
 
-export function ChannelCard({ channel }: ChannelCardProps) {
-  const [syncing, setSyncing] = useState(false);
+export function ChannelCard({ channel, refetchChannels }: ChannelCardProps) {
+  const chanelLoginMutation = useChannelConnect();
 
   const platform = channel.platform ?? "facebook";
   const isFacebook = platform === "facebook";
@@ -21,11 +21,40 @@ export function ChannelCard({ channel }: ChannelCardProps) {
   const username = channel.instagram_username;
   const isActive = channel.is_subscribed;
 
-  const handleSync = async () => {
-    setSyncing(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setSyncing(false);
-    toast.success(`${name} synced successfully`);
+  const scopes = useMemo(() => {
+    if (channel.platform === "facebook") {
+      return "pages_show_list,pages_messaging";
+    }
+    if (channel.platform === "instagram") {
+      return "instagram_basic,instagram_manage_messages";
+    }
+  }, [channel.platform]);
+
+  const handleSync = () => {
+    if (!window.FB) {
+      toast.error("Facebook SDK is still loading. Please try again.");
+      return;
+    }
+    // This automatically opens the Facebook-managed popup!
+    window.FB.login(
+      (response) => {
+        if (response.authResponse) {
+          const accessToken = response.authResponse.accessToken;
+          chanelLoginMutation.mutate(
+            { platform: channel.platform, access_token: accessToken },
+            {
+              onSuccess: () => {
+                refetchChannels?.();
+                toast.success("Channel synced successfully!");
+              },
+            },
+          );
+        } else {
+          console.log("User cancelled login or did not fully authorize.");
+        }
+      },
+      { scope: scopes || "" },
+    );
   };
 
   return (
@@ -81,13 +110,16 @@ export function ChannelCard({ channel }: ChannelCardProps) {
           variant="ghost"
           size="icon"
           className="size-7"
-          disabled={syncing}
           onClick={handleSync}
           title="Sync channel"
         >
-          <RefreshCw className={cn("size-3.5", syncing && "animate-spin")} />
+          <RefreshCw
+            className={cn(
+              "size-3.5",
+              chanelLoginMutation.isPending && "animate-spin",
+            )}
+          />
         </Button>
-        <DeleteUrlChannelBtn channel={channel} />
       </div>
     </div>
   );

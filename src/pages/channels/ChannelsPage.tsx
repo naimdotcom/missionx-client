@@ -7,8 +7,10 @@ import { ChannelCard } from "./components/ChannelCard";
 import ChannelHead from "./components/ChannelHead";
 import { ChannelIcon } from "./components/ChannelIcons";
 import { ConnectChannelDialog } from "./components/ConnectChannelDialog";
+import { useFacebookSdk } from "@/hooks/useFacebookSdk";
 
 export default function ChannelsPage() {
+  useFacebookSdk();
   return (
     <div className="grid h-full grid-rows-[auto_1fr] overflow-hidden">
       {/* Header */}
@@ -104,7 +106,11 @@ function ChannelSection(props: ChannelSectionProps) {
       {hasChannels && (
         <div className="space-y-2">
           {channels.map((channel) => (
-            <ChannelCard key={channel.channel_id} channel={channel} />
+            <ChannelCard
+              channel={channel}
+              key={channel.channel_id}
+              refetchChannels={channelsQuery.refetch}
+            />
           ))}
 
           {/* Load more */}

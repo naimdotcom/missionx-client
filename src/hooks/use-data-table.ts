@@ -42,6 +42,7 @@ interface UseDataTableProps<TData>
   initialState?: Omit<Partial<TableState>, "sorting"> & {
     sorting?: ExtendedColumnSort<TData>[];
   };
+  state?: Partial<TableState>;
   debounceMs?: number;
   throttleMs?: number;
   enableAdvancedFilter?: boolean;
@@ -55,6 +56,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     columns,
     pageCount = -1,
     initialState,
+    state,
     debounceMs = DEBOUNCE_MS,
     throttleMs = THROTTLE_MS,
     enableAdvancedFilter = false,
@@ -213,6 +215,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       rowSelection,
       columnFilters,
       columnOrder,
+      ...state,
       ...tableProps,
     },
     defaultColumn: {

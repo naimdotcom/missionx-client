@@ -25,6 +25,9 @@ export const useCreateApp = () => {
         queryKey: queryKeys.appsQueryKeys.listMyApps,
       });
     },
+    onError: (error) => {
+      console.error("Error creating app:", error);
+    },
   });
 };
 

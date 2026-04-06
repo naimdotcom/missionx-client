@@ -88,6 +88,44 @@ export default function CrmPage() {
     [customersQuery],
   );
 
+  const [localColumnSizing, setLocalColumnSizing] = useState<
+    Record<string, number>
+  >({});
+
+  const defaultSizing = useMemo(() => {
+    const sizing: Record<string, number> = {};
+    customersQuery.data?.app_fields.fields?.forEach((field) => {
+      const key = field.key || field.name || "";
+      if (key && field.width) {
+        sizing[key] = field.width;
+      }
+    });
+    return sizing;
+  }, [customersQuery.data?.app_fields.fields]);
+
+  const columnSizing = useMemo(
+    () => ({
+      ...defaultSizing,
+      ...localColumnSizing,
+    }),
+    [defaultSizing, localColumnSizing],
+  );
+
+  const debouncedResizeUpdate = useDebouncedCallback(
+    (key: string, width: number) => {
+      if (!key || !selectedApp?.id) return;
+      updateAppFieldMutate.mutate(
+        {
+          action: "update",
+          app_id: selectedApp.id,
+          payload: { field: { key, width: Math.round(width) } },
+        },
+        { onSuccess: () => customersQuery.refetch() },
+      );
+    },
+    500,
+  );
+
   const { table } = useDataTable({
     columns: [...fixedCrmColumns, ...dynamicColumns],
     data: customersQuery?.data?.customers ?? [],
@@ -97,6 +135,7 @@ export default function CrmPage() {
       pagination: { pageIndex: params.page - 1, pageSize: params.perPage },
       columnOrder,
     },
+    state: { columnSizing },
     columnResizeMode: "onChange",
     onColumnOrderChange: (updater) => {
       const nextOrder = resolveUpdater(updater, columnOrder);
@@ -104,19 +143,12 @@ export default function CrmPage() {
     },
     onColumnSizingChange: (update) => {
       const columnSize =
-        typeof update === "function"
-          ? update(table.getState().columnSizing)
-          : update;
+        typeof update === "function" ? update(columnSizing) : update;
+      setLocalColumnSizing(columnSize);
+
       const columnId = table.getState().columnSizingInfo?.isResizingColumn;
-      if (columnId) {
-        updateAppFieldMutate.mutate(
-          {
-            action: "update",
-            app_id: selectedApp?.id || "",
-            payload: { field: { key: columnId, width: columnSize[columnId] } },
-          },
-          { onSuccess: () => customersQuery.refetch() },
-        );
+      if (typeof columnId === "string" && columnSize[columnId]) {
+        debouncedResizeUpdate(columnId, columnSize[columnId]);
       }
     },
   });

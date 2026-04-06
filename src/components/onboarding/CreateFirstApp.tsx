@@ -25,11 +25,7 @@ export function CreateFirstApp() {
   const setSelectedApp = useAuthStore((state) => state.setSelectedApp);
 
   const form = useForm({
-    defaultValues: {
-      name: "",
-      description: "",
-      short_id: "",
-    },
+    defaultValues: { name: "", description: "", short_id: "" },
     onSubmit: async (values) => {
       if (!values.value.name?.trim()) {
         toast.error("App name is required");
