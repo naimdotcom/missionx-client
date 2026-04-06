@@ -218,7 +218,7 @@ export interface InboxCustomerPayload {
 }
 
 export interface UpdateAppFieldPayload {
-  field: {
+  field?: {
     key: string;
     name?: string;
     type?: string;

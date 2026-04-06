@@ -12,7 +12,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Download, Plus, Search } from "lucide-react";
-import { parseAsJson, useQueryState, useQueryStates } from "nuqs";
+import { useQueryStates } from "nuqs";
 import { useMemo, useState } from "react";
 import {
   DataGrid,
@@ -26,7 +26,6 @@ import {
   buildApiParams,
   CrmQueryState,
   QUERY_STATE_PARSERS,
-  resolveUpdater,
   SEARCH_DEBOUNCE_MS,
   type CrmFilter,
 } from "./const";
@@ -60,10 +59,10 @@ export default function CrmPage() {
   // nuqs search params management
   const [params, setParams] = useQueryStates(QUERY_STATE_PARSERS);
 
-  const [columnOrder, setColumnOrder] = useQueryState(
-    "order",
-    parseAsJson<string[]>((val) => val as string[]).withDefault([]),
-  );
+  // const [columnOrder, setColumnOrder] = useQueryState(
+  //   "order",
+  //   parseAsJson<string[]>((val) => val as string[]).withDefault([]),
+  // );
 
   const debouncedSetSearchQuery = useDebouncedCallback((value: string) => {
     void setParams({ q: value || null, page: 1 });
@@ -133,14 +132,13 @@ export default function CrmPage() {
     manualSorting: false,
     initialState: {
       pagination: { pageIndex: params.page - 1, pageSize: params.perPage },
-      columnOrder,
     },
     state: { columnSizing },
     columnResizeMode: "onChange",
-    onColumnOrderChange: (updater) => {
-      const nextOrder = resolveUpdater(updater, columnOrder);
-      setColumnOrder(nextOrder);
-    },
+    // onColumnOrderChange: (updater) => {
+    //   const nextOrder = resolveUpdater(updater, columnOrder);
+    //   setColumnOrder(nextOrder);
+    // },
     onColumnSizingChange: (update) => {
       const columnSize =
         typeof update === "function" ? update(columnSizing) : update;
@@ -188,7 +186,21 @@ export default function CrmPage() {
       table.setColumnOrder(nextOrder);
 
       // Persist order in URL state.
-      setColumnOrder(nextOrder);
+
+      // Persist order to backend.
+      const movedKey = active.id as string;
+      const targetKey = over.id as string;
+      const isMovingLeft = newIndex < oldIndex;
+
+      updateAppFieldMutate.mutate({
+        action: "move",
+        app_id: selectedApp!.id,
+        payload: {
+          move_key: movedKey,
+          before_key: isMovingLeft ? targetKey : undefined,
+          after_key: isMovingLeft ? undefined : targetKey,
+        },
+      });
     }
   };
 
