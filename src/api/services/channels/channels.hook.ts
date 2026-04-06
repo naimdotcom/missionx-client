@@ -6,7 +6,14 @@ import {
 } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
-import { channelsService } from "./channels.service";
+import {
+  channelsList,
+  channelConnect,
+  channelSubscribe,
+  channelUnsubscribe,
+  appAllChannelDisconnect,
+  deleteChannel,
+} from "./channels.service";
 import type {
   AppChannelDisconnectParams,
   ChannelConnectPayload,
@@ -26,7 +33,7 @@ export const useChannelsList = (params?: Omit<ChannelsListParams, "page">) => {
     queryKey: [...queryKeys.channelsKeys.channelsList, params],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      channelsService.channelsList({
+      channelsList({
         ...params,
         page: pageParam,
         limit: CHANNELS_PAGE_SIZE,
@@ -52,8 +59,7 @@ export const useChannelConnect = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ChannelConnectPayload) =>
-      channelsService.channelConnect(payload),
+    mutationFn: (payload: ChannelConnectPayload) => channelConnect(payload),
     mutationKey: mutationKeys.channelsKeys.channelConnect,
     onSuccess: () => {
       // Invalidate channels list to refresh with new channel
@@ -71,8 +77,7 @@ export const useChannelConnect = () => {
  */
 export const useChannelSubscribe = () => {
   return useMutation({
-    mutationFn: (payload: ChannelSubscribePayload) =>
-      channelsService.channelSubscribe(payload),
+    mutationFn: (payload: ChannelSubscribePayload) => channelSubscribe(payload),
     mutationKey: mutationKeys.channelsKeys.channelSubscribeApp,
 
     onError: (error) => {
@@ -93,7 +98,7 @@ export const useChannelSubscribe = () => {
 export const useChannelUnsubscribe = () => {
   return useMutation({
     mutationFn: (payload: { channel_id: string }) =>
-      channelsService.channelUnsubscribe(payload),
+      channelUnsubscribe(payload),
     mutationKey: mutationKeys.channelsKeys.channelUnsubscribeApp,
 
     onError: (error) => {
@@ -116,7 +121,7 @@ export const useAllAppChannelDisconnect = () => {
 
   return useMutation({
     mutationFn: (params: AppChannelDisconnectParams) =>
-      channelsService.appAllChannelDisconnect(params),
+      appAllChannelDisconnect(params),
     mutationKey: mutationKeys.channelsKeys.channelDisconnect,
     onSuccess: () => {
       // Invalidate channels list after disconnection
@@ -136,8 +141,7 @@ export const useDeleteChannel = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (channel_id: string) =>
-      channelsService.deleteChannel(channel_id),
+    mutationFn: (channel_id: string) => deleteChannel(channel_id),
     mutationKey: mutationKeys.channelsKeys.channelDelete,
     onSuccess: () => {
       // Invalidate channels list after deletion

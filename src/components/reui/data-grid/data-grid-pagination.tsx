@@ -1,5 +1,3 @@
-"use client";
-
 import React, { ReactNode } from "react";
 import { useDataGrid } from "~/components/reui/data-grid/data-grid";
 

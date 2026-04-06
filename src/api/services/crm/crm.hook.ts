@@ -1,7 +1,19 @@
 import { mutationKeys, queryKeys } from "@/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { crmService } from "./crm.service";
+import {
+  getCustomers,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer,
+  inboxCustomer,
+  updateSegment,
+  deleteSegment,
+  getCustomerById,
+  exportCustomers,
+  appFields,
+  updateAppFields,
+} from "./crm.service";
 import type {
   CustomerCreate,
   CustomerListParams,
@@ -17,7 +29,7 @@ import type {
  */
 export const useCustomers = (params?: CustomerListParams) => {
   return useQuery({
-    queryFn: () => crmService.getCustomers(params),
+    queryFn: () => getCustomers(params),
     queryKey: [...queryKeys.crmKeys.customerList, params],
   });
 };
@@ -29,7 +41,7 @@ export const useCreateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CustomerCreate) => crmService.createCustomer(payload),
+    mutationFn: (payload: CustomerCreate) => createCustomer(payload),
     mutationKey: mutationKeys.crmKeys.createCustomer,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -51,7 +63,7 @@ export const useUpdateCustomer = () => {
 
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: CustomerUpdate }) =>
-      crmService.updateCustomer(id, payload),
+      updateCustomer(id, payload),
     mutationKey: mutationKeys.crmKeys.updateCustomer,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -72,7 +84,7 @@ export const useDeleteCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => crmService.deleteCustomer(id),
+    mutationFn: (id: string) => deleteCustomer(id),
     mutationKey: mutationKeys.crmKeys.deleteCustomer,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -89,7 +101,7 @@ export const useDeleteCustomer = () => {
 export const useInboxCustomer = (payload: InboxCustomerPayload) => {
   return useQuery({
     queryKey: ["inbox-customer", payload],
-    queryFn: () => crmService.inboxCustomer(payload),
+    queryFn: () => inboxCustomer(payload),
     enabled: !!payload.customer_id && !!payload.app_id,
   });
 };
@@ -104,7 +116,7 @@ export const useUpdateSegment = () => {
     }: {
       id: string;
       payload: import("./crm.types").SegmentUpdate;
-    }) => crmService.updateSegment(id, payload),
+    }) => updateSegment(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["segments"],
@@ -121,7 +133,7 @@ export const useDeleteSegment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => crmService.deleteSegment(id),
+    mutationFn: (id: string) => deleteSegment(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["segments"],
@@ -140,7 +152,7 @@ export const useCustomer = (id: string, app_id: string) => {
       if (!id) {
         throw new Error("Customer ID is required");
       } else {
-        return crmService.getCustomerById(id, app_id);
+        return getCustomerById(id, app_id);
       }
     },
     queryKey: [...queryKeys.crmKeys.customerList, id],
@@ -150,7 +162,7 @@ export const useCustomer = (id: string, app_id: string) => {
 
 export const useExportCustomers = () => {
   return useMutation({
-    mutationFn: (payload: ExportRequest) => crmService.exportCustomers(payload),
+    mutationFn: (payload: ExportRequest) => exportCustomers(payload),
     mutationKey: mutationKeys.crmKeys.exportCustomers,
     onSuccess: () => {
       // const url = window.URL.createObjectURL(new Blob([data]));
@@ -170,7 +182,7 @@ export const useExportCustomers = () => {
 export const useAppFields = (app_id: string) => {
   return useQuery({
     enabled: !!app_id,
-    queryFn: () => crmService.appFields(app_id),
+    queryFn: () => appFields(app_id),
     queryKey: [queryKeys.crmKeys.appFields(app_id)],
   });
 };
@@ -181,11 +193,6 @@ export const useUpdateAppField = () => {
       app_id: string;
       action: UpdateAppFieldAction;
       payload: UpdateAppFieldPayload;
-    }) =>
-      crmService.updateAppFields(
-        payload.app_id,
-        payload.action,
-        payload.payload,
-      ),
+    }) => updateAppFields(payload.app_id, payload.action, payload.payload),
   });
 };

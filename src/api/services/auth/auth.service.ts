@@ -1,8 +1,6 @@
 // Authentication service
 
-import { env } from "@/lib/env";
 import type { RequestOptions } from "../../core/api.types";
-import { BaseAPIService } from "../../core/base.service";
 import { API_ENDPOINTS } from "../../endpoints";
 import type {
   FacebookLoginResponse,
@@ -12,54 +10,65 @@ import type {
   RegisterRequest,
   VerifyToken,
 } from "./auth.types";
+import { authClient } from "@/api/core/init";
 
-export class AuthService extends BaseAPIService {
-  /**
-   * Login user with email and password
-   */
-  login = (credentials: LoginRequest, options?: RequestOptions) =>
-    this.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials, options);
+/**
+ * Login user with email and password
+ */
+export const login = (credentials: LoginRequest, options?: RequestOptions) =>
+  authClient.post<LoginResponse>(
+    API_ENDPOINTS.AUTH.LOGIN,
+    credentials,
+    options,
+  );
 
-  /**
-   * Register new user
-   */
-  register = (payload: RegisterRequest, options?: RequestOptions) =>
-    this.post(API_ENDPOINTS.AUTH.REGISTER, payload, options);
+/**
+ * Register new user
+ */
+export const register = (payload: RegisterRequest, options?: RequestOptions) =>
+  authClient.post(API_ENDPOINTS.AUTH.REGISTER, payload, options);
 
-  /**
-   * Logout current user
-   */
-  logout = (options?: RequestOptions) =>
-    this.post(API_ENDPOINTS.AUTH.LOGOUT, {}, options);
+/**
+ * Logout current user
+ */
+export const logout = (options?: RequestOptions) =>
+  authClient.post(API_ENDPOINTS.AUTH.LOGOUT, {}, options);
 
-  /**
-   * Refresh access token
-   */
-  refreshToken = (options?: RequestOptions) =>
-    this.post<RefreshTokenResponse>(
-      API_ENDPOINTS.AUTH.REFRESH,
-      undefined,
-      options,
-    );
+/**
+ * Refresh access token
+ */
+export const refreshToken = (options?: RequestOptions) =>
+  authClient.post<RefreshTokenResponse>(
+    API_ENDPOINTS.AUTH.REFRESH,
+    undefined,
+    options,
+  );
 
-  googleLogin = (
-    request: { firebase_token: string },
-    options?: RequestOptions,
-  ) =>
-    this.post<LoginResponse>(API_ENDPOINTS.AUTH.GOOGLE_LOGIN, request, options);
+export const googleLogin = (
+  request: { firebase_token: string },
+  options?: RequestOptions,
+) =>
+  authClient.post<LoginResponse>(
+    API_ENDPOINTS.AUTH.GOOGLE_LOGIN,
+    request,
+    options,
+  );
 
-  verifyToken = (options?: RequestOptions) => {
-    return this.get<VerifyToken>(API_ENDPOINTS.AUTH.VERIFY, undefined, options);
-  };
+export const verifyToken = (options?: RequestOptions) => {
+  return authClient.get<VerifyToken>(
+    API_ENDPOINTS.AUTH.VERIFY,
+    undefined,
+    options,
+  );
+};
 
-  facebookLogin = (access_token: string, options?: RequestOptions) => {
-    return this.post<FacebookLoginResponse>(
-      API_ENDPOINTS.AUTH.FACEBOOK_LOGIN,
-      { access_token },
-      options,
-    );
-  };
-}
-
-// Export singleton instance
-export const authService = new AuthService(env.authUrl || "");
+export const facebookLogin = (
+  access_token: string,
+  options?: RequestOptions,
+) => {
+  return authClient.post<FacebookLoginResponse>(
+    API_ENDPOINTS.AUTH.FACEBOOK_LOGIN,
+    { access_token },
+    options,
+  );
+};

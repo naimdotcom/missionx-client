@@ -1,5 +1,3 @@
-"use client";
-
 import { HTMLAttributes, memo, ReactNode, useMemo } from "react";
 import {
   getColumnHeaderLabel,

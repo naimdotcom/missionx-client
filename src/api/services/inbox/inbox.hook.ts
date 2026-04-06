@@ -4,7 +4,13 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { inboxService } from "./inbox.service";
+import {
+  conversationList,
+  conversationHistory,
+  updateConversationStatus,
+  sendMessage,
+  markAsRead,
+} from "./inbox.service";
 import {
   ConversationTicketsParams,
   ConversationTicketStatus,
@@ -17,7 +23,7 @@ export function useConversationTickets(params: ConversationTicketsParams) {
     queryKey: [...queryKeys.inboxKeys.conversationList, params],
     initialPageParam: 1,
     queryFn: async ({ pageParam }) => {
-      const response = await inboxService.conversationList({
+      const response = await conversationList({
         ...params,
         page: pageParam,
       });
@@ -45,7 +51,7 @@ export function useConversationHistory(conversationId: string) {
     queryKey: [...queryKeys.inboxKeys.conversationHistory(conversationId)],
     initialPageParam: undefined as HistoryCursor | undefined,
     queryFn: async ({ pageParam }) => {
-      const response = await inboxService.conversationHistory(conversationId, {
+      const response = await conversationHistory(conversationId, {
         limit: 20,
         ...(pageParam && {
           before_id: pageParam.before_id,
@@ -78,10 +84,7 @@ export function useUpdateConversationStatus() {
       conversationId: string;
       status: ConversationTicketStatus;
     }) => {
-      const response = await inboxService.updateConversationStatus(
-        conversationId,
-        status,
-      );
+      const response = await updateConversationStatus(conversationId, status);
       return response;
     },
     mutationKey: mutationKeys.inboxKeys.updateConversationStatus,
@@ -100,8 +103,7 @@ export function useSendMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: SendMessagePayload) =>
-      inboxService.sendMessage(payload),
+    mutationFn: (payload: SendMessagePayload) => sendMessage(payload),
     mutationKey: mutationKeys.inboxKeys.sendMessage,
     onSuccess: (data) => {
       if (data?.conversation_id) {
@@ -119,8 +121,7 @@ export function useMarkAsRead() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (conversationId: string) =>
-      inboxService.markAsRead(conversationId),
+    mutationFn: (conversationId: string) => markAsRead(conversationId),
     mutationKey: mutationKeys.inboxKeys.markAsRead,
     onSuccess: () => {
       // Refresh conversation list so unread counts update

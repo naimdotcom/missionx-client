@@ -1,5 +1,3 @@
-"use client";
-
 import { flexRender, HeaderGroup, Row, Table } from "@tanstack/react-table";
 import {
   useVirtualizer,

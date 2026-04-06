@@ -1,6 +1,4 @@
 import { API_ENDPOINTS } from "@/api";
-import { BaseAPIService } from "@/api/core/base.service";
-import { env } from "@/lib/env";
 import type {
   AppChannelDisconnectParams,
   ChannelConnectPayload,
@@ -9,41 +7,42 @@ import type {
   ChannelSubscribePayload,
   ChannelSubscribeResponse,
 } from "./channels.types";
+import { channelClient } from "@/api/core/init";
 
-export class ChannelsService extends BaseAPIService {
-  constructor(baseURL: string) {
-    super(baseURL);
-  }
+export const channelConnect = (payload: ChannelConnectPayload) => {
+  return channelClient.post(API_ENDPOINTS.CHANNELS.CHANNEL_CONNECT, payload);
+};
 
-  channelConnect = (payload: ChannelConnectPayload) => {
-    return this.post(API_ENDPOINTS.CHANNELS.CHANNEL_CONNECT, payload);
-  };
+export const channelsList = (params?: ChannelsListParams) => {
+  return channelClient.get<ChannelsListResponse>(
+    API_ENDPOINTS.CHANNELS.CHANNELS_LIST,
+    params,
+  );
+};
 
-  channelsList = (params?: ChannelsListParams) => {
-    return this.get<ChannelsListResponse>(
-      API_ENDPOINTS.CHANNELS.CHANNELS_LIST,
-      params,
-    );
-  };
+export const channelSubscribe = (payload: ChannelSubscribePayload) => {
+  return channelClient.post<ChannelSubscribeResponse>(
+    API_ENDPOINTS.CHANNELS.SUBSCRIBE_CHANNEL,
+    payload,
+  );
+};
 
-  channelSubscribe = (payload: ChannelSubscribePayload) => {
-    return this.post<ChannelSubscribeResponse>(
-      API_ENDPOINTS.CHANNELS.SUBSCRIBE_CHANNEL,
-      payload,
-    );
-  };
+export const channelUnsubscribe = (payload: { channel_id: string }) => {
+  return channelClient.post(
+    API_ENDPOINTS.CHANNELS.UNSUBSCRIBE_CHANNEL,
+    payload,
+  );
+};
 
-  channelUnsubscribe = (payload: { channel_id: string }) => {
-    return this.post(API_ENDPOINTS.CHANNELS.UNSUBSCRIBE_CHANNEL, payload);
-  };
+export const appAllChannelDisconnect = (params: AppChannelDisconnectParams) => {
+  return channelClient.delete(
+    API_ENDPOINTS.CHANNELS.APP_CHANNEL_DISCONNECT,
+    params,
+  );
+};
 
-  appAllChannelDisconnect = (params: AppChannelDisconnectParams) => {
-    return this.delete(API_ENDPOINTS.CHANNELS.APP_CHANNEL_DISCONNECT, params);
-  };
-
-  deleteChannel = (channel_id: string) => {
-    return this.delete(API_ENDPOINTS.CHANNELS.DELETE_CHANNEL(channel_id));
-  };
-}
-
-export const channelsService = new ChannelsService(env.channelUrl || "");
+export const deleteChannel = (channel_id: string) => {
+  return channelClient.delete(
+    API_ENDPOINTS.CHANNELS.DELETE_CHANNEL(channel_id),
+  );
+};

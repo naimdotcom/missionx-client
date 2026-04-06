@@ -1,6 +1,18 @@
 import { queryKeys } from "@/api/query-keys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { appsService } from "./apps.service";
+import {
+  createApp,
+  listApps,
+  listMyApps,
+  listAppUsers,
+  getAppDetails,
+  updateApp,
+  deleteApp,
+  roleList,
+  assignAppRole,
+  deleteAppRole,
+  updateRole,
+} from "./apps.service";
 import {
   AppParams,
   CreateAppPayload,
@@ -15,7 +27,7 @@ export const useCreateApp = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CreateAppPayload) => appsService.createApp(payload),
+    mutationFn: (payload: CreateAppPayload) => createApp(payload),
     onSuccess: () => {
       // Invalidate both all apps and my apps lists
       queryClient.invalidateQueries({
@@ -36,7 +48,7 @@ export const useCreateApp = () => {
  */
 export const useListApps = (params: AppParams) => {
   return useQuery({
-    queryFn: () => appsService.listApps(params),
+    queryFn: () => listApps(params),
     queryKey: [...queryKeys.appsQueryKeys.listApps, params],
   });
 };
@@ -46,7 +58,7 @@ export const useListApps = (params: AppParams) => {
  */
 export const useListMyApps = (params: MyAppParams) => {
   return useQuery({
-    queryFn: () => appsService.listMyApps(params),
+    queryFn: () => listMyApps(params),
     queryKey: [...queryKeys.appsQueryKeys.listMyApps, params],
   });
 };
@@ -57,7 +69,7 @@ export const useListMyApps = (params: MyAppParams) => {
 export const useListAppUsers = (id: string, enabled = true) => {
   return useQuery({
     enabled: !!id && enabled,
-    queryFn: () => appsService.listAppUsers(id),
+    queryFn: () => listAppUsers(id),
     queryKey: queryKeys.appsQueryKeys.appUsers(id),
   });
 };
@@ -68,7 +80,7 @@ export const useListAppUsers = (id: string, enabled = true) => {
 export const useGetAppDetails = (id: string, enabled = true) => {
   return useQuery({
     enabled: !!id && enabled,
-    queryFn: () => appsService.getAppDetails(id),
+    queryFn: () => getAppDetails(id),
     queryKey: queryKeys.appsQueryKeys.appDetails(id),
   });
 };
@@ -81,7 +93,7 @@ export const useUpdateApp = () => {
 
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: CreateAppPayload }) =>
-      appsService.updateApp(id, payload),
+      updateApp(id, payload),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.appsQueryKeys.appDetails(id),
@@ -103,7 +115,7 @@ export const useDeleteApp = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => appsService.deleteApp(id),
+    mutationFn: (id: string) => deleteApp(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.appsQueryKeys.listApps,
@@ -121,7 +133,7 @@ export const useDeleteApp = () => {
 export const useRoleList = (params: MyAppParams) => {
   return useQuery({
     queryKey: [...queryKeys.appsQueryKeys.listRoles, params],
-    queryFn: () => appsService.roleList(params),
+    queryFn: () => roleList(params),
   });
 };
 
@@ -133,7 +145,7 @@ export const useAssignAppRole = () => {
 
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateRolePayload }) =>
-      appsService.assignAppRole(id, payload),
+      assignAppRole(id, payload),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.appsQueryKeys.appUsers(id),
@@ -150,7 +162,7 @@ export const useDeleteAppRole = () => {
 
   return useMutation({
     mutationFn: ({ id, email }: { id: string; email: string }) =>
-      appsService.deleteAppRole(id, email),
+      deleteAppRole(id, email),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.appsQueryKeys.appUsers(id),
@@ -167,7 +179,7 @@ export const useUpdateRole = () => {
 
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateRolePayload }) =>
-      appsService.updateRole(id, payload),
+      updateRole(id, payload),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.appsQueryKeys.appUsers(id),

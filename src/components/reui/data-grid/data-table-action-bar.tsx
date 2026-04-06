@@ -1,5 +1,3 @@
-"use client";
-
 import { type Row, type Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import * as React from "react";
@@ -40,7 +38,7 @@ interface DataTableActionBarProps<TData> {
 export function DataTableActionBar<TData>({
   table,
   actions = [],
-  columnKeys,
+  columnKeys: _columnKeys,
 }: DataTableActionBarProps<TData>) {
   const rows = table.getFilteredSelectedRowModel().rows;
 
@@ -50,15 +48,6 @@ export function DataTableActionBar<TData>({
     },
     [table],
   );
-
-  // Determine which columns to show in the dropdown
-  const visibleColumns = table
-    .getVisibleLeafColumns()
-    .filter((col) => col.id !== "select" && col.id !== "actions");
-
-  const displayColumns = columnKeys
-    ? visibleColumns.filter((col) => columnKeys.includes(col.id as keyof TData))
-    : visibleColumns;
 
   return (
     <ActionBar open={rows.length > 0} onOpenChange={onOpenChange}>
