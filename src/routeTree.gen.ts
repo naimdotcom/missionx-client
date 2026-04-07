@@ -17,8 +17,8 @@ import { Route as PrivateSettingsRouteImport } from './routes/_private/settings'
 import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
 import { Route as PrivateCrmRouteImport } from './routes/_private/crm'
 import { Route as PrivateChannelsRouteImport } from './routes/_private/channels'
-import { Route as PrivateSettingsSlugRouteImport } from './routes/_private/settings.$slug'
-import { Route as PrivateCrmCustomerIdRouteImport } from './routes/_private/crm.$customerId'
+import { Route as PrivateSettingsSlugRouteImport } from './routes/_private/settings/$slug'
+import { Route as PrivateCrmCustomerIdRouteImport } from './routes/_private/crm/$customerId'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',

@@ -1,4 +1,6 @@
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import { Outlet } from "@tanstack/react-router";
+// import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Toaster } from "../ui/sonner";
 
 function RootComponent() {
@@ -8,6 +10,7 @@ function RootComponent() {
       <Toaster />
       {/* <ScreenSizeIndicator /> */}
       {/* <TanStackRouterDevtools /> */}
+      <TanStackDevtools />
     </div>
   );
 }
