@@ -52,7 +52,7 @@ export type Customer = {
   updated_at: string | undefined;
   last_interaction_at: string | undefined;
   last_seen_at: string | undefined;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export type CustomerCreate = {
@@ -101,6 +101,7 @@ export type CustomerListParams = {
   page: number | undefined;
   limit: number | undefined;
   app_id: string | undefined;
+  segment_id?: string | undefined;
   q?: string | undefined;
   platform?: ChannelPlatform;
   platform_id?: string | undefined;
@@ -109,7 +110,22 @@ export type CustomerListParams = {
   phone?: string | undefined;
   is_active?: boolean | undefined;
   filters?: string | undefined;
+  filter_json?: JSONFilter | string;
 };
+
+export type SegmentFilter = {
+  field: string;
+  operator:
+    | "equals"
+    | "contains"
+    | "greater_than"
+    | "less_than"
+    | "is"
+    | "is_not";
+  value: string | number | boolean | string[] | number[] | boolean[] | null;
+};
+
+export type JSONFilter = { logic: "AND" | "OR"; rules: Array<SegmentFilter> };
 
 export type CustomerQueryParams = {
   page: number | undefined;
@@ -171,43 +187,41 @@ export type IdentifyCustomerRequest = {
 
 // Segments
 
-export type SegmentFilter = {
-  field: string;
-  operator:
-    | "equals"
-    | "contains"
-    | "greater_than"
-    | "less_than"
-    | "in"
-    | "not_in";
-  value: any;
-};
-
 export type SegmentResponse = {
   id: string;
   app_id: string;
   name: string;
   description: string | undefined;
-  filters: SegmentFilter[];
+  filters: JSONFilter | SegmentFilter[];
   is_active: boolean;
   created_at: string;
   updated_at: string;
 };
 
-export type SegmentCreate = {
-  name: string;
-  description?: string;
-  filters: SegmentFilter[];
-  is_active?: boolean;
+export type SegmentListResponse = {
+  data?: SegmentResponse[];
+  items?: SegmentResponse[];
+  results?: SegmentResponse[];
+  segments?: SegmentResponse[];
+  page?: number;
+  limit?: number;
+  total?: number;
+  total_pages?: number;
+  has_more?: boolean;
 };
 
-export type SegmentUpdate = Partial<SegmentCreate>;
+export type SegmentUpsert = {
+  app_id?: string;
+  name: string;
+  segment_id?: string;
+  description?: string;
+  filter_json: JSONFilter;
+};
 
 export type SegmentListParams = {
   page?: number;
+  app_id?: string;
   limit?: number;
-  q?: string;
-  is_active?: boolean;
 };
 
 export interface InboxCustomerPayload {

@@ -1,4 +1,8 @@
-import type { CustomerListParams } from "@/api/services/crm/crm.types";
+import type {
+  CustomerListParams,
+  JSONFilter,
+  SegmentFilter,
+} from "@/api/services/crm/crm.types";
 import { parseAsInteger, parseAsJson, parseAsString } from "nuqs";
 
 export type CrmFilterOption = {
@@ -15,7 +19,7 @@ export type CrmFilterFieldConfig = {
 };
 
 export type CrmFilter = {
-  id: string;
+  id?: string;
   field: string;
   operator: string;
   values: string[];
@@ -32,6 +36,7 @@ export type CrmQueryState = {
   page: number;
   perPage: number;
   q: string | null;
+  segment_id: string | null;
   filters: AdvancedFilterData | null;
 };
 
@@ -45,6 +50,7 @@ export const QUERY_STATE_PARSERS = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   q: parseAsString,
+  segment_id: parseAsString,
   filters: filtersParser,
 };
 
@@ -92,18 +98,62 @@ export const buildApiParams = (
   selectedAppId?: string,
 ): CustomerListParams => {
   const adv = params.filters;
-  let serializedFilters: string | undefined = undefined;
-
-  if (adv && adv.items && adv.items.length > 0) {
-    serializedFilters = JSON.stringify(adv);
-  }
+  const filterJson = adv ? toFilterJson(adv.items, adv.condition) : undefined;
 
   return {
     page: params.page,
     limit: params.perPage,
     q: params.q || undefined,
     app_id: selectedAppId,
-    filters: serializedFilters,
+    segment_id: params.segment_id || undefined,
+    filter_json: filterJson ? JSON.stringify(filterJson) : undefined,
+  };
+};
+
+const parseFilterValue = (
+  field: string,
+  values: string[],
+): SegmentFilter["value"] => {
+  if (values.length === 0) return null;
+
+  if (values.length === 1) {
+    const raw = values[0] ?? "";
+
+    if (field === "is_active") {
+      if (raw === "true") return true;
+      if (raw === "false") return false;
+    }
+
+    return raw;
+  }
+
+  return values;
+};
+
+export const mapCrmFiltersToSegmentFilters = (
+  filters: CrmFilter[],
+): SegmentFilter[] =>
+  filters
+    .filter((item) => item.field && item.values && item.values[0] !== "")
+    .map((item) => ({
+      field: item.field,
+      operator: item.operator as SegmentFilter["operator"],
+      value: parseFilterValue(item.field, item.values),
+    }));
+
+export const toFilterJson = (
+  filters: CrmFilter[],
+  mode: FilterMode,
+): JSONFilter | undefined => {
+  const rules = mapCrmFiltersToSegmentFilters(filters);
+
+  if (rules.length === 0) {
+    return undefined;
+  }
+
+  return {
+    logic: mode.toUpperCase() as "AND" | "OR",
+    rules,
   };
 };
 

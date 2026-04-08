@@ -14,12 +14,14 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ListFilter, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { SaveSegmentDialog } from "./SaveSegmentDialog";
 import {
   type CrmFilter,
   type CrmFilterOption,
   type FilterMode,
   FILTER_FIELDS,
+  toFilterJson,
 } from "../const";
 
 interface Props {
@@ -27,28 +29,60 @@ interface Props {
   filterMode: FilterMode;
   onApply: (filters: CrmFilter[], mode: FilterMode) => void;
   onClear: () => void;
+  selectedAppId?: string;
   applyOnChange?: boolean;
 }
 
 const fields = FILTER_FIELDS;
+
+const withInternalIds = (items: CrmFilter[]): CrmFilter[] =>
+  items.map((filter) => ({
+    ...filter,
+    id: filter.id || crypto.randomUUID(),
+  }));
+
+const sanitizeFilters = (items: CrmFilter[]): CrmFilter[] =>
+  items
+    .filter((item) => item.values && item.values[0] !== "")
+    .map((item) => {
+      const { id: _id, ...rest } = item;
+      return rest as CrmFilter;
+    });
 
 export function AdvancedFilters({
   filters,
   filterMode,
   onApply,
   onClear,
+  selectedAppId,
   applyOnChange = false,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
   // local state
-  const [localFilters, setLocalFilters] = useState<CrmFilter[]>(filters);
+  const [localFilters, setLocalFilters] = useState<CrmFilter[]>(
+    withInternalIds(filters),
+  );
   const [localMode, setLocalMode] = useState<FilterMode>(filterMode);
+
+  const validLocalFilters = useMemo(
+    () => sanitizeFilters(localFilters),
+    [localFilters],
+  );
+  const segmentFilterJson = useMemo(
+    () =>
+      toFilterJson(validLocalFilters, localMode) || {
+        logic: "AND" as const,
+        rules: [],
+      },
+    [validLocalFilters, localMode],
+  );
 
   const syncLocalState = () => {
     setLocalFilters(
       filters.length > 0
-        ? filters
+        ? withInternalIds(filters)
         : [
             {
               id: crypto.randomUUID(),
@@ -76,7 +110,8 @@ export function AdvancedFilters({
     ]);
   };
 
-  const handleRemove = (id: string) => {
+  const handleRemove = (id: string | undefined) => {
+    if (!id) return;
     setLocalFilters((prev) => prev.filter((f) => f.id !== id));
   };
 
@@ -88,13 +123,14 @@ export function AdvancedFilters({
       return;
     }
 
-    onApply(
-      nextFilters.filter((f) => f.values && f.values[0] !== ""),
-      nextMode,
-    );
+    onApply(sanitizeFilters(nextFilters), nextMode);
   };
 
-  const handleUpdate = (id: string, updates: Partial<CrmFilter>) => {
+  const handleUpdate = (
+    id: string | undefined,
+    updates: Partial<CrmFilter>,
+  ) => {
+    if (!id) return;
     setLocalFilters((prev) => {
       const nextFilters = prev.map((f) => {
         if (f.id === id) {
@@ -117,10 +153,7 @@ export function AdvancedFilters({
   };
 
   const handleApply = () => {
-    onApply(
-      localFilters.filter((f) => f.values && f.values[0] !== ""),
-      localMode,
-    );
+    onApply(sanitizeFilters(localFilters), localMode);
     setOpen(false);
   };
 
@@ -291,6 +324,14 @@ export function AdvancedFilters({
             </Button>
 
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsSaveDialogOpen(true)}
+                disabled={segmentFilterJson.rules.length === 0}
+              >
+                Save Filter
+              </Button>
               <Button variant="ghost" size="sm" onClick={handleReset}>
                 Reset
               </Button>
@@ -301,6 +342,13 @@ export function AdvancedFilters({
           </div>
         </div>
       </PopoverContent>
+
+      <SaveSegmentDialog
+        open={isSaveDialogOpen}
+        onOpenChange={setIsSaveDialogOpen}
+        selectedAppId={selectedAppId}
+        rules={segmentFilterJson}
+      />
     </Popover>
   );
 }

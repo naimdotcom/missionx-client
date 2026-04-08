@@ -31,6 +31,7 @@ export const queryKeys = {
     customerDetails: (id: string) => ["crm", "customer-details", id] as const,
     queryCustomers: ["crm", "query-customers"] as const,
     appFields: (app_id: string) => ["crm", "app-fields", app_id] as const,
+    segments: ["crm", "segments"] as const,
   },
 } as const;
 
