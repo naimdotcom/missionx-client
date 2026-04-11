@@ -1,5 +1,10 @@
 import { mutationKeys, queryKeys } from "@/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   getCustomers,
@@ -7,12 +12,13 @@ import {
   updateCustomer,
   deleteCustomer,
   inboxCustomer,
-  updateSegment,
   deleteSegment,
   getCustomerById,
   exportCustomers,
   appFields,
   updateAppFields,
+  listSegments,
+  upsertSegment,
 } from "./crm.service";
 import type {
   CustomerCreate,
@@ -20,15 +26,37 @@ import type {
   CustomerUpdate,
   ExportRequest,
   InboxCustomerPayload,
+  SegmentListParams,
+  SegmentResponse,
+  SegmentUpsert,
   UpdateAppFieldAction,
   UpdateAppFieldPayload,
 } from "./crm.types";
+
+const SEGMENTS_PAGE_SIZE = 12;
+
+const getSegmentItemsFromPage = (page: unknown): SegmentResponse[] => {
+  if (Array.isArray(page)) return page as SegmentResponse[];
+
+  if (!page || typeof page !== "object") {
+    return [];
+  }
+
+  const listData =
+    (page as Record<string, unknown>).data ??
+    (page as Record<string, unknown>).items ??
+    (page as Record<string, unknown>).results ??
+    (page as Record<string, unknown>).segments;
+
+  return Array.isArray(listData) ? (listData as SegmentResponse[]) : [];
+};
 
 /**
  * Hook to fetch customers list with optional filters
  */
 export const useCustomers = (params?: CustomerListParams) => {
   return useQuery({
+    staleTime: 0,
     queryFn: () => getCustomers(params),
     queryKey: [...queryKeys.crmKeys.customerList, params],
   });
@@ -106,28 +134,82 @@ export const useInboxCustomer = (payload: InboxCustomerPayload) => {
   });
 };
 
+export const useSegments = (params?: Omit<SegmentListParams, "page">) => {
+  return useInfiniteQuery({
+    staleTime: 0,
+    enabled: !!params?.app_id,
+    queryKey: [...queryKeys.crmKeys.segments, params],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      listSegments({
+        ...params,
+        page: pageParam,
+        limit: params?.limit ?? SEGMENTS_PAGE_SIZE,
+      }),
+    getNextPageParam: (lastPage, pages, lastPageParam) => {
+      if (
+        lastPage &&
+        typeof lastPage === "object" &&
+        !Array.isArray(lastPage)
+      ) {
+        const hasMore = Boolean((lastPage as Record<string, unknown>).has_more);
+        const currentPage = Number(
+          (lastPage as Record<string, unknown>).page ?? lastPageParam,
+        );
+        const totalPages = Number(
+          (lastPage as Record<string, unknown>).total_pages ?? 0,
+        );
+
+        if (hasMore) return currentPage + 1;
+        if (totalPages > 0 && currentPage < totalPages) return currentPage + 1;
+
+        const total = Number((lastPage as Record<string, unknown>).total ?? 0);
+        if (total > 0) {
+          const loadedCount = pages.reduce(
+            (acc, page) => acc + getSegmentItemsFromPage(page).length,
+            0,
+          );
+
+          if (loadedCount < total) {
+            return currentPage + 1;
+          }
+        }
+      }
+
+      const lastItems = getSegmentItemsFromPage(lastPage);
+      const pageSize = params?.limit ?? SEGMENTS_PAGE_SIZE;
+
+      return lastItems.length >= pageSize ? lastPageParam + 1 : undefined;
+    },
+  });
+};
+
 export const useUpdateSegment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: import("./crm.types").SegmentUpdate;
-    }) => updateSegment(id, payload),
+    mutationFn: (payload: {
+      action: "add" | "update" | "remove";
+      segment: SegmentUpsert;
+    }) => upsertSegment(payload.action, payload.segment),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["segments"],
-      });
-      toast.success("Segment updated successfully");
+      queryClient.invalidateQueries({ queryKey: queryKeys.crmKeys.segments });
     },
-    onError: () => {
-      toast.error("Failed to update segment");
+    onError: (error: unknown) => {
+      const details =
+        typeof error === "object" &&
+        error !== null &&
+        "details" in error &&
+        typeof (error as { details?: unknown }).details === "string"
+          ? (error as { details: string }).details
+          : "Failed to save segment";
+
+      toast.error(details);
     },
   });
 };
+
+export const useUpsertSegment = useUpdateSegment;
 
 export const useDeleteSegment = () => {
   const queryClient = useQueryClient();
@@ -136,7 +218,7 @@ export const useDeleteSegment = () => {
     mutationFn: (id: string) => deleteSegment(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["segments"],
+        queryKey: queryKeys.crmKeys.segments,
       });
       toast.success("Segment deleted successfully");
     },

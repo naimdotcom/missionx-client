@@ -22,6 +22,7 @@ import { DataGridPagination } from "~/components/reui/data-grid/data-grid-pagina
 import { DataGridTableDnd } from "~/components/reui/data-grid/data-grid-table-dnd";
 import { AdvancedFilters } from "./components/AdvancedFilters";
 import { CustomerModal } from "./components/CustomerModal";
+import { SegmentsList } from "./components/SegmentsList";
 import {
   buildApiParams,
   CrmQueryState,
@@ -206,7 +207,7 @@ export default function CrmPage() {
 
   return (
     <div className="grid h-full grid-rows-[auto_1fr] overflow-hidden">
-      <div className="flex flex-col gap-3 border-b bg-muted/40 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 border-b bg-muted/40 px-4 py-3 sm:px-6 sm:flex-row lg:items-center lg:justify-between">
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center md:flex-1">
           <div className="relative w-full sm:max-w-sm">
             <Search className="absolute left-2.5 top-1.5 h-4 w-4 text-muted-foreground" />
@@ -225,9 +226,11 @@ export default function CrmPage() {
           <AdvancedFilters
             filters={activeFiltersObj.items}
             filterMode={activeFiltersObj.condition}
+            selectedAppId={selectedApp?.id}
             onApply={(newFilters, mode) => {
               setParams({
                 filters: { condition: mode, items: newFilters as CrmFilter[] },
+                segment_id: null,
                 page: 1,
               });
             }}
@@ -240,31 +243,47 @@ export default function CrmPage() {
         </Button>
       </div>
 
-      <div className="flex flex-col overflow-hidden">
-        <DataGridContainer className="flex flex-1 flex-col overflow-hidden border-0 bg-background">
-          <DataGrid
-            table={table}
-            isLoading={customersQuery.isLoading || customersQuery.isRefetching}
-            loadingMode="skeleton"
-            recordCount={customersQuery.data?.customers.length || 0}
-            tableLayout={{
-              rowBorder: true,
-              stripped: false,
-              headerSticky: true,
-              columnsResizable: true,
-              columnsPinnable: true,
-              columnsDraggable: true,
-            }}
-          >
-            <div className="flex-1 overflow-auto">
-              <DataGridTableDnd handleDragEnd={handleDragEnd} />
-            </div>
-            <div className="border-t bg-background px-4 py-3">
-              <DataGridPagination />
-            </div>
-          </DataGrid>
-        </DataGridContainer>
-        <DataTableActionBar table={table} actions={crmActions} />
+      <div className="grid min-h-0 grid-cols-[300px_minmax(0,1fr)] overflow-hidden">
+        <SegmentsList
+          selectedAppId={selectedApp?.id}
+          activeSegmentId={params.segment_id || null}
+          onSelectSegment={(segmentId) => {
+            setParams({
+              segment_id: segmentId,
+              filters: null,
+              page: 1,
+            });
+          }}
+        />
+
+        <div className="flex min-w-0 flex-col overflow-hidden">
+          <DataGridContainer className="flex flex-1 flex-col overflow-hidden border-0 bg-background">
+            <DataGrid
+              table={table}
+              isLoading={
+                customersQuery.isLoading || customersQuery.isRefetching
+              }
+              loadingMode="skeleton"
+              recordCount={customersQuery.data?.customers.length || 0}
+              tableLayout={{
+                rowBorder: true,
+                stripped: false,
+                headerSticky: true,
+                columnsResizable: true,
+                columnsPinnable: true,
+                columnsDraggable: true,
+              }}
+            >
+              <div className="flex-1 overflow-auto">
+                <DataGridTableDnd handleDragEnd={handleDragEnd} />
+              </div>
+              <div className="border-t bg-background px-4 py-3">
+                <DataGridPagination />
+              </div>
+            </DataGrid>
+          </DataGridContainer>
+          <DataTableActionBar table={table} actions={crmActions} />
+        </div>
       </div>
 
       <CustomerModal open={isCreateOpen} onOpenChange={setIsCreateOpen} />

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(bunx *)",
-      "Bash(rm *)"
+      "Bash(rm *)",
+      "Bash(npx *)",
+      "Bash(mv *)"
     ]
   },
   "$version": 3
