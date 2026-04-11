@@ -133,7 +133,7 @@ export function SaveSegmentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Update Segment" : "Save Segment"}
@@ -236,7 +236,7 @@ export function SaveSegmentDialog({
             </Button>
           </div>
 
-          <div className="max-h-72 overflow-y-auto pr-1">
+          <div className="max-h-72 overflow-y-auto pr-1 pb-3">
             <SegmentRuleBuilder
               filters={localFilters}
               filterMode={localMode}
@@ -256,7 +256,8 @@ export function SaveSegmentDialog({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="destructive"
+              className="text-white"
               onClick={() => onOpenChange(false)}
               disabled={upsertSegment.isPending}
             >

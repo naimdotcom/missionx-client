@@ -13,6 +13,8 @@ import { Layers3, Loader2, PencilLine } from "lucide-react";
 import { useMemo, useState } from "react";
 import { SaveSegmentDialog } from "./SaveSegmentDialog";
 import { formatSegmentRulesPreview } from "../const";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/api/query-keys";
 
 const SEGMENTS_PAGE_SIZE = 12;
 
@@ -79,6 +81,7 @@ export function SegmentsList({
   activeSegmentId,
   onSelectSegment,
 }: SegmentsListProps) {
+  const queryClient = useQueryClient();
   const [editingSegment, setEditingSegment] = useState<SegmentResponse | null>(
     null,
   );
@@ -125,7 +128,7 @@ export function SegmentsList({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="space-y-2 p-3">
+        <div className="space-y-2 p-2">
           {segmentsQuery.isLoading && (
             <div className="space-y-2">
               {[...Array(5)].map((_, idx) => (
@@ -163,55 +166,50 @@ export function SegmentsList({
                 const rulesCount = getSegmentRules(segment).length;
 
                 return (
-                  <button
+                  <div
                     key={segment.id}
-                    type="button"
                     onClick={() =>
                       onSelectSegment(isActive ? null : segment.id)
                     }
                     className={cn(
-                      "w-full rounded-xl border bg-card px-3 py-3 text-left transition-colors hover:bg-muted/30",
-                      isActive && "border-primary/60 bg-primary/5",
+                      "w-full p-2 text-left rounded-lg hover:bg-muted cursor-pointer transition-colors group",
+                      isActive && "bg-primary/5",
                     )}
                   >
                     <div className="flex items-start gap-2">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="truncate text-sm font-medium">
-                            {segment.name}
-                          </p>
-                          <Badge variant="outline" className="text-[10px]">
-                            {rulesCount > 0
-                              ? formatSegmentRulesPreview(
-                                  getSegmentRules(segment),
-                                  getSegmentFilterJson(segment).logic as
-                                    | "AND"
-                                    | "OR",
-                                )
-                              : "0 rules"}
-                          </Badge>
-                        </div>
-
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {segment.description || "No description"}
+                        <p className="truncate text-sm font-medium">
+                          {segment.name}
                         </p>
+
+                        <Badge
+                          variant="secondary"
+                          className="text-[10px] text-muted-foreground"
+                        >
+                          {rulesCount > 0
+                            ? formatSegmentRulesPreview(
+                                getSegmentRules(segment),
+                                getSegmentFilterJson(segment).logic as
+                                  | "AND"
+                                  | "OR",
+                              )
+                            : "0 rules"}
+                        </Badge>
                       </div>
 
                       <Button
-                        type="button"
-                        variant="ghost"
                         size="icon"
-                        className="size-7 shrink-0"
+                        variant="ghost"
+                        className="group-hover:flex hidden"
                         onClick={(e) => {
                           e.stopPropagation();
                           setEditingSegment(segment);
                         }}
-                        title="Update segment"
                       >
-                        <PencilLine className="size-3.5" />
+                        <PencilLine className="size-3" />
                       </Button>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </InfiniteScroll>
@@ -235,6 +233,11 @@ export function SegmentsList({
         selectedAppId={selectedAppId}
         segment={editingSegment}
         rules={editingFilterJson}
+        onSaved={() =>
+          queryClient.invalidateQueries({
+            queryKey: queryKeys.crmKeys.customerList,
+          })
+        }
       />
     </aside>
   );

@@ -242,30 +242,24 @@ export default function CrmPage() {
             }}
             onClear={clearAllFilters}
           />
-        </div>
 
-        <div className="flex shrink-0 items-center justify-end gap-2 sm:w-auto">
           <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 text-muted-foreground"
+            size="sm"
+            variant="outline"
             onClick={() => setIsSegmentsCollapsed((prev) => !prev)}
-            title={
-              isSegmentsCollapsed
-                ? "Show segments panel"
-                : "Hide segments panel"
-            }
           >
             {isSegmentsCollapsed ? (
               <PanelLeft className="h-5 w-5" />
             ) : (
               <PanelLeftClose className="h-5 w-5" />
             )}
-          </Button>
-          <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-            <Plus className="size-4" /> Add Customer
+            Segments
           </Button>
         </div>
+
+        <Button size="sm" onClick={() => setIsCreateOpen(true)}>
+          <Plus className="size-4" /> Add Customer
+        </Button>
       </div>
 
       <div
