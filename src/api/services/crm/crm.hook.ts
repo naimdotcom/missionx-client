@@ -56,7 +56,7 @@ const getSegmentItemsFromPage = (page: unknown): SegmentResponse[] => {
  */
 export const useCustomers = (params?: CustomerListParams) => {
   return useQuery({
-    staleTime: 0,
+    enabled: !!params?.app_id,
     queryFn: () => getCustomers(params),
     queryKey: [...queryKeys.crmKeys.customerList, params],
   });
@@ -136,7 +136,6 @@ export const useInboxCustomer = (payload: InboxCustomerPayload) => {
 
 export const useSegments = (params?: Omit<SegmentListParams, "page">) => {
   return useInfiniteQuery({
-    staleTime: 0,
     enabled: !!params?.app_id,
     queryKey: [...queryKeys.crmKeys.segments, params],
     initialPageParam: 1,

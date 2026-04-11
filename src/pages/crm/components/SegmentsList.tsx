@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Layers3, Loader2, PencilLine } from "lucide-react";
 import { useMemo, useState } from "react";
 import { SaveSegmentDialog } from "./SaveSegmentDialog";
+import { formatSegmentRulesPreview } from "../const";
 
 const SEGMENTS_PAGE_SIZE = 12;
 
@@ -38,26 +39,39 @@ const getSegmentsFromPage = (page: unknown): SegmentResponse[] => {
 };
 
 const getSegmentRules = (segment: SegmentResponse): SegmentFilter[] => {
-  if (Array.isArray(segment.filters)) {
-    return segment.filters;
+  const data = segment.filters || (segment as any).filter_json;
+  if (typeof data === "string") {
+    try {
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed.rules)
+        ? parsed.rules
+        : Array.isArray(parsed)
+          ? parsed
+          : [];
+    } catch {
+      return [];
+    }
   }
-
-  const rules = segment.filters?.rules;
-  return Array.isArray(rules) ? rules : [];
+  if (Array.isArray(data)) return data;
+  return Array.isArray(data?.rules) ? data.rules : [];
 };
 
 const getSegmentFilterJson = (segment: SegmentResponse): JSONFilter => {
-  if (!Array.isArray(segment.filters)) {
+  let data = segment.filters || (segment as any).filter_json;
+  if (typeof data === "string") {
+    try {
+      data = JSON.parse(data);
+    } catch {
+      data = { logic: "AND", rules: [] };
+    }
+  }
+  if (!Array.isArray(data)) {
     return {
-      logic: segment.filters?.logic,
-      rules: Array.isArray(segment.filters?.rules) ? segment.filters.rules : [],
+      logic: data?.logic || "AND",
+      rules: Array.isArray(data?.rules) ? data.rules : [],
     };
   }
-
-  return {
-    logic: "AND",
-    rules: segment.filters,
-  };
+  return { logic: "AND", rules: data };
 };
 
 export function SegmentsList({
@@ -152,7 +166,9 @@ export function SegmentsList({
                   <button
                     key={segment.id}
                     type="button"
-                    onClick={() => onSelectSegment(segment.id)}
+                    onClick={() =>
+                      onSelectSegment(isActive ? null : segment.id)
+                    }
                     className={cn(
                       "w-full rounded-xl border bg-card px-3 py-3 text-left transition-colors hover:bg-muted/30",
                       isActive && "border-primary/60 bg-primary/5",
@@ -165,7 +181,14 @@ export function SegmentsList({
                             {segment.name}
                           </p>
                           <Badge variant="outline" className="text-[10px]">
-                            {rulesCount} rule{rulesCount === 1 ? "" : "s"}
+                            {rulesCount > 0
+                              ? formatSegmentRulesPreview(
+                                  getSegmentRules(segment),
+                                  getSegmentFilterJson(segment).logic as
+                                    | "AND"
+                                    | "OR",
+                                )
+                              : "0 rules"}
                           </Badge>
                         </div>
 

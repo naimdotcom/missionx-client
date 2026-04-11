@@ -11,7 +11,13 @@ import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { useAuthStore } from "@/stores/auth-store";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Download, Plus, Search } from "lucide-react";
+import {
+  Download,
+  Plus,
+  Search,
+  PanelLeft,
+  PanelLeftClose,
+} from "lucide-react";
 import { useQueryStates } from "nuqs";
 import { useMemo, useState } from "react";
 import {
@@ -55,6 +61,7 @@ const crmActions: ActionBarAction<Customer>[] = [
 
 export default function CrmPage() {
   const { selectedApp } = useAuthStore();
+  const [isSegmentsCollapsed, setIsSegmentsCollapsed] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // nuqs search params management
@@ -155,7 +162,7 @@ export default function CrmPage() {
   const activeFiltersObj = params.filters || { condition: "and", items: [] };
 
   const clearAllFilters = () => {
-    setParams({ page: 1, filters: null });
+    setParams({ page: 1, filters: null, segment_id: null });
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -230,7 +237,6 @@ export default function CrmPage() {
             onApply={(newFilters, mode) => {
               setParams({
                 filters: { condition: mode, items: newFilters as CrmFilter[] },
-                segment_id: null,
                 page: 1,
               });
             }}
@@ -238,23 +244,49 @@ export default function CrmPage() {
           />
         </div>
 
-        <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-          <Plus className="size-4" /> Add Customer
-        </Button>
+        <div className="flex shrink-0 items-center justify-end gap-2 sm:w-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 w-9 text-muted-foreground"
+            onClick={() => setIsSegmentsCollapsed((prev) => !prev)}
+            title={
+              isSegmentsCollapsed
+                ? "Show segments panel"
+                : "Hide segments panel"
+            }
+          >
+            {isSegmentsCollapsed ? (
+              <PanelLeft className="h-5 w-5" />
+            ) : (
+              <PanelLeftClose className="h-5 w-5" />
+            )}
+          </Button>
+          <Button size="sm" onClick={() => setIsCreateOpen(true)}>
+            <Plus className="size-4" /> Add Customer
+          </Button>
+        </div>
       </div>
 
-      <div className="grid min-h-0 grid-cols-[300px_minmax(0,1fr)] overflow-hidden">
-        <SegmentsList
-          selectedAppId={selectedApp?.id}
-          activeSegmentId={params.segment_id || null}
-          onSelectSegment={(segmentId) => {
-            setParams({
-              segment_id: segmentId,
-              filters: null,
-              page: 1,
-            });
-          }}
-        />
+      <div
+        className={`grid min-h-0 overflow-hidden transition-[grid-template-columns] duration-300 ease-in-out ${
+          isSegmentsCollapsed
+            ? "grid-cols-[0px_minmax(0,1fr)]"
+            : "grid-cols-[300px_minmax(0,1fr)]"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <SegmentsList
+            selectedAppId={selectedApp?.id}
+            activeSegmentId={params.segment_id || null}
+            onSelectSegment={(segmentId) => {
+              setParams({
+                segment_id: segmentId,
+                page: 1,
+              });
+            }}
+          />
+        </div>
 
         <div className="flex min-w-0 flex-col overflow-hidden">
           <DataGridContainer className="flex flex-1 flex-col overflow-hidden border-0 bg-background">

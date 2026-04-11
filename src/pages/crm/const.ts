@@ -141,6 +141,25 @@ export const mapCrmFiltersToSegmentFilters = (
       value: parseFilterValue(item.field, item.values),
     }));
 
+const serializeFilterValue = (value: SegmentFilter["value"]): string[] => {
+  if (value === null || value === undefined) return [];
+  if (Array.isArray(value)) return value.map(String);
+  return [String(value)];
+};
+
+export const mapSegmentFiltersToCrmFilters = (
+  filters: SegmentFilter[],
+): CrmFilter[] =>
+  (filters || []).map((item) => ({
+    id:
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).substring(2, 9),
+    field: item.field,
+    operator: item.operator === "equals" ? "is" : item.operator,
+    values: serializeFilterValue(item.value),
+  }));
+
 export const toFilterJson = (
   filters: CrmFilter[],
   mode: FilterMode,
@@ -155,6 +174,40 @@ export const toFilterJson = (
     logic: mode.toUpperCase() as "AND" | "OR",
     rules,
   };
+};
+
+export const formatSegmentRulesPreview = (
+  rules: SegmentFilter[],
+  logic: "AND" | "OR" = "AND",
+): string => {
+  if (!rules || rules.length === 0) {
+    return "0 rules";
+  }
+
+  const preview = rules
+    .slice(0, 2)
+    .map((rule) => {
+      const fieldConfig = FILTER_FIELDS.find((f) => f.key === rule.field);
+      const label = fieldConfig?.label || rule.field;
+
+      let displayValue = Array.isArray(rule.value)
+        ? rule.value.join(", ")
+        : String(rule.value ?? "");
+
+      if (fieldConfig?.options) {
+        const option = fieldConfig.options.find(
+          (opt) => String(opt.value) === String(rule.value),
+        );
+        if (option) {
+          displayValue = option.label;
+        }
+      }
+
+      return `${label} ${rule.operator.replace(/_/g, " ")} ${displayValue}`;
+    })
+    .join(` ${logic} `);
+
+  return rules.length > 2 ? `${preview} ...` : preview;
 };
 
 export const resolveUpdater = <T>(updater: T | ((prev: T) => T), prev: T): T =>

@@ -285,7 +285,7 @@ function AccountRow({ channel, appId, refetchChannels }: AccountRowProps) {
         >
           {subscribeMutation.isPending && <Spinner className="size-3" />}
           {!subscribeMutation.isPending && <LinkIcon className="size-3" />}
-          Subscribe
+          Connect
         </Button>
       )}
 

@@ -10,7 +10,6 @@ import type {
   ExportRequest,
   InboxCustomerPayload,
   SegmentListParams,
-  SegmentListResponse,
   SegmentResponse,
   SegmentUpsert,
   UpdateAppFieldAction,
@@ -78,7 +77,7 @@ export const listSegments = (params: SegmentListParams) => {
     ? `${API_ENDPOINTS.CRM.LIST_SEGMENT}?${query}`
     : API_ENDPOINTS.CRM.LIST_SEGMENT;
 
-  return client.get<SegmentListResponse | SegmentResponse[]>(endpoint);
+  return client.get<SegmentResponse[]>(endpoint);
 };
 
 export const deleteSegment = (id: string) => {

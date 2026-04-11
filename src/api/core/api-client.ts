@@ -12,7 +12,12 @@ import {
   loggingRequestInterceptor,
   loggingResponseInterceptor,
 } from "./interceptors/logging.interceptor";
-import type { APIResponse, PaginatedResponse, QueryParams, RequestOptions } from "./api.types";
+import type {
+  APIResponse,
+  PaginatedResponse,
+  QueryParams,
+  RequestOptions,
+} from "./api.types";
 
 export interface APIClientConfig {
   baseURL: string;
@@ -54,7 +59,10 @@ export class APIClient {
    */
   private setupInterceptors(): void {
     // Request interceptors
-    this.instance.interceptors.request.use(loggingRequestInterceptor, undefined);
+    this.instance.interceptors.request.use(
+      loggingRequestInterceptor,
+      undefined,
+    );
     this.instance.interceptors.request.use(authRequestInterceptor, undefined);
 
     // Response interceptors (executed in reverse order)
@@ -104,7 +112,10 @@ export class APIClient {
     options?: RequestOptions,
   ): Promise<T> {
     const queryString = this.buildQueryString(params);
-    const response = await this.instance.get<T>(`${endpoint}${queryString}`, this.buildConfig(options));
+    const response = await this.instance.get<T>(
+      `${endpoint}${queryString}`,
+      this.buildConfig(options),
+    );
     return response.data;
   }
 
