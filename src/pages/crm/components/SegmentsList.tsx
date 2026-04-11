@@ -131,7 +131,7 @@ export function SegmentsList({
         <div className="space-y-2 p-2">
           {segmentsQuery.isLoading && (
             <div className="space-y-2">
-              {[...Array(5)].map((_, idx) => (
+              {[...Array(10)].map((_, idx) => (
                 <Skeleton key={idx} className="h-16 rounded-xl" />
               ))}
             </div>

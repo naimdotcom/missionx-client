@@ -246,6 +246,7 @@ export default function CrmPage() {
           <Button
             size="sm"
             variant="outline"
+            className="hidden md:flex md:items-center"
             onClick={() => setIsSegmentsCollapsed((prev) => !prev)}
           >
             {isSegmentsCollapsed ? (
