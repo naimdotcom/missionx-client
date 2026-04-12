@@ -1,7 +1,7 @@
 import { useRefreshToken, useVerifyToken } from "@/api";
 import { useListMyApps } from "@/api/services/apps/apps.hook";
 import { useSoketi } from "@/api/services/soketi/use-soketi";
-import { useUserProfileFull } from "@/api/services/users/users.hooks";
+import { useUserProfileFull } from "@/api/services/user/user.hooks";
 import { AppSidebar } from "@/components/nav-menu/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { env } from "@/lib/env";

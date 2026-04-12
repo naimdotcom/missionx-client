@@ -18,8 +18,8 @@ export const API_ENDPOINTS = {
     SOKETI: "api/auth/soketi/auth",
   },
 
-  // Users
-  USERS: {
+  // User
+  USER: {
     UPDATE_PROFILE: "/api/v1/users/profile",
     FULL_PROFILE: "/api/v1/users/profile/me",
   },

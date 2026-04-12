@@ -6,20 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  getCustomers,
-  createCustomer,
-  updateCustomer,
-  deleteCustomer,
-  inboxCustomer,
-  deleteSegment,
-  getCustomerById,
-  exportCustomers,
-  appFields,
-  updateAppFields,
-  listSegments,
-  upsertSegment,
-} from "./crm.service";
+import { crmService } from "./crm.service";
 import type {
   CustomerCreate,
   CustomerListParams,
@@ -57,7 +44,7 @@ const getSegmentItemsFromPage = (page: unknown): SegmentResponse[] => {
 export const useCustomers = (params?: CustomerListParams) => {
   return useQuery({
     staleTime: 0,
-    queryFn: () => getCustomers(params),
+    queryFn: () => crmService.getCustomers(params),
     queryKey: [...queryKeys.crmKeys.customerList, params],
   });
 };
@@ -69,7 +56,7 @@ export const useCreateCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: CustomerCreate) => createCustomer(payload),
+    mutationFn: (payload: CustomerCreate) => crmService.createCustomer(payload),
     mutationKey: mutationKeys.crmKeys.createCustomer,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -91,7 +78,7 @@ export const useUpdateCustomer = () => {
 
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: CustomerUpdate }) =>
-      updateCustomer(id, payload),
+      crmService.updateCustomer(id, payload),
     mutationKey: mutationKeys.crmKeys.updateCustomer,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -112,7 +99,7 @@ export const useDeleteCustomer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteCustomer(id),
+    mutationFn: (id: string) => crmService.deleteCustomer(id),
     mutationKey: mutationKeys.crmKeys.deleteCustomer,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -129,7 +116,7 @@ export const useDeleteCustomer = () => {
 export const useInboxCustomer = (payload: InboxCustomerPayload) => {
   return useQuery({
     queryKey: ["inbox-customer", payload],
-    queryFn: () => inboxCustomer(payload),
+    queryFn: () => crmService.inboxCustomer(payload),
     enabled: !!payload.customer_id && !!payload.app_id,
   });
 };
@@ -141,7 +128,7 @@ export const useSegments = (params?: Omit<SegmentListParams, "page">) => {
     queryKey: [...queryKeys.crmKeys.segments, params],
     initialPageParam: 1,
     queryFn: ({ pageParam }) =>
-      listSegments({
+      crmService.listSegments({
         ...params,
         page: pageParam,
         limit: params?.limit ?? SEGMENTS_PAGE_SIZE,
@@ -191,7 +178,7 @@ export const useUpdateSegment = () => {
     mutationFn: (payload: {
       action: "add" | "update" | "remove";
       segment: SegmentUpsert;
-    }) => upsertSegment(payload.action, payload.segment),
+    }) => crmService.upsertSegment(payload.action, payload.segment),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.crmKeys.segments });
     },
@@ -215,7 +202,7 @@ export const useDeleteSegment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteSegment(id),
+    mutationFn: (id: string) => crmService.deleteSegment(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.crmKeys.segments,
@@ -234,7 +221,7 @@ export const useCustomer = (id: string, app_id: string) => {
       if (!id) {
         throw new Error("Customer ID is required");
       } else {
-        return getCustomerById(id, app_id);
+        return crmService.getCustomerById(id, app_id);
       }
     },
     queryKey: [...queryKeys.crmKeys.customerList, id],
@@ -244,7 +231,7 @@ export const useCustomer = (id: string, app_id: string) => {
 
 export const useExportCustomers = () => {
   return useMutation({
-    mutationFn: (payload: ExportRequest) => exportCustomers(payload),
+    mutationFn: (payload: ExportRequest) => crmService.exportCustomers(payload),
     mutationKey: mutationKeys.crmKeys.exportCustomers,
     onSuccess: () => {
       // const url = window.URL.createObjectURL(new Blob([data]));
@@ -264,7 +251,7 @@ export const useExportCustomers = () => {
 export const useAppFields = (app_id: string) => {
   return useQuery({
     enabled: !!app_id,
-    queryFn: () => appFields(app_id),
+    queryFn: () => crmService.appFields(app_id),
     queryKey: [queryKeys.crmKeys.appFields(app_id)],
   });
 };
@@ -275,6 +262,11 @@ export const useUpdateAppField = () => {
       app_id: string;
       action: UpdateAppFieldAction;
       payload: UpdateAppFieldPayload;
-    }) => updateAppFields(payload.app_id, payload.action, payload.payload),
+    }) =>
+      crmService.updateAppFields(
+        payload.app_id,
+        payload.action,
+        payload.payload,
+      ),
   });
 };

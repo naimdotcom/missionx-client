@@ -25,8 +25,8 @@ export * from "./services/apps/apps.hook";
 export * from "./services/apps/apps.type";
 
 // Users Domain
-export * from "./services/users/users.service";
-export * from "./services/users/users.type";
+export * from "./services/user/user.service";
+export * from "./services/user/user.type";
 
 // Inbox Domain
 export * from "./services/inbox/inbox.service";

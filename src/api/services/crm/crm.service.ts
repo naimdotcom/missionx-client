@@ -1,5 +1,4 @@
 import { API_ENDPOINTS } from "@/api";
-import { serviceRegistry } from "@/api/core/service-registry";
 import type {
   APPField,
   Customer,
@@ -16,86 +15,95 @@ import type {
   UpdateAppFieldAction,
   UpdateAppFieldPayload,
 } from "./crm.types";
+import { crmClient } from "@/api/core/init";
 
-const client = serviceRegistry.getClient("crm");
+export const crmService = {
+  getCustomers: (params?: CustomerListParams) => {
+    return crmClient.get<Customers>(API_ENDPOINTS.CRM.CUSTOMERS, params);
+  },
 
-export const getCustomers = (params?: CustomerListParams) => {
-  return client.get<Customers>(API_ENDPOINTS.CRM.CUSTOMERS, params);
-};
+  getCustomerById: (id: string, app_id: string) => {
+    return crmClient.get<Customer>(API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id), {
+      app_id,
+    });
+  },
 
-export const getCustomerById = (id: string, app_id: string) => {
-  return client.get<Customer>(API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id), { app_id });
-};
+  createCustomer: (payload: CustomerCreate) => {
+    return crmClient.post<Customer>(API_ENDPOINTS.CRM.CUSTOMERS, payload);
+  },
 
-export const createCustomer = (payload: CustomerCreate) => {
-  return client.post<Customer>(API_ENDPOINTS.CRM.CUSTOMERS, payload);
-};
+  updateCustomer: (id: string, payload: CustomerUpdate) => {
+    return crmClient.put<Customer>(
+      API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id),
+      payload,
+    );
+  },
 
-export const updateCustomer = (id: string, payload: CustomerUpdate) => {
-  return client.put<Customer>(API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id), payload);
-};
+  deleteCustomer: (id: string) => {
+    return crmClient.delete(API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id));
+  },
 
-export const deleteCustomer = (id: string) => {
-  return client.delete(API_ENDPOINTS.CRM.CUSTOMER_BY_ID(id));
-};
+  exportCustomers: (payload: ExportRequest) => {
+    return crmClient.post(API_ENDPOINTS.CRM.EXPORT, payload);
+  },
 
-export const exportCustomers = (payload: ExportRequest) => {
-  return client.post(API_ENDPOINTS.CRM.EXPORT, payload);
-};
+  inboxCustomer: (payload: InboxCustomerPayload) => {
+    return crmClient.get(
+      API_ENDPOINTS.CRM.INBOX_CUSTOMER(payload.customer_id),
+      {
+        app_id: payload.app_id,
+        page: payload.page,
+        limit: payload.limit,
+      },
+    );
+  },
 
-export const inboxCustomer = (payload: InboxCustomerPayload) => {
-  return client.get(API_ENDPOINTS.CRM.INBOX_CUSTOMER(payload.customer_id), {
-    app_id: payload.app_id,
-    page: payload.page,
-    limit: payload.limit,
-  });
-};
+  upsertSegment: (
+    action: "add" | "update" | "remove",
+    payload: SegmentUpsert,
+  ) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("action", action);
+    const endpoint = `${API_ENDPOINTS.CRM.UPSERT_SEGMENT}?${queryParams.toString()}`;
+    return crmClient.post(endpoint, payload);
+  },
 
-export const upsertSegment = (
-  action: "add" | "update" | "remove",
-  payload: SegmentUpsert,
-) => {
-  const queryParams = new URLSearchParams();
-  queryParams.append("action", action);
-  const endpoint = `${API_ENDPOINTS.CRM.UPSERT_SEGMENT}?${queryParams.toString()}`;
-  return client.post(endpoint, payload);
-};
+  getSegmentById: (id: string) => {
+    return crmClient.get<import("./crm.types").SegmentResponse>(
+      API_ENDPOINTS.CRM.SEGMENT_BY_ID(id),
+    );
+  },
 
-export const getSegmentById = (id: string) => {
-  return client.get<import("./crm.types").SegmentResponse>(
-    API_ENDPOINTS.CRM.SEGMENT_BY_ID(id),
-  );
-};
+  listSegments: (params: SegmentListParams) => {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append("page", params.page.toString());
+    if (params?.app_id) queryParams.append("app_id", params.app_id);
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
 
-export const listSegments = (params: SegmentListParams) => {
-  const queryParams = new URLSearchParams();
-  if (params?.page) queryParams.append("page", params.page.toString());
-  if (params?.app_id) queryParams.append("app_id", params.app_id);
-  if (params?.limit) queryParams.append("limit", params.limit.toString());
+    const query = queryParams.toString();
+    const endpoint = query
+      ? `${API_ENDPOINTS.CRM.LIST_SEGMENT}?${query}`
+      : API_ENDPOINTS.CRM.LIST_SEGMENT;
 
-  const query = queryParams.toString();
-  const endpoint = query
-    ? `${API_ENDPOINTS.CRM.LIST_SEGMENT}?${query}`
-    : API_ENDPOINTS.CRM.LIST_SEGMENT;
+    return crmClient.get<SegmentListResponse | SegmentResponse[]>(endpoint);
+  },
 
-  return client.get<SegmentListResponse | SegmentResponse[]>(endpoint);
-};
+  deleteSegment: (id: string) => {
+    return crmClient.delete(API_ENDPOINTS.CRM.SEGMENT_BY_ID(id));
+  },
 
-export const deleteSegment = (id: string) => {
-  return client.delete(API_ENDPOINTS.CRM.SEGMENT_BY_ID(id));
-};
+  appFields: (app_id: string) => {
+    return crmClient.get<APPField>(API_ENDPOINTS.CRM.APP_FIELDS(app_id));
+  },
 
-export const appFields = (app_id: string) => {
-  return client.get<APPField>(API_ENDPOINTS.CRM.APP_FIELDS(app_id));
-};
-
-export const updateAppFields = (
-  app_id: string,
-  action: UpdateAppFieldAction,
-  payload: UpdateAppFieldPayload,
-) => {
-  const queryParams = new URLSearchParams();
-  queryParams.append("action", action);
-  const endpoint = `${API_ENDPOINTS.CRM.APP_FIELDS(app_id)}?${queryParams.toString()}`;
-  return client.put(endpoint, payload);
+  updateAppFields: (
+    app_id: string,
+    action: UpdateAppFieldAction,
+    payload: UpdateAppFieldPayload,
+  ) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("action", action);
+    const endpoint = `${API_ENDPOINTS.CRM.APP_FIELDS(app_id)}?${queryParams.toString()}`;
+    return crmClient.put(endpoint, payload);
+  },
 };

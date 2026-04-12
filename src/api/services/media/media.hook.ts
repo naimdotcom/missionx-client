@@ -1,6 +1,6 @@
 import { RequestOptions } from "@/api";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { fileUpload, getAllMedia, deleteMedia } from "./media.service";
+import { mediaService } from "./media.service";
 import {
   DeleteMediaPayload,
   FileUploadPayload,
@@ -12,14 +12,14 @@ export function useFileUpload() {
     mutationFn: (payload: {
       apiPayload: FileUploadPayload;
       options?: RequestOptions;
-    }) => fileUpload(payload.apiPayload, payload.options),
+    }) => mediaService.fileUpload(payload.apiPayload, payload.options),
   });
 }
 
 export function useAllMedia(params?: MediaParams, options?: RequestOptions) {
   return useQuery({
     queryKey: ["media", params],
-    queryFn: () => getAllMedia(params, options),
+    queryFn: () => mediaService.getAllMedia(params, options),
   });
 }
 
@@ -28,6 +28,6 @@ export function useDeleteMedia() {
     mutationFn: (payload: {
       apiPayload: DeleteMediaPayload;
       options?: RequestOptions;
-    }) => deleteMedia(payload.apiPayload, payload.options),
+    }) => mediaService.deleteMedia(payload.apiPayload, payload.options),
   });
 }

@@ -1,14 +1,14 @@
 import { queryKeys } from "@/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUserProfileFull, updateUserProfile } from "./users.service";
-import { UpdateUserProfilePayload } from "./users.type";
+import { userService } from "./user.service";
+import { UpdateUserProfilePayload } from "./user.type";
 
 export function useUserProfileFull(enable: boolean) {
   return useQuery({
     enabled: !!enable,
     queryKey: queryKeys.usersQueryKeys.userProfileFull,
     queryFn: async () => {
-      const response = await getUserProfileFull();
+      const response = await userService.getUserProfileFull();
       return response;
     },
   });
@@ -18,7 +18,7 @@ export function useUpdateUserProfile() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: UpdateUserProfilePayload) =>
-      updateUserProfile(payload),
+      userService.updateUserProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queryKeys.usersQueryKeys.userProfileFull,
