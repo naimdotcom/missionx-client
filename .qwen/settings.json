@@ -4,7 +4,10 @@
       "Bash(bunx *)",
       "Bash(rm *)",
       "Bash(npx *)",
-      "Bash(mv *)"
+      "Bash(mv *)",
+      "Bash(bun *)",
+      "Bash(timeout *)",
+      "Bash(true)"
     ]
   },
   "$version": 3

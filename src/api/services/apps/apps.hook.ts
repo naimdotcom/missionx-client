@@ -56,9 +56,9 @@ export const useListMyApps = (params: MyAppParams) => {
 /**
  * Hook to list app users
  */
-export const useListAppUsers = (id: string, enabled = true) => {
+export const useListAppUsers = (id: string) => {
   return useQuery({
-    enabled: !!id && enabled,
+    enabled: !!id,
     queryFn: () => appService.listAppUsers(id),
     queryKey: queryKeys.appsQueryKeys.appUsers(id),
   });
