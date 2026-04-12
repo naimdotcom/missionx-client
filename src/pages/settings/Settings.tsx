@@ -1,11 +1,12 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "@tanstack/react-router";
-import { AppWindow, Image, Palette, User } from "lucide-react";
+import { AppWindow, Building2, Image, Palette, User } from "lucide-react";
 import { useState } from "react";
 import { AppearanceForm } from "./AppearanceForm";
 import { MediaSettings } from "./MediaSettings";
 import { ProfileForm } from "./ProfileForm";
+import UserManagement from "./UserManagement";
 
 export default function Settings({ initialTab }: { initialTab?: string }) {
   const navigate = useNavigate();
@@ -58,12 +59,19 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
             <span>Media</span>
           </TabsTrigger>
 
+          <Separator className="my-2 hidden md:block" />
+
+          <div className="hidden md:flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <Building2 size={14} />
+            <span>Organization</span>
+          </div>
+
           <TabsTrigger
-            value="apps"
+            value="users"
             className="md:w-full justify-start gap-2 data-[state=active]:bg-muted data-[state=active]:text-foreground hover:bg-muted/50 transition-all px-3 py-2 shrink-0 whitespace-nowrap rounded-md text-sm"
           >
-            <AppWindow size={16} />
-            <span>Apps</span>
+            <User size={16} />
+            <span>Users</span>
           </TabsTrigger>
         </TabsList>
 
@@ -78,6 +86,16 @@ export default function Settings({ initialTab }: { initialTab?: string }) {
 
           <TabsContent value="media" className="m-0 space-y-6">
             <MediaSettings />
+          </TabsContent>
+
+          <TabsContent value="apps" className="m-0 space-y-6">
+            <div className="flex items-center justify-center p-8 sm:p-12 border-2 border-dashed rounded-lg text-muted-foreground text-sm text-center">
+              Apps management interface coming soon.
+            </div>
+          </TabsContent>
+
+          <TabsContent value="users" className="m-0 space-y-6">
+            <UserManagement />
           </TabsContent>
 
           <TabsContent value="notifications" className="m-0 space-y-6">

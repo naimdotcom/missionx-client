@@ -15,7 +15,7 @@ export interface UserProfileFull {
     avatar_url?: string;
     bio?: string;
     timezone?: string;
-    preferences?: {};
+    preferences?: object;
     user_id?: string;
   };
   auth_providers?: [];
@@ -40,5 +40,5 @@ export interface UpdateUserProfilePayload {
   avatar_url?: string;
   bio?: string;
   timezone?: string;
-  preferences?: {};
+  preferences?: object;
 }

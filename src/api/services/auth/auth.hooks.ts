@@ -1,24 +1,20 @@
 import { mutationKeys, queryKeys } from "@/api";
 import { useAuthStore } from "@/stores/auth-store";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { toast } from "sonner";
-import {
-  login,
-  register,
-  googleLogin,
-  verifyToken,
-  refreshToken,
-  logout,
-  facebookLogin,
-} from "./auth.service";
-import type { LoginRequest, RegisterRequest } from "./auth.types";
+import { authService } from "./auth.service";
+import type {
+  LoginRequest,
+  RegisterRequest,
+  UpdateUserProfilePayload,
+} from "./auth.types";
 
 export const useLogin = () => {
   return useMutation({
     mutationFn: async (payload: LoginRequest) => {
-      const response = await login(payload);
+      const response = await authService.login(payload);
       return response;
     },
     mutationKey: mutationKeys.authKeys.login,
@@ -28,7 +24,7 @@ export const useLogin = () => {
 export const useRegister = () => {
   return useMutation({
     mutationFn: async (payload: RegisterRequest) => {
-      const response = await register(payload);
+      const response = await authService.register(payload);
       return response;
     },
     mutationKey: mutationKeys.authKeys.register,
@@ -40,7 +36,7 @@ export function useGoogleLogin() {
   const { setIsAuthenticated } = useAuthStore();
   return useMutation({
     mutationFn: async (payload: { firebase_token: string }) => {
-      const response = await googleLogin(payload);
+      const response = await authService.googleLogin(payload);
       return response;
     },
     mutationKey: mutationKeys.authKeys.google,
@@ -63,7 +59,7 @@ export function useVerifyToken() {
   return useQuery({
     queryKey: queryKeys.authKeys.verifyToken,
     queryFn: async () => {
-      const response = await verifyToken();
+      const response = await authService.verifyToken();
       return response;
     },
   });
@@ -72,14 +68,14 @@ export function useVerifyToken() {
 export function useRefreshToken() {
   return useMutation({
     mutationKey: mutationKeys.authKeys.refreshToken,
-    mutationFn: () => refreshToken(),
+    mutationFn: () => authService.refreshToken(),
   });
 }
 
 export function useLogout() {
   return useMutation({
     mutationFn: async () => {
-      const response = await logout();
+      const response = await authService.logout();
       return response;
     },
     mutationKey: mutationKeys.authKeys.logout,
@@ -91,7 +87,8 @@ export function useMetaLogin() {
   const { setIsAuthenticated } = useAuthStore();
   return useMutation({
     mutationKey: mutationKeys.authKeys.facebook,
-    mutationFn: (access_token: string) => facebookLogin(access_token),
+    mutationFn: (access_token: string) =>
+      authService.facebookLogin(access_token),
     onSuccess: (data) => {
       if (data.access_token && data.refresh_token) {
         setIsAuthenticated(true);
@@ -103,6 +100,30 @@ export function useMetaLogin() {
       if (axios.isAxiosError(err)) {
         toast.error(err.response?.data?.detail);
       }
+    },
+  });
+}
+
+export function useUserProfileFull(enable: boolean) {
+  return useQuery({
+    enabled: !!enable,
+    queryKey: queryKeys.usersQueryKeys.userProfileFull,
+    queryFn: async () => {
+      const response = await authService.getUserProfileFull();
+      return response;
+    },
+  });
+}
+
+export function useUpdateUserProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateUserProfilePayload) =>
+      authService.updateUserProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.usersQueryKeys.userProfileFull,
+      });
     },
   });
 }

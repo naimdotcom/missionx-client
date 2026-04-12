@@ -9,40 +9,42 @@ import type {
 } from "./channels.types";
 import { channelClient } from "@/api/core/init";
 
-export const channelConnect = (payload: ChannelConnectPayload) => {
-  return channelClient.post(API_ENDPOINTS.CHANNELS.CHANNEL_CONNECT, payload);
-};
+export const channelService = {
+  channelConnect: (payload: ChannelConnectPayload) => {
+    return channelClient.post(API_ENDPOINTS.CHANNELS.CHANNEL_CONNECT, payload);
+  },
 
-export const channelsList = (params?: ChannelsListParams) => {
-  return channelClient.get<ChannelsListResponse>(
-    API_ENDPOINTS.CHANNELS.CHANNELS_LIST,
-    params,
-  );
-};
+  channelsList: (params?: ChannelsListParams) => {
+    return channelClient.get<ChannelsListResponse>(
+      API_ENDPOINTS.CHANNELS.CHANNELS_LIST,
+      params,
+    );
+  },
 
-export const channelSubscribe = (payload: ChannelSubscribePayload) => {
-  return channelClient.post<ChannelSubscribeResponse>(
-    API_ENDPOINTS.CHANNELS.SUBSCRIBE_CHANNEL,
-    payload,
-  );
-};
+  channelSubscribe: (payload: ChannelSubscribePayload) => {
+    return channelClient.post<ChannelSubscribeResponse>(
+      API_ENDPOINTS.CHANNELS.SUBSCRIBE_CHANNEL,
+      payload,
+    );
+  },
 
-export const channelUnsubscribe = (payload: { channel_id: string }) => {
-  return channelClient.post(
-    API_ENDPOINTS.CHANNELS.UNSUBSCRIBE_CHANNEL,
-    payload,
-  );
-};
+  channelUnsubscribe: (payload: { channel_id: string }) => {
+    return channelClient.post(
+      API_ENDPOINTS.CHANNELS.UNSUBSCRIBE_CHANNEL,
+      payload,
+    );
+  },
 
-export const appAllChannelDisconnect = (params: AppChannelDisconnectParams) => {
-  return channelClient.delete(
-    API_ENDPOINTS.CHANNELS.APP_CHANNEL_DISCONNECT,
-    params,
-  );
-};
+  appAllChannelDisconnect: (params: AppChannelDisconnectParams) => {
+    return channelClient.delete(
+      API_ENDPOINTS.CHANNELS.APP_CHANNEL_DISCONNECT,
+      params,
+    );
+  },
 
-export const deleteChannel = (channel_id: string) => {
-  return channelClient.delete(
-    API_ENDPOINTS.CHANNELS.DELETE_CHANNEL(channel_id),
-  );
+  deleteChannel: (channel_id: string) => {
+    return channelClient.delete(
+      API_ENDPOINTS.CHANNELS.DELETE_CHANNEL(channel_id),
+    );
+  },
 };

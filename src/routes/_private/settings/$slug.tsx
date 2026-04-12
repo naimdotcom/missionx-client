@@ -8,16 +8,7 @@ export const Route = createFileRoute("/_private/settings/$slug")({
 function RouteComponent() {
   const slug = Route.useParams();
 
-  const allowed = [
-    "profile",
-    "appearance",
-    "media",
-    "apps",
-    "cx-solutions",
-    "notifications",
-    "security",
-    "advanced",
-  ];
+  const allowed = ["profile", "appearance", "media", "apps", "users"];
 
   const initialTab =
     slug && allowed.includes(slug.slug) ? slug.slug : "profile";

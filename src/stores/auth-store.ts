@@ -1,5 +1,5 @@
 import { App } from "@/api/services/apps/apps.type";
-import { UserProfileFull } from "@/api/services/users/users.type";
+import { UserProfileFull } from "@/api/services/user/user.type";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 

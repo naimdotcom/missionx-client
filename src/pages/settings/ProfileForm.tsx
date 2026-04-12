@@ -1,5 +1,5 @@
 import { useFileUpload } from "@/api/services/media/media.hook";
-import { useUpdateUserProfile } from "@/api/services/users/users.hooks";
+import { useUpdateUserProfile } from "@/api/services/user/user.hooks";
 import { TextareaField, TextField } from "@/components/form";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

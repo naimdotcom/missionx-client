@@ -8,67 +8,44 @@ import type {
   LoginResponse,
   RefreshTokenResponse,
   RegisterRequest,
+  UpdateUserProfilePayload,
+  UserProfileFull,
   VerifyToken,
 } from "./auth.types";
 import { authClient } from "@/api/core/init";
 
-/**
- * Login user with email and password
- */
-export const login = (credentials: LoginRequest, options?: RequestOptions) =>
-  authClient.post<LoginResponse>(
-    API_ENDPOINTS.AUTH.LOGIN,
-    credentials,
-    options,
-  );
+export const authService = {
+  login: (credentials: LoginRequest) =>
+    authClient.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials),
 
-/**
- * Register new user
- */
-export const register = (payload: RegisterRequest, options?: RequestOptions) =>
-  authClient.post(API_ENDPOINTS.AUTH.REGISTER, payload, options);
+  register: (payload: RegisterRequest, options?: RequestOptions) =>
+    authClient.post(API_ENDPOINTS.AUTH.REGISTER, payload, options),
 
-/**
- * Logout current user
- */
-export const logout = (options?: RequestOptions) =>
-  authClient.post(API_ENDPOINTS.AUTH.LOGOUT, {}, options);
+  logout: (options?: RequestOptions) =>
+    authClient.post(API_ENDPOINTS.AUTH.LOGOUT, {}, options),
 
-/**
- * Refresh access token
- */
-export const refreshToken = (options?: RequestOptions) =>
-  authClient.post<RefreshTokenResponse>(
-    API_ENDPOINTS.AUTH.REFRESH,
-    undefined,
-    options,
-  );
+  refreshToken: () =>
+    authClient.post<RefreshTokenResponse>(API_ENDPOINTS.AUTH.REFRESH),
 
-export const googleLogin = (
-  request: { firebase_token: string },
-  options?: RequestOptions,
-) =>
-  authClient.post<LoginResponse>(
-    API_ENDPOINTS.AUTH.GOOGLE_LOGIN,
-    request,
-    options,
-  );
+  googleLogin: (request: { firebase_token: string }) =>
+    authClient.post<LoginResponse>(API_ENDPOINTS.AUTH.GOOGLE_LOGIN, request),
 
-export const verifyToken = (options?: RequestOptions) => {
-  return authClient.get<VerifyToken>(
-    API_ENDPOINTS.AUTH.VERIFY,
-    undefined,
-    options,
-  );
-};
+  verifyToken: () => {
+    return authClient.get<VerifyToken>(API_ENDPOINTS.AUTH.VERIFY);
+  },
 
-export const facebookLogin = (
-  access_token: string,
-  options?: RequestOptions,
-) => {
-  return authClient.post<FacebookLoginResponse>(
-    API_ENDPOINTS.AUTH.FACEBOOK_LOGIN,
-    { access_token },
-    options,
-  );
+  facebookLogin: (access_token: string) => {
+    return authClient.post<FacebookLoginResponse>(
+      API_ENDPOINTS.AUTH.FACEBOOK_LOGIN,
+      { access_token },
+    );
+  },
+
+  getUserProfileFull: () => {
+    return authClient.get<UserProfileFull>(API_ENDPOINTS.USER.FULL_PROFILE);
+  },
+
+  updateUserProfile: (payload: UpdateUserProfilePayload) => {
+    return authClient.put(API_ENDPOINTS.USER.UPDATE_PROFILE, payload);
+  },
 };
