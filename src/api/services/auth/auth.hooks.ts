@@ -1,11 +1,15 @@
 import { mutationKeys, queryKeys } from "@/api";
 import { useAuthStore } from "@/stores/auth-store";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { toast } from "sonner";
 import { authService } from "./auth.service";
-import type { LoginRequest, RegisterRequest } from "./auth.types";
+import type {
+  LoginRequest,
+  RegisterRequest,
+  UpdateUserProfilePayload,
+} from "./auth.types";
 
 export const useLogin = () => {
   return useMutation({
@@ -96,6 +100,30 @@ export function useMetaLogin() {
       if (axios.isAxiosError(err)) {
         toast.error(err.response?.data?.detail);
       }
+    },
+  });
+}
+
+export function useUserProfileFull(enable: boolean) {
+  return useQuery({
+    enabled: !!enable,
+    queryKey: queryKeys.usersQueryKeys.userProfileFull,
+    queryFn: async () => {
+      const response = await authService.getUserProfileFull();
+      return response;
+    },
+  });
+}
+
+export function useUpdateUserProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: UpdateUserProfilePayload) =>
+      authService.updateUserProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.usersQueryKeys.userProfileFull,
+      });
     },
   });
 }

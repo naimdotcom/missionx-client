@@ -8,6 +8,8 @@ import type {
   LoginResponse,
   RefreshTokenResponse,
   RegisterRequest,
+  UpdateUserProfilePayload,
+  UserProfileFull,
   VerifyToken,
 } from "./auth.types";
 import { authClient } from "@/api/core/init";
@@ -37,5 +39,13 @@ export const authService = {
       API_ENDPOINTS.AUTH.FACEBOOK_LOGIN,
       { access_token },
     );
+  },
+
+  getUserProfileFull: () => {
+    return authClient.get<UserProfileFull>(API_ENDPOINTS.USER.FULL_PROFILE);
+  },
+
+  updateUserProfile: (payload: UpdateUserProfilePayload) => {
+    return authClient.put(API_ENDPOINTS.USER.UPDATE_PROFILE, payload);
   },
 };
