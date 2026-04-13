@@ -25,9 +25,8 @@ Object.keys(rawEnv).forEach((key) => {
   }
 });
 
-interface Env extends DynamicEnv {
+interface BaseEnv extends DynamicEnv {
   readonly socketUrl: string | undefined;
-  readonly apiTimeout: number;
   readonly environment: string;
   readonly firebase: {
     readonly apiKey: string | undefined;
@@ -38,6 +37,12 @@ interface Env extends DynamicEnv {
     readonly appId: string | undefined;
     readonly measurementId: string | undefined;
   };
+}
+
+// Explicitly define properties that might have naming mismatches or different types
+export interface Env extends Omit<BaseEnv, "apiTimeout" | "openAllRoutes"> {
+  readonly apiTimeout: number;
+  readonly isOpenAllRoutes: string | undefined;
 }
 
 /**
@@ -53,6 +58,7 @@ export const env = {
   socketUrl: rawEnv.VITE_CHANNEL_URL,
   apiTimeout: rawEnv.VITE_API_TIMEOUT ? parseInt(rawEnv.VITE_API_TIMEOUT, 10) : 30000,
   environment: rawEnv.ENVIRONMENT || rawEnv.MODE,
+  isOpenAllRoutes: rawEnv.VITE_OPEN_ALL_ROUTES,
   firebase: {
     apiKey: rawEnv.VITE_FIREBASE_API_KEY,
     authDomain: rawEnv.VITE_FIREBASE_AUTH_DOMAIN,

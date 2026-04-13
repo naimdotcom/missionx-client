@@ -26,7 +26,7 @@ export * from "./services/apps/apps.type";
 
 // Users Domain
 export * from "./services/user/user.service";
-export * from "./services/user/user.type";
+// export * from "./services/user/user.type"; // Redundant with auth.types
 
 // Inbox Domain
 export * from "./services/inbox/inbox.service";
