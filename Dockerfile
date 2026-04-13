@@ -1,16 +1,18 @@
-# syntax=docker/dockerfile:1
 # Build stage
-FROM oven/bun:1-alpine AS build-stage
+FROM oven/bun:latest AS build
+
 WORKDIR /app
 
 # Copy package files
-COPY package*.json bun.lockb* ./
+COPY package.json bun.lock ./
+
+# Install dependencies
 RUN bun install --frozen-lockfile
 
-# Copy source code
+# Copy project files
 COPY . .
 
-# Accept build arguments for Firebase configuration
+# Build Arguments (provided by GitHub Actions)
 ARG VITE_FIREBASE_API_KEY
 ARG VITE_FIREBASE_AUTH_DOMAIN
 ARG VITE_FIREBASE_PROJECT_ID
@@ -25,7 +27,8 @@ ARG VITE_META_APP_ID
 ARG VITE_PUSHER_APP_KEY
 ARG VITE_PUSHER_HOST
 ARG VITE_CRM_URL
-# Set environment variables for build (ARGs become ENVs for the build step)
+
+# Set as environment variables for the build process
 ENV VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY
 ENV VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN
 ENV VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID
@@ -41,12 +44,18 @@ ENV VITE_PUSHER_APP_KEY=$VITE_PUSHER_APP_KEY
 ENV VITE_PUSHER_HOST=$VITE_PUSHER_HOST
 ENV VITE_CRM_URL=$VITE_CRM_URL
 
-# Build the application
+# Build the project
 RUN bun run build
 
-# Production stage: Serve with Nginx
-FROM nginx:stable-alpine
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+# Production stage
+FROM nginx:stable-alpine AS production
+
+# Copy build files to nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]
