@@ -259,7 +259,7 @@ export default function CrmPage() {
         </div>
 
         <Button size="sm" onClick={() => setIsCreateOpen(true)}>
-          <Plus className="size-4" /> Add Customer
+          <Plus className="size-4" /> Add Customers
         </Button>
       </div>
 

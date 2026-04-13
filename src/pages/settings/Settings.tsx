@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "@tanstack/react-router";
-import { AppWindow, Building2, Image, Palette, User } from "lucide-react";
+import { Building2, Image, Palette, User } from "lucide-react";
 import { useState } from "react";
 import { AppearanceForm } from "./AppearanceForm";
 import { MediaSettings } from "./MediaSettings";
