@@ -47,7 +47,13 @@ import {
   QUERY_STATE_PARSERS,
   SEARCH_DEBOUNCE_MS,
 } from "./const";
-import { crmColumns } from "./crm-columns";
+import {
+  actionsColumn,
+  buildDynamicColumn,
+  customerColumn,
+  RESERVED_IDS,
+  selectColumn,
+} from "./crm-columns";
 
 // ─── Bulk actions ─────────────────────────────────────────────────────────────
 
@@ -198,6 +204,21 @@ export default function CrmPage() {
   const customersQuery = useCustomers(apiParams);
   const totalCount = customersQuery.data?.customers.length ?? 0;
 
+  // ── Dynamic columns from app_fields ──────────────────────────────────────
+
+  const dynamicColumns = useMemo(() => {
+    const fields = customersQuery.data?.app_fields.fields ?? [];
+    return fields
+      .filter((f) => f.visible && f.key && !RESERVED_IDS.has(f.key))
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+      .map(buildDynamicColumn);
+  }, [customersQuery.data?.app_fields.fields]);
+
+  const allColumns = useMemo(
+    () => [selectColumn, customerColumn, ...dynamicColumns, actionsColumn],
+    [dynamicColumns],
+  );
+
   // ── Column sizing persistence ─────────────────────────────────────────────
 
   // Seed initial widths from backend app_fields so the table matches what
@@ -238,7 +259,7 @@ export default function CrmPage() {
   );
 
   const { table } = useDataTable({
-    columns: crmColumns,
+    columns: allColumns,
     data: customersQuery.data?.customers ?? [],
     pageCount: -1,
     manualSorting: false,
@@ -344,7 +365,7 @@ export default function CrmPage() {
   );
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className="flex flex-1 min-h-0 min-w-0 flex-col overflow-hidden">
       {/* ── Top bar ──────────────────────────────────────────────────────── */}
       <div className="flex h-13 shrink-0 items-center justify-between border-b bg-background px-4">
         <div className="flex items-center gap-2.5">
@@ -441,7 +462,7 @@ export default function CrmPage() {
           </div>
 
           {/* ── Table ────────────────────────────────────────────────────── */}
-          <DataGridContainer className="flex flex-1 flex-col overflow-hidden border-0 bg-background">
+          <DataGridContainer className="flex flex-1 min-h-0 flex-col border-0 bg-background">
             <DataGrid
               table={table}
               isLoading={
@@ -461,7 +482,7 @@ export default function CrmPage() {
                 bodyRow: "group/row",
               }}
             >
-              <div className="flex-1 overflow-auto">
+              <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
                 <DataGridTableDnd handleDragEnd={handleDragEnd} />
               </div>
 
