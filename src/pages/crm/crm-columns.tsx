@@ -284,7 +284,13 @@ export const actionsColumn: DraggableColumnDef<Customer> = {
 // ─── Dynamic column builder ──────────────────────────────────────────────────
 
 // IDs that are always fixed — never generated dynamically.
-const RESERVED_IDS = new Set(["select", "customer", "actions", "customer_name", "customer_profile"]);
+const RESERVED_IDS = new Set([
+  "select",
+  "customer",
+  "actions",
+  "customer_name",
+  "customer_profile",
+]);
 
 export function buildDynamicColumn(
   field: APPField["fields"][number],
@@ -294,14 +300,12 @@ export function buildDynamicColumn(
   return {
     id: key,
     accessorKey: key,
-    header: () =>
-      colHeader(field.name || key.replace(/_/g, " ")),
+    header: () => colHeader(field.name || key.replace(/_/g, " ")),
     size: field.width || 140,
     enableSorting: false,
     enableResizing: true,
     meta: { skeleton: textSkeleton },
-    cell: ({ row }) =>
-      renderDynamicValue(row.original[key], field.type),
+    cell: ({ row }) => renderDynamicValue(row.original[key], field.type),
   };
 }
 

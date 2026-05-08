@@ -297,7 +297,8 @@ export default function CrmPage() {
     if (
       FIXED_COLUMN_IDS.has(String(active.id)) ||
       FIXED_COLUMN_IDS.has(String(over.id))
-    ) return;
+    )
+      return;
 
     const currentOrder =
       table.getState().columnOrder.length > 0
@@ -340,9 +341,7 @@ export default function CrmPage() {
   const handleExport = () => {
     const selected = table.getSelectedRowModel().rows;
     const rows = selected.length > 0 ? selected : table.getRowModel().rows;
-    const csv = rows
-      .map((r) => Object.values(r.original).join(","))
-      .join("\n");
+    const csv = rows.map((r) => Object.values(r.original).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
