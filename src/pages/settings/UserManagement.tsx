@@ -162,7 +162,7 @@ export default function UserManagement() {
         </Button>
       </div>
 
-      <DataGridContainer className="flex flex-1 flex-col overflow-hidden border bg-background">
+      <DataGridContainer className="flex flex-1 min-h-0 flex-col overflow-hidden border bg-background">
         <DataGrid
           table={table}
           isLoading={isLoadingUsers}

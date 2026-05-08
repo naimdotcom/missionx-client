@@ -79,7 +79,7 @@ function PrivateLayout() {
 
   // Normal app flow: Has app and at least one channel
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh overflow-hidden">
       <NuqsAdapter>
         <AppSidebar />
         <SidebarInset>
