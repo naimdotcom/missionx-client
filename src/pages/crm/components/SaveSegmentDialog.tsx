@@ -11,8 +11,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useForm } from "@tanstack/react-form";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import {
+  CrmFilter,
+  FILTER_FIELDS,
+  FilterMode,
+  mapCrmFiltersToSegmentFilters,
+  mapSegmentFiltersToCrmFilters,
+} from "../const";
+import { SegmentRuleBuilder } from "./SegmentRuleBuilder";
+import { Plus } from "lucide-react";
 
 interface SaveSegmentDialogProps {
   open: boolean;
@@ -34,15 +43,30 @@ export function SaveSegmentDialog({
   const upsertSegment = useUpsertSegment();
   const isEditing = Boolean(segment?.id);
 
+  const [localFilters, setLocalFilters] = useState<CrmFilter[]>(() =>
+    mapSegmentFiltersToCrmFilters(rules.rules),
+  );
+  const [localMode, setLocalMode] = useState<FilterMode>(
+    rules.logic === "OR" ? "or" : "and",
+  );
+
+  // Sync internal state if the dialog opens with new props
+  useEffect(() => {
+    if (open) {
+      setLocalFilters(mapSegmentFiltersToCrmFilters(rules.rules));
+      setLocalMode(rules.logic === "OR" ? "or" : "and");
+    }
+  }, [open, rules]);
+
   const safeRules = useMemo(
     () =>
-      rules.rules.filter(
+      mapCrmFiltersToSegmentFilters(localFilters).filter(
         (rule) =>
           rule.field &&
           rule.operator &&
           !(typeof rule.value === "string" && rule.value.trim() === ""),
       ),
-    [rules],
+    [localFilters],
   );
 
   const form = useForm({
@@ -77,7 +101,10 @@ export function SaveSegmentDialog({
             segment_id: segment?.id,
             name,
             description: description || undefined,
-            filter_json: { logic: rules.logic, rules: safeRules },
+            filter_json: {
+              logic: localMode === "or" ? "OR" : "AND",
+              rules: safeRules,
+            },
           },
         },
         {
@@ -106,7 +133,7 @@ export function SaveSegmentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Update Segment" : "Save Segment"}
@@ -180,15 +207,57 @@ export function SaveSegmentDialog({
             )}
           </form.Field>
 
-          <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-            {safeRules.length} filter condition
-            {safeRules.length === 1 ? "" : "s"}
+          <div className="flex items-center justify-between">
+            <div className="rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+              {safeRules.length} filter condition
+              {safeRules.length === 1 ? "" : "s"}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setLocalFilters((prev) => [
+                  ...prev,
+                  {
+                    id:
+                      typeof crypto !== "undefined" && crypto.randomUUID
+                        ? crypto.randomUUID()
+                        : Math.random().toString(36).substring(2, 9),
+                    field: "",
+                    operator: "",
+                    values: [""],
+                  },
+                ]);
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add Filter
+            </Button>
+          </div>
+
+          <div className="max-h-72 overflow-y-auto pr-1 pb-3">
+            <SegmentRuleBuilder
+              filters={localFilters}
+              filterMode={localMode}
+              fields={FILTER_FIELDS}
+              onChangeMode={setLocalMode}
+              onRemove={(id) => {
+                setLocalFilters((prev) => prev.filter((f) => f.id !== id));
+              }}
+              onUpdate={(id, updates) => {
+                setLocalFilters((prev) =>
+                  prev.map((f) => (f.id === id ? { ...f, ...updates } : f)),
+                );
+              }}
+            />
           </div>
 
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="destructive"
+              className="text-white"
               onClick={() => onOpenChange(false)}
               disabled={upsertSegment.isPending}
             >

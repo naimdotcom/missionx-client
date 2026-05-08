@@ -20,6 +20,7 @@ interface ImportMetaEnv {
   readonly VITE_PUSHER_APP_KEY?: string;
   readonly VITE_PUSHER_HOST?: string;
   readonly VITE_CRM_URL?: string;
+  readonly ENVIRONMENT?: string;
   // Add more env variables here as needed
 }
 

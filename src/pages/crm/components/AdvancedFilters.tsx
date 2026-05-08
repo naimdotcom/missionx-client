@@ -1,24 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { ListFilter, Plus, Trash2 } from "lucide-react";
+import { ListFilter, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
+import { SegmentRuleBuilder } from "./SegmentRuleBuilder";
 import { SaveSegmentDialog } from "./SaveSegmentDialog";
 import {
   type CrmFilter,
-  type CrmFilterOption,
   type FilterMode,
   FILTER_FIELDS,
   toFilterJson,
@@ -184,131 +176,17 @@ export function AdvancedFilters({
             <h4 className="font-semibold leading-none">Advanced Filters</h4>
           </div>
 
-          <div className="space-y-2">
-            {localFilters.map((filter, index) => {
-              const fieldConfig = fields.find((f) => f.key === filter.field);
-              const operators =
-                fieldConfig?.type === "text"
-                  ? [
-                      { label: "contains", value: "contains" },
-                      { label: "is exact", value: "is" },
-                      { label: "is not", value: "is_not" },
-                    ]
-                  : [
-                      { label: "is", value: "is" },
-                      { label: "is not", value: "is_not" },
-                    ];
-
-              return (
-                <div key={filter.id} className="flex items-center gap-2">
-                  <div className="flex w-17.5 shrink-0 justify-end pr-2 text-sm font-medium text-muted-foreground">
-                    {index === 0 ? (
-                      "Where"
-                    ) : index === 1 ? (
-                      <Select
-                        value={localMode}
-                        onValueChange={(val: FilterMode) => {
-                          setLocalMode(val);
-                          maybeApplyOnChange(localFilters, val);
-                        }}
-                      >
-                        <SelectTrigger className="h-8 w-17.5 border-none bg-transparent px-1 shadow-none">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="and">And</SelectItem>
-                          <SelectItem value="or">Or</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <span className="capitalize py-1 inline-block">
-                        {localMode}
-                      </span>
-                    )}
-                  </div>
-
-                  <Select
-                    value={filter.field}
-                    onValueChange={(val) =>
-                      handleUpdate(filter.id, { field: val })
-                    }
-                  >
-                    <SelectTrigger className="h-8 flex-1">
-                      <SelectValue placeholder="Field" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {fields.map((f) => (
-                        <SelectItem key={f.key || ""} value={f.key || ""}>
-                          {f.label || f.key}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select
-                    value={filter.operator}
-                    onValueChange={(val) =>
-                      handleUpdate(filter.id, { operator: val })
-                    }
-                  >
-                    <SelectTrigger className="h-8 w-30">
-                      <SelectValue placeholder="Operator" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {operators.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>
-                          {o.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <div className="flex-1">
-                    {fieldConfig?.type === "select" ? (
-                      <Select
-                        value={String(filter.values[0] || "")}
-                        onValueChange={(val) =>
-                          handleUpdate(filter.id, { values: [val] })
-                        }
-                      >
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="Select value..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {fieldConfig.options?.map((opt: CrmFilterOption) => (
-                            <SelectItem
-                              key={String(opt.value)}
-                              value={String(opt.value)}
-                            >
-                              {String(opt.label)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Input
-                        className="h-8"
-                        placeholder={fieldConfig?.placeholder || "Value..."}
-                        value={String(filter.values[0] || "")}
-                        onChange={(e) =>
-                          handleUpdate(filter.id, { values: [e.target.value] })
-                        }
-                      />
-                    )}
-                  </div>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0 text-muted-foreground"
-                    onClick={() => handleRemove(filter.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              );
-            })}
-          </div>
+          <SegmentRuleBuilder
+            filters={localFilters}
+            filterMode={localMode}
+            fields={fields}
+            onUpdate={handleUpdate}
+            onRemove={handleRemove}
+            onChangeMode={(val: FilterMode) => {
+              setLocalMode(val);
+              maybeApplyOnChange(localFilters, val);
+            }}
+          />
 
           {!localFilters.length && (
             <div className="text-sm text-muted-foreground text-center py-4">

@@ -189,13 +189,13 @@ export type IdentifyCustomerRequest = {
 
 export type SegmentResponse = {
   id: string;
-  app_id: string;
   name: string;
-  description: string | undefined;
-  filters: JSONFilter | SegmentFilter[];
+  app_id: string;
+  filters: JSONFilter;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  description: string | undefined;
 };
 
 export type SegmentListResponse = {

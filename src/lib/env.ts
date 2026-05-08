@@ -7,7 +7,9 @@ type ViteToCamelCase<S extends string> = S extends `VITE_${infer T}`
   : never;
 
 type DynamicEnv = {
-  [K in keyof ImportMetaEnv as ViteToCamelCase<Extract<K, string>>]: ImportMetaEnv[K];
+  [K in keyof ImportMetaEnv as ViteToCamelCase<
+    Extract<K, string>
+  >]: ImportMetaEnv[K];
 };
 
 const getCamelCase = (str: string) =>
@@ -56,7 +58,9 @@ export const env = {
   ...dynamicEnv,
   // Custom mappings or transformations
   socketUrl: rawEnv.VITE_CHANNEL_URL,
-  apiTimeout: rawEnv.VITE_API_TIMEOUT ? parseInt(rawEnv.VITE_API_TIMEOUT, 10) : 30000,
+  apiTimeout: rawEnv.VITE_API_TIMEOUT
+    ? parseInt(rawEnv.VITE_API_TIMEOUT, 10)
+    : 30000,
   environment: rawEnv.ENVIRONMENT || rawEnv.MODE,
   isOpenAllRoutes: rawEnv.VITE_OPEN_ALL_ROUTES,
   firebase: {
