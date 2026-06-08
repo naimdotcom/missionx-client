@@ -21,20 +21,24 @@ class OperatorSoketi {
   private ensure(): Pusher {
     if (this.pusher) return this.pusher;
 
-    const authUrl = `${env.appUrl ?? ""}${API_ENDPOINTS.OPERATOR.PUSHER_AUTH}`;
+    // Auth goes through the auth service (same as inbox), which now accepts
+    // both private-app-* and private-operator.* channels.
+    const authUrl = `${env.authUrl ?? ""}${API_ENDPOINTS.AUTH.SOKETI}`;
 
     this.pusher = new Pusher(env.pusherAppKey ?? "", {
       cluster: "mt1", // required by pusher-js types; ignored by Soketi
       wsHost: env.pusherHost,
       wsPath: "/soketi",
       enabledTransports: ["ws", "wss"],
-      // Mirror axios `withCredentials: true` — send cookies to the JSON auth endpoint.
       authorizer: (channel) => ({
         authorize: (socketId, callback) => {
           const xhr = new XMLHttpRequest();
           xhr.open("POST", authUrl, true);
           xhr.withCredentials = true;
-          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.setRequestHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded",
+          );
           xhr.onreadystatechange = () => {
             if (xhr.readyState !== XMLHttpRequest.DONE) return;
             if (xhr.status === 200) {
@@ -54,7 +58,7 @@ class OperatorSoketi {
             }
           };
           xhr.send(
-            JSON.stringify({ socket_id: socketId, channel_name: channel.name }),
+            `socket_id=${encodeURIComponent(socketId)}&channel_name=${encodeURIComponent(channel.name)}`,
           );
         },
       }),

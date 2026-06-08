@@ -81,7 +81,6 @@ export const API_ENDPOINTS = {
     SESSIONS: "/api/v1/operator/sessions",
     SESSION_MESSAGES: (id: string) =>
       `/api/v1/operator/sessions/${id}/messages`,
-    PUSHER_AUTH: "/api/v1/operator/pusher/auth",
   },
 } as const;
 
