@@ -53,6 +53,10 @@ export function useOperatorChat(session: OperatorSession | null) {
     queryClient.invalidateQueries({
       queryKey: queryKeys.operatorKeys.sessionMessages(sessionId),
     });
+    // Refresh session list so the sidebar picks up the auto-generated title.
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.operatorKeys.sessions,
+    });
   };
 
   // Subscribe to the session's live channel.
