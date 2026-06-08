@@ -30,7 +30,7 @@ export function SessionSidebar() {
       {
         onSuccess: (session) => {
           navigate({
-            to: "/_private/operator/$sessionId",
+            to: "/operator/$sessionId",
             params: { sessionId: session.id },
           });
         },
@@ -75,7 +75,7 @@ export function SessionSidebar() {
               type="button"
               onClick={() =>
                 navigate({
-                  to: "/_private/operator/$sessionId",
+                  to: "/operator/$sessionId",
                   params: { sessionId: session.id },
                 })
               }

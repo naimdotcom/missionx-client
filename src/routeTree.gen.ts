@@ -18,10 +18,10 @@ import { Route as PrivateOperatorRouteImport } from './routes/_private/operator'
 import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
 import { Route as PrivateCrmRouteImport } from './routes/_private/crm'
 import { Route as PrivateChannelsRouteImport } from './routes/_private/channels'
-import { Route as PrivateSettingsSlugRouteImport } from './routes/_private/settings/$slug'
-import { Route as PrivateCrmCustomerIdRouteImport } from './routes/_private/crm/$customerId'
 import { Route as PrivateOperatorIndexRouteImport } from './routes/_private/operator/index'
+import { Route as PrivateSettingsSlugRouteImport } from './routes/_private/settings/$slug'
 import { Route as PrivateOperatorSessionIdRouteImport } from './routes/_private/operator/$sessionId'
+import { Route as PrivateCrmCustomerIdRouteImport } from './routes/_private/crm/$customerId'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
@@ -66,20 +66,15 @@ const PrivateChannelsRoute = PrivateChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => PrivateRoute,
 } as any)
-const PrivateSettingsSlugRoute = PrivateSettingsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => PrivateSettingsRoute,
-} as any)
-const PrivateCrmCustomerIdRoute = PrivateCrmCustomerIdRouteImport.update({
-  id: '/$customerId',
-  path: '/$customerId',
-  getParentRoute: () => PrivateCrmRoute,
-} as any)
 const PrivateOperatorIndexRoute = PrivateOperatorIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PrivateOperatorRoute,
+} as any)
+const PrivateSettingsSlugRoute = PrivateSettingsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PrivateSettingsRoute,
 } as any)
 const PrivateOperatorSessionIdRoute =
   PrivateOperatorSessionIdRouteImport.update({
@@ -87,6 +82,11 @@ const PrivateOperatorSessionIdRoute =
     path: '/$sessionId',
     getParentRoute: () => PrivateOperatorRoute,
   } as any)
+const PrivateCrmCustomerIdRoute = PrivateCrmCustomerIdRouteImport.update({
+  id: '/$customerId',
+  path: '/$customerId',
+  getParentRoute: () => PrivateCrmRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -97,21 +97,21 @@ export interface FileRoutesByFullPath {
   '/settings': typeof PrivateSettingsRouteWithChildren
   '/login': typeof PublicLoginRoute
   '/crm/$customerId': typeof PrivateCrmCustomerIdRoute
+  '/operator/$sessionId': typeof PrivateOperatorSessionIdRoute
   '/settings/$slug': typeof PrivateSettingsSlugRoute
   '/operator/': typeof PrivateOperatorIndexRoute
-  '/operator/$sessionId': typeof PrivateOperatorSessionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/channels': typeof PrivateChannelsRoute
   '/crm': typeof PrivateCrmRouteWithChildren
   '/inbox': typeof PrivateInboxRoute
-  '/operator': typeof PrivateOperatorIndexRoute
   '/settings': typeof PrivateSettingsRouteWithChildren
   '/login': typeof PublicLoginRoute
   '/crm/$customerId': typeof PrivateCrmCustomerIdRoute
-  '/settings/$slug': typeof PrivateSettingsSlugRoute
   '/operator/$sessionId': typeof PrivateOperatorSessionIdRoute
+  '/settings/$slug': typeof PrivateSettingsSlugRoute
+  '/operator': typeof PrivateOperatorIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,9 +125,9 @@ export interface FileRoutesById {
   '/_private/settings': typeof PrivateSettingsRouteWithChildren
   '/_public/login': typeof PublicLoginRoute
   '/_private/crm/$customerId': typeof PrivateCrmCustomerIdRoute
+  '/_private/operator/$sessionId': typeof PrivateOperatorSessionIdRoute
   '/_private/settings/$slug': typeof PrivateSettingsSlugRoute
   '/_private/operator/': typeof PrivateOperatorIndexRoute
-  '/_private/operator/$sessionId': typeof PrivateOperatorSessionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -140,21 +140,21 @@ export interface FileRouteTypes {
     | '/settings'
     | '/login'
     | '/crm/$customerId'
+    | '/operator/$sessionId'
     | '/settings/$slug'
     | '/operator/'
-    | '/operator/$sessionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/channels'
     | '/crm'
     | '/inbox'
-    | '/operator'
     | '/settings'
     | '/login'
     | '/crm/$customerId'
-    | '/settings/$slug'
     | '/operator/$sessionId'
+    | '/settings/$slug'
+    | '/operator'
   id:
     | '__root__'
     | '/'
@@ -167,9 +167,9 @@ export interface FileRouteTypes {
     | '/_private/settings'
     | '/_public/login'
     | '/_private/crm/$customerId'
+    | '/_private/operator/$sessionId'
     | '/_private/settings/$slug'
     | '/_private/operator/'
-    | '/_private/operator/$sessionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -243,20 +243,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateChannelsRouteImport
       parentRoute: typeof PrivateRoute
     }
-    '/_private/settings/$slug': {
-      id: '/_private/settings/$slug'
-      path: '/$slug'
-      fullPath: '/settings/$slug'
-      preLoaderRoute: typeof PrivateSettingsSlugRouteImport
-      parentRoute: typeof PrivateSettingsRoute
-    }
-    '/_private/crm/$customerId': {
-      id: '/_private/crm/$customerId'
-      path: '/$customerId'
-      fullPath: '/crm/$customerId'
-      preLoaderRoute: typeof PrivateCrmCustomerIdRouteImport
-      parentRoute: typeof PrivateCrmRoute
-    }
     '/_private/operator/': {
       id: '/_private/operator/'
       path: '/'
@@ -264,12 +250,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateOperatorIndexRouteImport
       parentRoute: typeof PrivateOperatorRoute
     }
+    '/_private/settings/$slug': {
+      id: '/_private/settings/$slug'
+      path: '/$slug'
+      fullPath: '/settings/$slug'
+      preLoaderRoute: typeof PrivateSettingsSlugRouteImport
+      parentRoute: typeof PrivateSettingsRoute
+    }
     '/_private/operator/$sessionId': {
       id: '/_private/operator/$sessionId'
       path: '/$sessionId'
       fullPath: '/operator/$sessionId'
       preLoaderRoute: typeof PrivateOperatorSessionIdRouteImport
       parentRoute: typeof PrivateOperatorRoute
+    }
+    '/_private/crm/$customerId': {
+      id: '/_private/crm/$customerId'
+      path: '/$customerId'
+      fullPath: '/crm/$customerId'
+      preLoaderRoute: typeof PrivateCrmCustomerIdRouteImport
+      parentRoute: typeof PrivateCrmRoute
     }
   }
 }
@@ -286,6 +286,20 @@ const PrivateCrmRouteWithChildren = PrivateCrmRoute._addFileChildren(
   PrivateCrmRouteChildren,
 )
 
+interface PrivateOperatorRouteChildren {
+  PrivateOperatorSessionIdRoute: typeof PrivateOperatorSessionIdRoute
+  PrivateOperatorIndexRoute: typeof PrivateOperatorIndexRoute
+}
+
+const PrivateOperatorRouteChildren: PrivateOperatorRouteChildren = {
+  PrivateOperatorSessionIdRoute: PrivateOperatorSessionIdRoute,
+  PrivateOperatorIndexRoute: PrivateOperatorIndexRoute,
+}
+
+const PrivateOperatorRouteWithChildren = PrivateOperatorRoute._addFileChildren(
+  PrivateOperatorRouteChildren,
+)
+
 interface PrivateSettingsRouteChildren {
   PrivateSettingsSlugRoute: typeof PrivateSettingsSlugRoute
 }
@@ -297,19 +311,6 @@ const PrivateSettingsRouteChildren: PrivateSettingsRouteChildren = {
 const PrivateSettingsRouteWithChildren = PrivateSettingsRoute._addFileChildren(
   PrivateSettingsRouteChildren,
 )
-
-interface PrivateOperatorRouteChildren {
-  PrivateOperatorIndexRoute: typeof PrivateOperatorIndexRoute
-  PrivateOperatorSessionIdRoute: typeof PrivateOperatorSessionIdRoute
-}
-
-const PrivateOperatorRouteChildren: PrivateOperatorRouteChildren = {
-  PrivateOperatorIndexRoute: PrivateOperatorIndexRoute,
-  PrivateOperatorSessionIdRoute: PrivateOperatorSessionIdRoute,
-}
-
-const PrivateOperatorRouteWithChildren =
-  PrivateOperatorRoute._addFileChildren(PrivateOperatorRouteChildren)
 
 interface PrivateRouteChildren {
   PrivateChannelsRoute: typeof PrivateChannelsRoute
