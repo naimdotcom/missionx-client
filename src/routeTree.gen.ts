@@ -14,6 +14,7 @@ import { Route as PrivateRouteImport } from './routes/_private'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PublicLoginRouteImport } from './routes/_public/login'
 import { Route as PrivateSettingsRouteImport } from './routes/_private/settings'
+import { Route as PrivateOperatorRouteImport } from './routes/_private/operator'
 import { Route as PrivateInboxRouteImport } from './routes/_private/inbox'
 import { Route as PrivateCrmRouteImport } from './routes/_private/crm'
 import { Route as PrivateChannelsRouteImport } from './routes/_private/channels'
@@ -41,6 +42,11 @@ const PublicLoginRoute = PublicLoginRouteImport.update({
 const PrivateSettingsRoute = PrivateSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => PrivateRoute,
+} as any)
+const PrivateOperatorRoute = PrivateOperatorRouteImport.update({
+  id: '/operator',
+  path: '/operator',
   getParentRoute: () => PrivateRoute,
 } as any)
 const PrivateInboxRoute = PrivateInboxRouteImport.update({
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/channels': typeof PrivateChannelsRoute
   '/crm': typeof PrivateCrmRouteWithChildren
   '/inbox': typeof PrivateInboxRoute
+  '/operator': typeof PrivateOperatorRoute
   '/settings': typeof PrivateSettingsRouteWithChildren
   '/login': typeof PublicLoginRoute
   '/crm/$customerId': typeof PrivateCrmCustomerIdRoute
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/channels': typeof PrivateChannelsRoute
   '/crm': typeof PrivateCrmRouteWithChildren
   '/inbox': typeof PrivateInboxRoute
+  '/operator': typeof PrivateOperatorRoute
   '/settings': typeof PrivateSettingsRouteWithChildren
   '/login': typeof PublicLoginRoute
   '/crm/$customerId': typeof PrivateCrmCustomerIdRoute
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/_private/channels': typeof PrivateChannelsRoute
   '/_private/crm': typeof PrivateCrmRouteWithChildren
   '/_private/inbox': typeof PrivateInboxRoute
+  '/_private/operator': typeof PrivateOperatorRoute
   '/_private/settings': typeof PrivateSettingsRouteWithChildren
   '/_public/login': typeof PublicLoginRoute
   '/_private/crm/$customerId': typeof PrivateCrmCustomerIdRoute
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/channels'
     | '/crm'
     | '/inbox'
+    | '/operator'
     | '/settings'
     | '/login'
     | '/crm/$customerId'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/channels'
     | '/crm'
     | '/inbox'
+    | '/operator'
     | '/settings'
     | '/login'
     | '/crm/$customerId'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/_private/channels'
     | '/_private/crm'
     | '/_private/inbox'
+    | '/_private/operator'
     | '/_private/settings'
     | '/_public/login'
     | '/_private/crm/$customerId'
@@ -178,6 +190,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof PrivateSettingsRouteImport
+      parentRoute: typeof PrivateRoute
+    }
+    '/_private/operator': {
+      id: '/_private/operator'
+      path: '/operator'
+      fullPath: '/operator'
+      preLoaderRoute: typeof PrivateOperatorRouteImport
       parentRoute: typeof PrivateRoute
     }
     '/_private/inbox': {
@@ -246,6 +265,7 @@ interface PrivateRouteChildren {
   PrivateChannelsRoute: typeof PrivateChannelsRoute
   PrivateCrmRoute: typeof PrivateCrmRouteWithChildren
   PrivateInboxRoute: typeof PrivateInboxRoute
+  PrivateOperatorRoute: typeof PrivateOperatorRoute
   PrivateSettingsRoute: typeof PrivateSettingsRouteWithChildren
 }
 
@@ -253,6 +273,7 @@ const PrivateRouteChildren: PrivateRouteChildren = {
   PrivateChannelsRoute: PrivateChannelsRoute,
   PrivateCrmRoute: PrivateCrmRouteWithChildren,
   PrivateInboxRoute: PrivateInboxRoute,
+  PrivateOperatorRoute: PrivateOperatorRoute,
   PrivateSettingsRoute: PrivateSettingsRouteWithChildren,
 }
 

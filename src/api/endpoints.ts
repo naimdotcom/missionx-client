@@ -75,6 +75,14 @@ export const API_ENDPOINTS = {
     SEGMENT_BY_ID: (id: string) => `/api/v1/segments/${id}`,
     EVALUATE_SEGMENT: (id: string) => `/api/v1/segments/${id}/evaluate`,
   },
+
+  // OPERATOR (chat-driven platform control — apps_service)
+  OPERATOR: {
+    SESSIONS: "/api/v1/operator/sessions",
+    SESSION_MESSAGES: (id: string) =>
+      `/api/v1/operator/sessions/${id}/messages`,
+    PUSHER_AUTH: "/api/v1/operator/pusher/auth",
+  },
 } as const;
 
 // Public routes that don't require authentication

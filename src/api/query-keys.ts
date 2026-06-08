@@ -33,6 +33,13 @@ export const queryKeys = {
     appFields: (app_id: string) => ["crm", "app-fields", app_id] as const,
     segments: ["crm", "segments"] as const,
   },
+
+  operatorKeys: {
+    sessions: ["operator", "sessions"] as const,
+    sessionMessages: (id: string) =>
+      ["operator", "session-messages", id] as const,
+    timeline: (id: string) => ["operator", "timeline", id] as const,
+  },
 } as const;
 
 export const mutationKeys = {
@@ -73,5 +80,10 @@ export const mutationKeys = {
     bulkAttributes: ["crm", "bulk-attributes"] as const,
     exportCustomers: ["crm", "export-customers"] as const,
     identifyCustomer: ["crm", "identify-customer"] as const,
+  },
+
+  operatorKeys: {
+    createSession: ["operator", "create-session"] as const,
+    postMessage: ["operator", "post-message"] as const,
   },
 } as const;

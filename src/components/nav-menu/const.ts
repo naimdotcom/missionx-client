@@ -1,9 +1,10 @@
-import { Activity, Inbox, Users } from "lucide-react";
+import { Activity, Inbox, Sparkles, Users } from "lucide-react";
 
 export const MAIN_NAV_ITEMS = {
   navMain: [
     { title: "Inbox", url: "inbox", icon: Inbox },
     { title: "Channels", url: "channels", icon: Activity },
     { title: "CRM", url: "crm", icon: Users },
+    { title: "Assistant", url: "operator", icon: Sparkles },
   ],
 };

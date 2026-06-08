@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [dev-hemel]
+    branches: [dev-hemel, feat/claude-harness-development]
     url: https://studio.brainchat.cloud # Update with your actual domain
 
 # Hard-coding the lowercase name here is the safest "short" solution
