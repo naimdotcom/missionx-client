@@ -2,17 +2,12 @@ import {
   useCreateSession,
   useOperatorSessions,
 } from "@/api/services/operator/operator.hook";
-import { OperatorSession } from "@/api/services/operator/operator.type";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { Loader2, MessageSquarePlus } from "lucide-react";
-
-interface SessionSidebarProps {
-  activeId: string | null;
-  onSelect: (session: OperatorSession) => void;
-}
 
 const STATUS_DOT: Record<string, string> = {
   running: "bg-[hsl(var(--sla-warning))]",
@@ -20,15 +15,26 @@ const STATUS_DOT: Record<string, string> = {
   awaiting_input: "bg-primary",
 };
 
-export function SessionSidebar({ activeId, onSelect }: SessionSidebarProps) {
+export function SessionSidebar() {
   const selectedApp = useAuthStore((s) => s.selectedApp);
   const sessions = useOperatorSessions();
   const createSession = useCreateSession();
+  const navigate = useNavigate();
+  const { sessionId } = useParams({ strict: false }) as {
+    sessionId?: string;
+  };
 
   const handleNew = () => {
     createSession.mutate(
       { app_id: selectedApp?.id ?? null, title: null },
-      { onSuccess: (session) => onSelect(session) },
+      {
+        onSuccess: (session) => {
+          navigate({
+            to: "/_private/operator/$sessionId",
+            params: { sessionId: session.id },
+          });
+        },
+      },
     );
   };
 
@@ -67,10 +73,15 @@ export function SessionSidebar({ activeId, onSelect }: SessionSidebarProps) {
             <button
               key={session.id}
               type="button"
-              onClick={() => onSelect(session)}
+              onClick={() =>
+                navigate({
+                  to: "/_private/operator/$sessionId",
+                  params: { sessionId: session.id },
+                })
+              }
               className={cn(
                 "flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-                session.id === activeId
+                session.id === sessionId
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
                   : "hover:bg-sidebar-accent/60",
               )}
