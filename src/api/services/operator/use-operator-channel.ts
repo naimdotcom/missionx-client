@@ -44,7 +44,7 @@ export function useOperatorChat(session: OperatorSession | null) {
     setItems(feedToTimeline(messages.data));
     setPhase(initialPhase(session?.status));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages.data, sessionId]);
+  }, [messages.data, sessionId, session?.status]);
 
   // Keep a stable reconcile callback for the socket handler.
   const reconcile = useRef<() => void>(() => {});
@@ -80,6 +80,15 @@ export function useOperatorChat(session: OperatorSession | null) {
         case "error":
           setPhase("idle");
           reconcile.current();
+          break;
+        case "title":
+          queryClient.setQueryData(
+            queryKeys.operatorKeys.sessions,
+            (old: OperatorSession[] | undefined) =>
+              old?.map((s) =>
+                s.id === sessionId ? { ...s, title: event.title } : s,
+              ) ?? old,
+          );
           break;
         default:
           break;

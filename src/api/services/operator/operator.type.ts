@@ -76,6 +76,10 @@ export interface UsageEvent {
   input_tokens: number;
   output_tokens: number;
 }
+export interface TitleEvent {
+  type: "title";
+  title: string;
+}
 
 export type OperatorEvent =
   | QueuedEvent
@@ -85,7 +89,8 @@ export type OperatorEvent =
   | ChoiceEvent
   | ErrorEvent
   | DoneEvent
-  | UsageEvent;
+  | UsageEvent
+  | TitleEvent;
 
 // ── Persisted feed rows (GET /sessions/{id}/messages) ────────────────────────
 
