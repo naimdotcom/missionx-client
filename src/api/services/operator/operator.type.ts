@@ -123,3 +123,27 @@ export interface MessageAccepted {
   channel: string;
   session_id: string;
 }
+
+// ── Flow / Node data shapes (from flow tool_result events) ────────────────────
+
+export interface FlowData {
+  id: string;
+  name: string;
+  slug: string;
+  is_active: boolean;
+  channel_id?: string | null;
+  nodes?: NodeData[];
+  total?: number;
+}
+
+export interface NodeData {
+  id: string;
+  flow_id: string;
+  node_slug: string;
+  position: number;
+  payload?: Record<string, unknown> | null;
+  payloads?: Record<string, unknown>[] | null;
+  next_logic?: Record<string, unknown> | null;
+  pre_conditions?: Record<string, unknown> | null;
+  actions?: Record<string, unknown>[] | null;
+}

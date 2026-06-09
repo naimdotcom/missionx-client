@@ -9,6 +9,8 @@ import {
   ChoiceOption,
   ContentBlock,
   FeedMessage,
+  FlowData,
+  NodeData,
   OperatorEvent,
 } from "@/api/services/operator/operator.type";
 
@@ -32,6 +34,13 @@ export type TimelineItem =
       error?: string | null;
     }
   | {
+      kind: "flow_result";
+      id: string;
+      tool: string;
+      flow?: FlowData;
+      node?: NodeData;
+    }
+  | {
       kind: "choice";
       id: string;
       choiceId: string;
@@ -47,6 +56,65 @@ export type TimelineItem =
 
 let _seq = 0;
 const uid = (kind: string) => `${kind}-${Date.now()}-${_seq++}`;
+
+// Flow tools whose successful results get a rich visual card.
+const FLOW_TOOLS = new Set([
+  "create_flow",
+  "update_flow",
+  "list_flows",
+  "create_flow_node",
+  "update_flow_node",
+  "list_flow_nodes",
+]);
+
+function extractFlowResult(
+  tool: string,
+  data: unknown,
+): { flow?: FlowData; node?: NodeData } | null {
+  if (!data || typeof data !== "object") return null;
+  const d = data as Record<string, unknown>;
+
+  // Single node (create_flow_node / update_flow_node)
+  if (typeof d.node_slug === "string") {
+    return { node: d as unknown as NodeData };
+  }
+
+  // List of nodes (list_flow_nodes) — attach to a synthetic flow wrapper
+  if (Array.isArray(d.nodes)) {
+    return {
+      flow: {
+        id: "",
+        name: "",
+        slug: "",
+        is_active: true,
+        nodes: d.nodes as NodeData[],
+        total: typeof d.total === "number" ? d.total : d.nodes.length,
+      },
+    };
+  }
+
+  // List of flows (list_flows)
+  if (Array.isArray(d.flows)) {
+    return {
+      flow: {
+        id: "",
+        name: `${d.flows.length} flow${d.flows.length !== 1 ? "s" : ""}`,
+        slug: "",
+        is_active: true,
+        nodes: [],
+        total: typeof d.total === "number" ? d.total : d.flows.length,
+      },
+    };
+  }
+
+  // Single flow (create_flow / update_flow)
+  if (typeof d.id === "string" && typeof d.slug === "string" && !d.node_slug) {
+    return { flow: d as unknown as FlowData };
+  }
+
+  void tool;
+  return null;
+}
 
 function isEvent(value: unknown): value is OperatorEvent {
   return (
@@ -129,6 +197,22 @@ export function applyLiveEvent(
     }
     case "tool_result": {
       const settled = settleTransient(items, event.tool);
+      // Flow tools with successful results get a rich visual card instead of a
+      // plain tool_result row. On error, fall through to the standard label+icon.
+      if (event.ok && FLOW_TOOLS.has(event.tool)) {
+        const extracted = extractFlowResult(event.tool, event.data);
+        if (extracted) {
+          return [
+            ...settled,
+            {
+              kind: "flow_result" as const,
+              id: uid("flow"),
+              tool: event.tool,
+              ...extracted,
+            },
+          ];
+        }
+      }
       return [
         ...settled,
         {

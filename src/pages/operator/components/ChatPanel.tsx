@@ -9,6 +9,7 @@ import { ChoiceCard } from "./timeline/ChoiceCard";
 import { StatusIndicator } from "./timeline/StatusIndicator";
 import { ToolResultItem } from "./timeline/ToolResultItem";
 import { UserBubble } from "./timeline/UserBubble";
+import { FlowPreview } from "./flow-preview";
 
 export function ChatPanel({ session }: { session: OperatorSession | null }) {
   const { items, phase, isLoading, send, submitChoice } =
@@ -72,6 +73,14 @@ export function ChatPanel({ session }: { session: OperatorSession | null }) {
                     tool={item.tool}
                     ok={item.ok}
                     error={item.error}
+                  />
+                );
+              case "flow_result":
+                return (
+                  <FlowPreview
+                    key={item.id}
+                    flow={item.flow}
+                    node={item.node}
                   />
                 );
               case "choice":

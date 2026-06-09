@@ -8,6 +8,16 @@ const TOOL_LABELS: Record<string, string> = {
   subscribe_page: "Connected page",
   unsubscribe_page: "Disconnected page",
   remember: "Saved a note",
+  create_flow: "Created flow",
+  update_flow: "Updated flow",
+  delete_flow: "Deleted flow",
+  list_flows: "Listed flows",
+  create_flow_node: "Created node",
+  update_flow_node: "Updated node",
+  delete_flow_node: "Deleted node",
+  list_flow_nodes: "Listed nodes",
+  get_template_schemas: "Loaded template guide",
+  list_saved_templates: "Checked your templates",
 };
 
 function friendly(tool: string, ok: boolean) {
