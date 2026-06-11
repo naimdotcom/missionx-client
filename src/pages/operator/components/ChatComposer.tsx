@@ -5,9 +5,14 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { ArrowUp, FileText, Loader2, Paperclip, X } from "lucide-react";
 import { mediaService } from "@/api/services/media/media.service";
+import { useAuthStore } from "@/stores/auth-store";
 
 interface AttachmentPill {
   mediaId: string;
+  fileName: string;
+}
+
+interface PendingUpload {
   fileName: string;
 }
 
@@ -24,11 +29,13 @@ export function ChatComposer({
 }: ChatComposerProps) {
   const [value, setValue] = useState("");
   const [attachments, setAttachments] = useState<AttachmentPill[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [pendingUpload, setPendingUpload] = useState<PendingUpload | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const isUploading = uploadProgress !== null;
+  const selectedApp = useAuthStore((s) => s.selectedApp);
+  const isUploading = pendingUpload !== null;
 
   // Auto-resize up to a max height.
   useEffect(() => {
@@ -41,7 +48,10 @@ export function ChatComposer({
   const submit = () => {
     const text = value.trim();
     if (!text || disabled) return;
-    onSend(text, attachments.map((a) => a.mediaId));
+    onSend(
+      text,
+      attachments.length > 0 ? attachments.map((a) => a.mediaId) : undefined,
+    );
     setValue("");
     setAttachments([]);
   };
@@ -58,10 +68,18 @@ export function ChatComposer({
     if (!file) return;
     e.target.value = ""; // allow re-selecting the same file
 
+    // Show optimistic pill immediately
+    setPendingUpload({ fileName: file.name });
     setUploadProgress(0);
+
     try {
-      const result = await mediaService.fileUpload(
-        { file },
+      const result = await mediaService.presignedUpload(
+        {
+          file,
+          context_type: "app",
+          context_id: selectedApp?.id ?? undefined,
+          sub_type: "operator-imports",
+        },
         { onUploadProgress: (pct) => setUploadProgress(pct) },
       );
       const mediaId = result?.id;
@@ -71,7 +89,8 @@ export function ChatComposer({
     } catch {
       // silently drop — user can retry
     } finally {
-      setUploadProgress(null);
+      setPendingUpload(null);
+      setUploadProgress(0);
     }
   };
 
@@ -81,9 +100,10 @@ export function ChatComposer({
 
   return (
     <div className="border-t bg-background p-3">
-      {/* Attachment pills */}
-      {attachments.length > 0 && (
+      {/* Attachment pills (confirmed + in-flight) */}
+      {(attachments.length > 0 || isUploading) && (
         <div className="mb-2 flex flex-wrap gap-1.5">
+          {/* Confirmed uploads */}
           {attachments.map((a) => (
             <span
               key={a.mediaId}
@@ -100,12 +120,21 @@ export function ChatComposer({
               </button>
             </span>
           ))}
+
+          {/* In-flight upload pill */}
+          {isUploading && (
+            <span className="inline-flex max-w-[200px] items-center gap-1.5 rounded-full border border-dashed bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+              <Loader2 className="size-3 shrink-0 animate-spin" />
+              <span className="truncate">{pendingUpload!.fileName}</span>
+              <span className="shrink-0 tabular-nums">{uploadProgress}%</span>
+            </span>
+          )}
         </div>
       )}
 
-      {/* Upload progress bar */}
+      {/* Upload progress bar (thin, below pills) */}
       {isUploading && (
-        <Progress value={uploadProgress ?? 0} className="mb-2 h-1" />
+        <Progress value={uploadProgress} className="mb-2 h-1" />
       )}
 
       <div
