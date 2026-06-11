@@ -55,11 +55,20 @@ export const mediaService = {
       file_key: string;
     }>(presignUrl);
 
-    // Step 2: POST directly to MinIO (no auth headers — policy covers it)
+    // Step 2: POST directly to MinIO (no auth headers — policy covers it).
+    // S3/MinIO presigned POST requires: bucket + key first, then signing fields, then file last.
     const formData = new FormData();
+    formData.append("bucket", policy.bucket);
+    formData.append("key", policy.file_key);
+    // Content-Type must satisfy the starts-with condition in the policy
+    formData.append(
+      "Content-Type",
+      payload.file.type || "application/octet-stream",
+    );
     for (const [k, v] of Object.entries(policy.fields)) {
       formData.append(k, v);
     }
+    // "file" must be the last field per S3 presigned POST spec
     formData.append("file", payload.file);
 
     await new Promise<void>((resolve, reject) => {
