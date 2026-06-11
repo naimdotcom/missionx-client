@@ -63,6 +63,9 @@ export interface ChoiceEvent {
   options: ChoiceOption[];
   multi: boolean;
   confirm: boolean;
+  kind?: string;
+  changeset_id?: string | null;
+  summary?: Record<string, unknown> | null;
 }
 export interface ErrorEvent {
   type: "error";
@@ -116,6 +119,7 @@ export interface FeedMessage {
 
 export interface SendChatBody {
   message: string;
+  attachments?: string[];
 }
 export interface SendChoiceBody {
   choice_id: string;
@@ -151,4 +155,27 @@ export interface NodeData {
   next_logic?: Record<string, unknown> | null;
   pre_conditions?: Record<string, unknown> | null;
   actions?: Record<string, unknown>[] | null;
+}
+
+// ── Changeset preview (GET /operator/changesets/:id) ─────────────────────────
+
+export interface ChangesetItemPreview {
+  id: string;
+  row_number: number;
+  action: string;
+  status: "pending" | "applied" | "skipped" | "conflict" | "failed";
+  payload: Record<string, unknown>;
+  diff?: Record<string, { old: unknown; new: unknown }> | null;
+  error?: string | null;
+  result_id?: string | null;
+}
+
+export interface ChangesetPreview {
+  changeset_id: string;
+  kind: string;
+  status: string;
+  summary?: Record<string, unknown> | null;
+  counts: Record<string, number>;
+  total_items: number;
+  items: ChangesetItemPreview[];
 }

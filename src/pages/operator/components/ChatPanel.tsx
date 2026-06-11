@@ -5,6 +5,7 @@ import { useOperatorChat } from "@/api/services/operator/use-operator-channel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatComposer } from "./ChatComposer";
 import { AssistantBubble } from "./timeline/AssistantBubble";
+import { ChangesetApprovalCard } from "./timeline/ChangesetApprovalCard";
 import { ChoiceCard } from "./timeline/ChoiceCard";
 import { StatusIndicator } from "./timeline/StatusIndicator";
 import { ToolResultItem } from "./timeline/ToolResultItem";
@@ -72,6 +73,7 @@ export function ChatPanel({ session }: { session: OperatorSession | null }) {
                     key={item.id}
                     tool={item.tool}
                     ok={item.ok}
+                    data={item.data}
                     error={item.error}
                   />
                 );
@@ -84,6 +86,22 @@ export function ChatPanel({ session }: { session: OperatorSession | null }) {
                   />
                 );
               case "choice":
+                // Changeset approval gets a rich preview card with a scrollable diff table.
+                if (item.choiceKind === "changeset_approval" && item.changesetId) {
+                  return (
+                    <ChangesetApprovalCard
+                      key={item.id}
+                      changesetId={item.changesetId}
+                      prompt={item.prompt}
+                      options={item.options}
+                      answered={item.answered}
+                      selection={item.selection}
+                      onSubmit={(selection) =>
+                        submitChoice(item.choiceId, selection)
+                      }
+                    />
+                  );
+                }
                 return (
                   <ChoiceCard
                     key={item.id}

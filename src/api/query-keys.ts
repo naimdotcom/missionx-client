@@ -39,6 +39,8 @@ export const queryKeys = {
     sessionMessages: (id: string) =>
       ["operator", "session-messages", id] as const,
     timeline: (id: string) => ["operator", "timeline", id] as const,
+    changesetPreview: (id: string) =>
+      ["operator", "changeset-preview", id] as const,
   },
 } as const;
 

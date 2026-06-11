@@ -1,6 +1,7 @@
 import { API_ENDPOINTS, RequestOptions } from "@/api";
 import { appClient } from "@/api/core/init";
 import {
+  ChangesetPreview,
   CreateSessionPayload,
   FeedMessage,
   MessageAccepted,
@@ -38,6 +39,17 @@ export const operatorService = {
     appClient.post<MessageAccepted, PostMessageBody>(
       API_ENDPOINTS.OPERATOR.SESSION_MESSAGES(sessionId),
       body,
+      options,
+    ),
+
+  getChangesetPreview: (
+    changesetId: string,
+    params?: { offset?: number; limit?: number },
+    options?: RequestOptions,
+  ) =>
+    appClient.get<ChangesetPreview>(
+      API_ENDPOINTS.OPERATOR.CHANGESET_PREVIEW(changesetId),
+      params,
       options,
     ),
 };

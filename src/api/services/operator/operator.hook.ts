@@ -43,3 +43,16 @@ export function usePostMessage(sessionId: string) {
       operatorService.postMessage(sessionId, body),
   });
 }
+
+export function useChangesetPreview(
+  changesetId: string | null,
+  params?: { offset?: number; limit?: number },
+) {
+  return useQuery({
+    queryKey: queryKeys.operatorKeys.changesetPreview(changesetId ?? ""),
+    queryFn: () =>
+      operatorService.getChangesetPreview(changesetId as string, params),
+    enabled: !!changesetId,
+    staleTime: 30_000,
+  });
+}

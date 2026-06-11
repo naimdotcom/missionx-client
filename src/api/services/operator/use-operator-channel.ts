@@ -100,25 +100,26 @@ export function useOperatorChat(session: OperatorSession | null) {
   }, [session?.channel]);
 
   const send = useCallback(
-    (text: string) => {
+    (text: string, attachments?: string[]) => {
       const trimmed = text.trim();
       if (!trimmed || !sessionId) return;
       setItems((prev) => appendUserMessage(prev, trimmed));
       setPhase("thinking");
-      post.mutate(
-        { message: trimmed },
-        {
-          onError: () => {
-            setItems((prev) =>
-              applyLiveEvent(prev, {
-                type: "error",
-                error: "Couldn't send your message. Please try again.",
-              }),
-            );
-            setPhase("idle");
-          },
+      const body =
+        attachments && attachments.length > 0
+          ? { message: trimmed, attachments }
+          : { message: trimmed };
+      post.mutate(body, {
+        onError: () => {
+          setItems((prev) =>
+            applyLiveEvent(prev, {
+              type: "error",
+              error: "Couldn't send your message. Please try again.",
+            }),
+          );
+          setPhase("idle");
         },
-      );
+      });
     },
     [post, sessionId],
   );

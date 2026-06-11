@@ -50,6 +50,9 @@ export type TimelineItem =
       confirm: boolean;
       answered: boolean;
       selection?: string[];
+      choiceKind?: string;
+      changesetId?: string;
+      summary?: Record<string, unknown>;
     }
   | { kind: "queued"; id: string; position: number }
   | { kind: "error"; id: string; error: string };
@@ -244,6 +247,9 @@ export function applyLiveEvent(
           multi: !!event.multi,
           confirm: !!event.confirm,
           answered: false,
+          choiceKind: event.kind,
+          changesetId: event.changeset_id ?? undefined,
+          summary: event.summary ?? undefined,
         },
       ];
     }
